@@ -1,4 +1,4 @@
-window.TimeCalculator = {
+export const TimeCalculator = {
     calculateTimePerActivity,
 }
 

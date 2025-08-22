@@ -1,4 +1,7 @@
-window.DOMUtils = {
+import {Suggestions} from "./suggestions.js";
+import {app} from "./main.js";
+
+export const DOMUtils = {
     renderActivities,
     collectActivitiesFromTable,
 }
@@ -68,7 +71,7 @@ function attachRowEventListeners(row, index) {
 
 
     [startTimeInput, endTimeInput, descriptionInput, typeSelect].forEach((item) => {
-        item.addEventListener('blur', () => window.app.saveCurrentActivities());
+        item.addEventListener('blur', () => app.saveCurrentActivities());
     })
 
     // Start time suggestions
@@ -76,7 +79,7 @@ function attachRowEventListeners(row, index) {
     const startTimeSuggestionHandler = (e) => {
         clearTimeout(startTimeSuggestionTimeout);
         startTimeSuggestionTimeout = setTimeout(() => {
-            const timeSuggestions = Suggestions.getTimeSuggestions(window.app.currentDateString);
+            const timeSuggestions = Suggestions.getTimeSuggestions(app.currentDateString);
             Suggestions.createSuggestionDropdown(
                 e.target,
                 timeSuggestions,
@@ -128,7 +131,7 @@ function attachRowEventListeners(row, index) {
 
     // Add row button
     addButton.addEventListener('click', () => {
-        window.app.addNewActivity(index);
+        app.addNewActivity(index);
     });
 
     // Remove row button

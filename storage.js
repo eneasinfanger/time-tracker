@@ -1,4 +1,4 @@
-window.StorageManager = {
+export const StorageManager = {
     saveActivitiesForDate,
     getActivitiesForDate,
     getAllActivities,

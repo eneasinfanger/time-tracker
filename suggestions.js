@@ -1,4 +1,6 @@
-window.Suggestions = {
+import {StorageManager} from "./storage.js";
+
+export const Suggestions = {
     getActivitySuggestions,
     getTimeSuggestions,
     createSuggestionDropdown,

@@ -1,3 +1,7 @@
+import {TimeCalculator} from "./timeCalculator.js";
+import {DOMUtils} from "./domUtils.js";
+import {StorageManager} from "./storage.js";
+
 class TimeTrackerApp {
     constructor() {
         this.currentDate = new Date();
@@ -119,7 +123,4 @@ class TimeTrackerApp {
     }
 }
 
-// Initialize the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new TimeTrackerApp();
-});
+export const app = new TimeTrackerApp();
