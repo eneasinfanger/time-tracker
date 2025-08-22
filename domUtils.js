@@ -1,19 +1,23 @@
-class DOMUtils {
-    static renderActivities(activities) {
-        const tbody = document.getElementById('activitiesTable');
-        tbody.innerHTML = '';
+window.DOMUtils = {
+    renderActivities,
+    collectActivitiesFromTable,
+}
 
-        activities.forEach((activity, index) => {
-            const row = this.createActivityRow(activity, index);
-            tbody.appendChild(row);
-        });
-    }
+function renderActivities(activities) {
+    const tbody = document.getElementById('activitiesTable');
+    tbody.innerHTML = '';
 
-    static createActivityRow(activity, index) {
-        const row = document.createElement('tr');
-        row.className = 'border-b border-gray-100 hover:bg-gray-50';
+    activities.forEach((activity, index) => {
+        const row = createActivityRow(activity, index);
+        tbody.appendChild(row);
+    });
+}
 
-        row.innerHTML = `
+function createActivityRow(activity, index) {
+    const row = document.createElement('tr');
+    row.className = 'border-b border-gray-100 hover:bg-gray-50';
+
+    row.innerHTML = `
             <td class="py-3 px-4">
                 <input type="time" 
                        class="start-time w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${activity.type === 'text' ? 'bg-gray-100' : ''}" 
@@ -50,107 +54,106 @@ class DOMUtils {
             </td>
         `;
 
-        this.attachRowEventListeners(row, index);
-        return row;
+    attachRowEventListeners(row, index);
+    return row;
+}
+
+function attachRowEventListeners(row, index) {
+    const startTimeInput = row.querySelector('.start-time');
+    const endTimeInput = row.querySelector('.end-time');
+    const descriptionInput = row.querySelector('.description');
+    const typeSelect = row.querySelector('.activity-type');
+    const addButton = row.querySelector('.add-row');
+    const removeButton = row.querySelector('.remove-row');
+
+
+    [startTimeInput, endTimeInput, descriptionInput, typeSelect].forEach((item) => {
+        item.addEventListener('blur', () => window.app.saveCurrentActivities());
+    })
+
+    // Start time suggestions
+    let startTimeSuggestionTimeout;
+    const startTimeSuggestionHandler = (e) => {
+        clearTimeout(startTimeSuggestionTimeout);
+        startTimeSuggestionTimeout = setTimeout(() => {
+            const timeSuggestions = Suggestions.getTimeSuggestions(window.app.currentDateString);
+            Suggestions.createSuggestionDropdown(
+                e.target,
+                timeSuggestions,
+                (selectedSuggestion) => {
+                    console.log("suggestion selected", selectedSuggestion);
+                    e.target.value = selectedSuggestion;
+                }
+            );
+        }, 300);
     }
+    startTimeInput.addEventListener('input', startTimeSuggestionHandler);
+    startTimeInput.addEventListener('focus', startTimeSuggestionHandler);
 
-    static attachRowEventListeners(row, index) {
-        const startTimeInput = row.querySelector('.start-time');
-        const endTimeInput = row.querySelector('.end-time');
-        const descriptionInput = row.querySelector('.description');
-        const typeSelect = row.querySelector('.activity-type');
-        const addButton = row.querySelector('.add-row');
-        const removeButton = row.querySelector('.remove-row');
+    // Description suggestions
+    let suggestionTimeout;
+    const suggestionHandler = (e) => {
+        clearTimeout(suggestionTimeout);
+        suggestionTimeout = setTimeout(() => {
+            Suggestions.createSuggestionDropdown(
+                e.target,
+                Suggestions.getActivitySuggestions(e.target.value),
+                (selectedSuggestion) => {
+                    e.target.value = selectedSuggestion;
+                }
+            );
+        }, 300);
+    }
+    descriptionInput.addEventListener('input', suggestionHandler);
+    descriptionInput.addEventListener('focus', suggestionHandler);
 
+    // Type change handler
+    typeSelect.addEventListener('change', (e) => {
+        const isTextOnly = e.target.value === 'text';
+        startTimeInput.disabled = isTextOnly;
+        endTimeInput.disabled = isTextOnly;
 
-        [startTimeInput, endTimeInput, descriptionInput, typeSelect].forEach((item) => {
-            item.addEventListener('blur', () => window.app.saveCurrentActivities());
-        })
-
-        // Start time suggestions
-        let startTimeSuggestionTimeout;
-        const startTimeSuggestionHandler = (e) => {
-            clearTimeout(startTimeSuggestionTimeout);
-            startTimeSuggestionTimeout = setTimeout(() => {
-                const timeSuggestions = SuggestionManager.getTimeSuggestions(window.app.currentDateString);
-                SuggestionManager.createSuggestionDropdown(
-                    e.target,
-                    timeSuggestions,
-                    (selectedSuggestion) => {
-                        console.log("suggestion selected", selectedSuggestion);
-                        e.target.value = selectedSuggestion;
-                    }
-                );
-            }, 300);
+        if (isTextOnly) {
+            startTimeInput.classList.add('bg-gray-100');
+            endTimeInput.classList.add('bg-gray-100');
+            startTimeInput.value = '';
+            endTimeInput.value = '';
+        } else {
+            startTimeInput.classList.remove('bg-gray-100');
+            endTimeInput.classList.remove('bg-gray-100');
         }
-        startTimeInput.addEventListener('input', startTimeSuggestionHandler);
-        startTimeInput.addEventListener('focus', startTimeSuggestionHandler);
+    });
 
-        // Description suggestions
-        let suggestionTimeout;
-        const suggestionHandler = (e) => {
-            clearTimeout(suggestionTimeout);
-            suggestionTimeout = setTimeout(() => {
-                SuggestionManager.createSuggestionDropdown(
-                    e.target,
-                    SuggestionManager.getActivitySuggestions(e.target.value),
-                    (selectedSuggestion) => {
-                        e.target.value = selectedSuggestion;
-                    }
-                );
-            }, 300);
+    // Add row button
+    addButton.addEventListener('click', () => {
+        window.app.addNewActivity(index);
+    });
+
+    // Remove row button
+    removeButton.addEventListener('click', () => {
+        if (document.querySelectorAll('#activitiesTable tr').length > 1) {
+            row.remove();
         }
-        descriptionInput.addEventListener('input', suggestionHandler);
-        descriptionInput.addEventListener('focus', suggestionHandler);
+    });
+}
 
-        // Type change handler
-        typeSelect.addEventListener('change', (e) => {
-            const isTextOnly = e.target.value === 'text';
-            startTimeInput.disabled = isTextOnly;
-            endTimeInput.disabled = isTextOnly;
+function collectActivitiesFromTable() {
+    const activities = [];
+    const rows = document.querySelectorAll('#activitiesTable tr');
 
-            if (isTextOnly) {
-                startTimeInput.classList.add('bg-gray-100');
-                endTimeInput.classList.add('bg-gray-100');
-                startTimeInput.value = '';
-                endTimeInput.value = '';
-            } else {
-                startTimeInput.classList.remove('bg-gray-100');
-                endTimeInput.classList.remove('bg-gray-100');
-            }
+    rows.forEach(row => {
+        const startTime = row.querySelector('.start-time').value;
+        const endTime = row.querySelector('.end-time').value;
+        const description = row.querySelector('.description').value;
+        const type = row.querySelector('.activity-type').value;
+
+        activities.push({
+            startTime,
+            endTime,
+            description,
+            type
         });
+    });
 
-        // Add row button
-        addButton.addEventListener('click', () => {
-            window.app.addNewActivity(index);
-        });
-
-        // Remove row button
-        removeButton.addEventListener('click', () => {
-            if (document.querySelectorAll('#activitiesTable tr').length > 1) {
-                row.remove();
-            }
-        });
-    }
-
-    static collectActivitiesFromTable() {
-        const activities = [];
-        const rows = document.querySelectorAll('#activitiesTable tr');
-
-        rows.forEach(row => {
-            const startTime = row.querySelector('.start-time').value;
-            const endTime = row.querySelector('.end-time').value;
-            const description = row.querySelector('.description').value;
-            const type = row.querySelector('.activity-type').value;
-
-            activities.push({
-                startTime,
-                endTime,
-                description,
-                type
-            });
-        });
-
-        return activities;
-    }
+    return activities;
 }

@@ -1,41 +1,43 @@
-class TimeCalculator {
-    static timeToMinutes(timeString) {
-        if (!timeString) return 0;
+window.TimeCalculator = {
+    calculateTimePerActivity,
+}
 
-        const [hours, minutes] = timeString.split(':').map(Number);
-        return hours * 60 + minutes;
-    }
+function calculateTimePerActivity(activities) {
+    const activityTimes = {};
 
-    static calculateDuration(startTime, endTime) {
-        if (!startTime || !endTime) return 0;
+    activities.forEach(activity => {
+        if (activity.type === 'activity' && activity.startTime && activity.endTime && activity.description) {
+            const duration = calculateDuration(activity.startTime, activity.endTime);
 
-        const startMinutes = this.timeToMinutes(startTime);
-        const endMinutes = this.timeToMinutes(endTime);
-
-        // Handle case where end time is next day (e.g., 23:00 to 01:00)
-        if (endMinutes < startMinutes) {
-            return (24 * 60 - startMinutes) + endMinutes;
-        }
-
-        return endMinutes - startMinutes;
-    }
-
-    static calculateTimePerActivity(activities) {
-        const activityTimes = {};
-
-        activities.forEach(activity => {
-            if (activity.type === 'activity' && activity.startTime && activity.endTime && activity.description) {
-                const duration = this.calculateDuration(activity.startTime, activity.endTime);
-
-                if (duration > 0) {
-                    if (!activityTimes[activity.description]) {
-                        activityTimes[activity.description] = 0;
-                    }
-                    activityTimes[activity.description] += duration;
+            if (duration > 0) {
+                if (!activityTimes[activity.description]) {
+                    activityTimes[activity.description] = 0;
                 }
+                activityTimes[activity.description] += duration;
             }
-        });
+        }
+    });
 
-        return activityTimes;
+    return activityTimes;
+}
+
+function calculateDuration(startTime, endTime) {
+    if (!startTime || !endTime) return 0;
+
+    const startMinutes = timeToMinutes(startTime);
+    const endMinutes = timeToMinutes(endTime);
+
+    // Handle case where end time is next day (e.g., 23:00 to 01:00)
+    if (endMinutes < startMinutes) {
+        return (24 * 60 - startMinutes) + endMinutes;
     }
+
+    return endMinutes - startMinutes;
+}
+
+function timeToMinutes(timeString) {
+    if (!timeString) return 0;
+
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours * 60 + minutes;
 }
