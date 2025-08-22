@@ -21,7 +21,8 @@ function getActivitySuggestions(input) {
 }
 
 function getTimeSuggestions(date) {
-    return [StorageManager.getLastEndTime(date)];
+    const endTime = StorageManager.getLastEndTime(date);
+    return endTime ? [endTime] : [];
 }
 
 function createSuggestionDropdown(input, suggestions, onSelect) {

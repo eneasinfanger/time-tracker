@@ -51,7 +51,7 @@ function getLastEndTime(date) {
         activity.type === 'activity' && activity.endTime
     );
 
-    if (timedActivities.length === 0) return '';
+    if (timedActivities.length === 0) return null;
 
     // Find the activity with the latest end time
     return timedActivities
