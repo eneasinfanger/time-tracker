@@ -81,7 +81,6 @@ function attachRowEventListeners(row, index) {
                 e.target,
                 timeSuggestions,
                 (selectedSuggestion) => {
-                    console.log("suggestion selected", selectedSuggestion);
                     e.target.value = selectedSuggestion;
                 }
             );
@@ -95,13 +94,16 @@ function attachRowEventListeners(row, index) {
     const suggestionHandler = (e) => {
         clearTimeout(suggestionTimeout);
         suggestionTimeout = setTimeout(() => {
-            Suggestions.createSuggestionDropdown(
-                e.target,
-                Suggestions.getActivitySuggestions(e.target.value),
-                (selectedSuggestion) => {
-                    e.target.value = selectedSuggestion;
-                }
-            );
+            const activitySuggestions = Suggestions.getActivitySuggestions(e.target.value);
+            if (activitySuggestions.length > 1 || activitySuggestions.length === 1 && activitySuggestions[0] !== e.target.value) {
+                Suggestions.createSuggestionDropdown(
+                    e.target,
+                    activitySuggestions,
+                    (selectedSuggestion) => {
+                        e.target.value = selectedSuggestion;
+                    }
+                );
+            }
         }, 300);
     }
     descriptionInput.addEventListener('input', suggestionHandler);
