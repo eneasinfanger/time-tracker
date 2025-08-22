@@ -95,6 +95,7 @@ class TimeTrackerApp {
             summaryContent.innerHTML = '<p class="text-gray-500">No timed activities found for this day.</p>';
         } else {
             summaryContent.innerHTML = Object.entries(summary)
+                .sort((a, b) => a[0] > b[0] ? 1 : -1)
                 .map(([activity, minutes]) => {
                     const hours = Math.floor(minutes / 60);
                     const mins = minutes % 60;
