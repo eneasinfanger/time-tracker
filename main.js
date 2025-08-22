@@ -2,7 +2,7 @@ class TimeTrackerApp {
     constructor() {
         this.currentDate = new Date();
         this.currentDateString = this.formatDate(this.currentDate);
-        
+
         this.initializeEventListeners();
         this.updateDateDisplay();
         this.loadActivitiesForCurrentDay();
@@ -13,11 +13,11 @@ class TimeTrackerApp {
     }
 
     formatDateDisplay(date) {
-        return date.toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+        return date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
     }
 
@@ -30,10 +30,10 @@ class TimeTrackerApp {
 
     navigateDay(direction) {
         this.saveCurrentActivities();
-        
+
         this.currentDate.setDate(this.currentDate.getDate() + direction);
         this.currentDateString = this.formatDate(this.currentDate);
-        
+
         this.updateDateDisplay();
         this.loadActivitiesForCurrentDay();
         this.hideSummary();
@@ -46,7 +46,7 @@ class TimeTrackerApp {
     loadActivitiesForCurrentDay() {
         const activities = StorageManager.getActivitiesForDate(this.currentDateString) || [];
         DOMUtils.renderActivities(activities);
-        
+
         if (activities.length === 0) {
             this.addNewActivity();
         }
@@ -59,7 +59,7 @@ class TimeTrackerApp {
 
     addNewActivity(insertAfterIndex = null) {
         const activities = DOMUtils.collectActivitiesFromTable();
-        
+
         const newActivity = {
             startTime: '',
             endTime: '',
@@ -80,7 +80,7 @@ class TimeTrackerApp {
         this.saveCurrentActivities();
         const activities = StorageManager.getActivitiesForDate(this.currentDateString) || [];
         const summary = TimeCalculator.calculateTimePerActivity(activities);
-        
+
         this.showSummary(summary);
     }
 
@@ -88,9 +88,9 @@ class TimeTrackerApp {
         const summaryContainer = document.getElementById('timeSummary');
         const summaryContent = document.getElementById('summaryContent');
         const summaryDate = document.getElementById('summaryDate');
-        
+
         summaryDate.textContent = this.formatDateDisplay(this.currentDate);
-        
+
         if (Object.keys(summary).length === 0) {
             summaryContent.innerHTML = '<p class="text-gray-500">No timed activities found for this day.</p>';
         } else {
@@ -100,7 +100,7 @@ class TimeTrackerApp {
                     const hours = Math.floor(minutes / 60);
                     const mins = minutes % 60;
                     const timeStr = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-                    
+
                     return `
                         <div class="flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg">
                             <span class="font-medium text-gray-900">${activity}</span>
@@ -110,7 +110,7 @@ class TimeTrackerApp {
                 })
                 .join('');
         }
-        
+
         summaryContainer.classList.remove('hidden');
     }
 

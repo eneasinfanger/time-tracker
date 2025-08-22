@@ -12,7 +12,7 @@ class DOMUtils {
     static createActivityRow(activity, index) {
         const row = document.createElement('tr');
         row.className = 'border-b border-gray-100 hover:bg-gray-50';
-        
+
         row.innerHTML = `
             <td class="py-3 px-4">
                 <input type="time" 
@@ -73,7 +73,6 @@ class DOMUtils {
             clearTimeout(startTimeSuggestionTimeout);
             startTimeSuggestionTimeout = setTimeout(() => {
                 const timeSuggestions = SuggestionManager.getTimeSuggestions(window.app.currentDateString);
-                console.log("start time suggestions",timeSuggestions);
                 SuggestionManager.createSuggestionDropdown(
                     e.target,
                     timeSuggestions,
@@ -109,7 +108,7 @@ class DOMUtils {
             const isTextOnly = e.target.value === 'text';
             startTimeInput.disabled = isTextOnly;
             endTimeInput.disabled = isTextOnly;
-            
+
             if (isTextOnly) {
                 startTimeInput.classList.add('bg-gray-100');
                 endTimeInput.classList.add('bg-gray-100');

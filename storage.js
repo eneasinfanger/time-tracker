@@ -28,25 +28,25 @@ class StorageManager {
     static getAllActivities() {
         const allActivities = [];
         const dates = this.getAllStoredDates();
-        
+
         dates.forEach(date => {
             const activities = this.getActivitiesForDate(date);
             if (activities) {
                 allActivities.push(...activities);
             }
         });
-        
+
         return allActivities;
     }
 
     static getLastEndTime(date) {
         const activities = this.getActivitiesForDate(date) || [];
-        const timedActivities = activities.filter(activity => 
+        const timedActivities = activities.filter(activity =>
             activity.type === 'activity' && activity.endTime
         );
-        
+
         if (timedActivities.length === 0) return '';
-        
+
         // Find the activity with the latest end time
         return timedActivities
             .sort((a, b) => a.endTime.localeCompare(b.endTime))
