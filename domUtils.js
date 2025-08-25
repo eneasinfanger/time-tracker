@@ -1,5 +1,4 @@
 import {Suggestions} from "./suggestions.js";
-import {app} from "./main.js";
 
 export const DOMUtils = {
     renderActivities,

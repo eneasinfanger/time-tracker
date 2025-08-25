@@ -7,7 +7,13 @@ export const StorageManager = {
 
 function saveActivitiesForDate(date, activities) {
     const key = getStorageKey(date);
-    localStorage.setItem(key, JSON.stringify(activities));
+    const filtered = activities.filter(ac => ac.startTime || ac.endTime || ac.description);
+
+    if (filtered.length) {
+        localStorage.setItem(key, JSON.stringify(filtered));
+    } else {
+        localStorage.removeItem(key);
+    }
 }
 
 function getActivitiesForDate(date) {

@@ -123,4 +123,4 @@ class TimeTrackerApp {
     }
 }
 
-export const app = new TimeTrackerApp();
+window.app = new TimeTrackerApp();
