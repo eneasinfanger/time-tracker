@@ -1,4 +1,4 @@
-import {StorageManager} from "./storage.js";
+import {StorageManager} from "./storage.ts";
 
 export const Suggestions = {
     getActivitySuggestions,

@@ -1,5 +1,5 @@
 import {TimeCalculator} from "./timeCalculator.js";
-import {DOMUtils} from "./domUtils.js";
+import {DOMUtils} from "./domUtils.ts";
 import {StorageManager} from "./storage.js";
 
 class TimeTrackerApp {
