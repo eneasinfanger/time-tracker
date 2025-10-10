@@ -1,3 +1,5 @@
+import { Activity, FormattedDate, Time } from './types';
+
 export const StorageManager = {
     saveActivitiesForDate,
     getActivitiesForDate,
@@ -5,7 +7,7 @@ export const StorageManager = {
     getLastEndTime,
 }
 
-function saveActivitiesForDate(date, activities) {
+function saveActivitiesForDate(date: FormattedDate, activities: Activity[]) {
     const key = getStorageKey(date);
     const filtered = activities.filter(ac => ac.startTime || ac.endTime || ac.description);
 
@@ -16,7 +18,7 @@ function saveActivitiesForDate(date, activities) {
     }
 }
 
-function getActivitiesForDate(date) {
+function getActivitiesForDate(date: FormattedDate): Activity[] | null {
     const key = getStorageKey(date);
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : null;
@@ -24,12 +26,12 @@ function getActivitiesForDate(date) {
 
 const storagePrefix = 'timetracker_';
 
-function getStorageKey(date) {
+function getStorageKey(date: FormattedDate) {
     return `${storagePrefix}${date}`;
 }
 
-function getPastActivities(fromDate, toDate) {
-    const allActivities = [];
+function getPastActivities(fromDate: FormattedDate, toDate: FormattedDate) {
+    const allActivities: Activity[] = [];
     const dates = getAllStoredDates(fromDate, toDate);
 
     dates.forEach(date => {
@@ -42,29 +44,29 @@ function getPastActivities(fromDate, toDate) {
     return allActivities;
 }
 
-function getAllStoredDates(fromDate, toDate) {
+function getAllStoredDates(fromDate: FormattedDate, toDate: FormattedDate): FormattedDate[] {
     const fromDateKey = getStorageKey(fromDate);
     const toDateKey = getStorageKey(toDate);
-    const dates = [];
+    const dates: FormattedDate[] = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith(storagePrefix) && key >= fromDateKey && key <= toDateKey) {
-            dates.push(key.replace(storagePrefix, ''));
+            dates.push(key.replace(storagePrefix, '') as FormattedDate);
         }
     }
     return dates;
 }
 
-function getLastEndTime(date) {
+function getLastEndTime(date: FormattedDate): Time | undefined {
     const activities = getActivitiesForDate(date) || [];
     const timedActivities = activities.filter(activity =>
         activity.type === 'activity' && activity.endTime
     );
 
-    if (timedActivities.length === 0) return null;
+    if (timedActivities.length === 0) return;
 
     // Find the activity with the latest end time
     return timedActivities
         .sort((a, b) => a.endTime.localeCompare(b.endTime))
-        .pop().endTime;
+        .pop()?.endTime;
 }

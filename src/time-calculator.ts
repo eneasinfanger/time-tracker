@@ -1,9 +1,11 @@
+import { Activity, ActivitySummary, Time } from './types';
+
 export const TimeCalculator = {
     calculateTimePerActivity,
 }
 
-function calculateTimePerActivity(activities) {
-    const activityTimes = {};
+function calculateTimePerActivity(activities: Activity[]): ActivitySummary {
+    const activityTimes: ActivitySummary = {};
 
     activities.forEach(activity => {
         if (activity.type === 'activity' && activity.startTime && activity.endTime && activity.description) {
@@ -21,7 +23,7 @@ function calculateTimePerActivity(activities) {
     return activityTimes;
 }
 
-function calculateDuration(startTime, endTime) {
+function calculateDuration(startTime: Time, endTime: Time) {
     if (!startTime || !endTime) return 0;
 
     const startMinutes = timeToMinutes(startTime);
@@ -35,7 +37,7 @@ function calculateDuration(startTime, endTime) {
     return endMinutes - startMinutes;
 }
 
-function timeToMinutes(timeString) {
+function timeToMinutes(timeString: Time) {
     if (!timeString) return 0;
 
     const [hours, minutes] = timeString.split(':').map(Number);

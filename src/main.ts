@@ -1,8 +1,12 @@
 import {TimeCalculator} from "./time-calculator.js";
-import {DomUtils} from "./dom-utils.ts";
+import {DomUtils} from "./dom-utils.js";
 import {StorageManager} from "./storage.js";
+import { Activity, ActivitySummary, FormattedDate, Time } from './types';
 
 class TimeTrackerApp {
+    currentDate: Date;
+    currentDateString: FormattedDate;
+
     constructor() {
         this.currentDate = new Date();
         this.currentDateString = this.formatDate(this.currentDate);
@@ -12,11 +16,11 @@ class TimeTrackerApp {
         this.loadActivitiesForCurrentDay();
     }
 
-    formatDate(date) {
-        return date.toISOString().split('T')[0];
+    formatDate(date: Date): FormattedDate {
+        return date.toISOString().split('T')[0] as FormattedDate;
     }
 
-    formatDateDisplay(date) {
+    formatDateDisplay(date: Date): string {
         return date.toLocaleDateString('en-US', {
             weekday: 'long',
             year: 'numeric',
@@ -26,13 +30,13 @@ class TimeTrackerApp {
     }
 
     initializeEventListeners() {
-        document.getElementById('prevDay').addEventListener('click', () => this.navigateDay(-1));
-        document.getElementById('nextDay').addEventListener('click', () => this.navigateDay(1));
-        document.getElementById('addActivity').addEventListener('click', () => this.addNewActivity());
-        document.getElementById('calculateTime').addEventListener('click', () => this.calculateAndShowSummary());
+        document.querySelector<HTMLButtonElement>('#prevDay')!.addEventListener('click', () => this.navigateDay(-1));
+        document.querySelector<HTMLButtonElement>('#nextDay')!.addEventListener('click', () => this.navigateDay(1));
+        document.querySelector<HTMLButtonElement>('#addActivity')!.addEventListener('click', () => this.addNewActivity());
+        document.querySelector<HTMLButtonElement>('#calculateTime')!.addEventListener('click', () => this.calculateAndShowSummary());
     }
 
-    navigateDay(direction) {
+    navigateDay(direction: number) {
         this.saveCurrentActivities();
 
         this.currentDate.setDate(this.currentDate.getDate() + direction);
@@ -44,7 +48,7 @@ class TimeTrackerApp {
     }
 
     updateDateDisplay() {
-        document.getElementById('currentDate').textContent = this.formatDateDisplay(this.currentDate);
+        document.querySelector<HTMLDivElement>('#currentDate')!.textContent = this.formatDateDisplay(this.currentDate);
     }
 
     loadActivitiesForCurrentDay() {
@@ -64,9 +68,9 @@ class TimeTrackerApp {
     addNewActivity(insertAfterIndex = null) {
         const activities = DomUtils.collectActivitiesFromTable();
 
-        const newActivity = {
-            startTime: '',
-            endTime: '',
+        const newActivity: Activity = {
+            startTime: '' as Time,
+            endTime: '' as Time,
             description: '',
             type: 'activity'
         };
@@ -88,10 +92,10 @@ class TimeTrackerApp {
         this.showSummary(summary);
     }
 
-    showSummary(summary) {
-        const summaryContainer = document.getElementById('timeSummary');
-        const summaryContent = document.getElementById('summaryContent');
-        const summaryDate = document.getElementById('summaryDate');
+    showSummary(summary: ActivitySummary) {
+        const summaryContainer = document.querySelector<HTMLDivElement>('#timeSummary')!;
+        const summaryContent = document.querySelector<HTMLDivElement>('#summaryContent')!;
+        const summaryDate = document.querySelector<HTMLSpanElement>('#summaryDate')!;
 
         summaryDate.textContent = this.formatDateDisplay(this.currentDate);
 
@@ -119,8 +123,10 @@ class TimeTrackerApp {
     }
 
     hideSummary() {
-        document.getElementById('timeSummary').classList.add('hidden');
+        document.querySelector<HTMLDivElement>('#timeSummary')!.classList.add('hidden');
     }
 }
 
-window.app = new TimeTrackerApp();
+const w = window as any;
+w.app = new TimeTrackerApp();
+export const getApp = () => w.app;

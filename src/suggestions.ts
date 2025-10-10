@@ -1,4 +1,6 @@
-import {StorageManager} from "./storage.ts";
+import {StorageManager} from "./storage.js";
+import { getApp } from './main';
+import { FormattedDate, Time } from './types';
 
 export const Suggestions = {
     getActivitySuggestions,
@@ -6,10 +8,10 @@ export const Suggestions = {
     createSuggestionDropdown,
 }
 
-function getActivitySuggestions(input) {
-    let lastWeek = new Date(app.currentDate);
+function getActivitySuggestions(input: string) {
+    let lastWeek = new Date(getApp().currentDate);
     lastWeek.setDate(lastWeek.getDate() - 7);
-    const allActivities = StorageManager.getPastActivities(app.formatDate(lastWeek), app.currentDateString);
+    const allActivities = StorageManager.getPastActivities(getApp().formatDate(lastWeek), getApp().currentDateString);
     const uniqueDescriptions = [...new Set(allActivities
         .filter(activity => activity.type === 'activity' && activity.description)
         .map(activity => activity.description)
@@ -22,12 +24,12 @@ function getActivitySuggestions(input) {
     );
 }
 
-function getTimeSuggestions(date) {
+function getTimeSuggestions(date: FormattedDate): Time[] {
     const endTime = StorageManager.getLastEndTime(date);
     return endTime ? [endTime] : [];
 }
 
-function createSuggestionDropdown(input, suggestions, onSelect) {
+function createSuggestionDropdown(input: HTMLInputElement, suggestions: string[], onSelect: (selection: string) => void) {
     // Remove existing dropdown
     const existingDropdown = document.querySelector('.suggestion-dropdown');
     if (existingDropdown) {
@@ -51,14 +53,17 @@ function createSuggestionDropdown(input, suggestions, onSelect) {
     });
 
     // Position the dropdown
-    const inputRect = input.getBoundingClientRect();
     const container = input.parentElement;
-    container.style.position = 'relative';
-    container.appendChild(dropdown);
+    if (container) {
+        container.style.position = 'relative';
+        container.appendChild(dropdown);
+    } else {
+        input.appendChild(dropdown);
+    }
 
     // Close dropdown when clicking outside
-    const closeDropdown = (e) => {
-        if (!dropdown.contains(e.target) && e.target !== input) {
+    const closeDropdown = (e: MouseEvent) => {
+        if (!dropdown.contains(e.target as Node) && e.target !== input) {
             dropdown.remove();
             document.removeEventListener('click', closeDropdown);
         }
