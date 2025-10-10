@@ -1,13 +1,8 @@
-import {Suggestions} from "./suggestions.js";
 import { getApp } from './main';
 import { Activity, Time } from './types';
+import { createSuggestionDropdown, getActivitySuggestions, getTimeSuggestions } from './suggestions';
 
-export const DomUtils = {
-    renderActivities,
-    collectActivitiesFromTable,
-}
-
-function renderActivities(activities: Activity[]) {
+export function renderActivities(activities: Activity[]) {
     const tbody = document.getElementById('activitiesTable')!;
     tbody.innerHTML = '';
 
@@ -80,8 +75,8 @@ function attachRowEventListeners(row: HTMLTableRowElement, index: number) {
     const startTimeSuggestionHandler = (e: Event) => {
         clearTimeout(startTimeSuggestionTimeout);
         startTimeSuggestionTimeout = setTimeout(() => {
-            const timeSuggestions = Suggestions.getTimeSuggestions(getApp().currentDateString);
-            Suggestions.createSuggestionDropdown(
+            const timeSuggestions = getTimeSuggestions(getApp().currentDateString);
+            createSuggestionDropdown(
                 e.target as HTMLInputElement,
                 timeSuggestions,
                 (selectedSuggestion) => {
@@ -98,9 +93,9 @@ function attachRowEventListeners(row: HTMLTableRowElement, index: number) {
     const suggestionHandler = (e: Event) => {
         clearTimeout(suggestionTimeout);
         suggestionTimeout = setTimeout(() => {
-            const activitySuggestions = Suggestions.getActivitySuggestions((e.target as HTMLInputElement).value);
+            const activitySuggestions = getActivitySuggestions((e.target as HTMLInputElement).value);
             if (activitySuggestions.length > 1 || activitySuggestions.length === 1 && activitySuggestions[0] !== (e.target as HTMLInputElement).value) {
-                Suggestions.createSuggestionDropdown(
+                createSuggestionDropdown(
                     e.target as HTMLInputElement,
                     activitySuggestions,
                     (selectedSuggestion) => {
@@ -143,7 +138,7 @@ function attachRowEventListeners(row: HTMLTableRowElement, index: number) {
     });
 }
 
-function collectActivitiesFromTable(): Activity[] {
+export function collectActivitiesFromTable(): Activity[] {
     const activities: Activity[] = [];
     const rows = document.querySelectorAll('#activitiesTable tr');
 

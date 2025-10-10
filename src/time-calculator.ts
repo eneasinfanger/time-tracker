@@ -1,10 +1,6 @@
 import { Activity, ActivitySummary, Time } from './types';
 
-export const TimeCalculator = {
-    calculateTimePerActivity,
-}
-
-function calculateTimePerActivity(activities: Activity[]): ActivitySummary {
+export function calculateTimePerActivity(activities: Activity[]): ActivitySummary {
     const activityTimes: ActivitySummary = {};
 
     activities.forEach(activity => {

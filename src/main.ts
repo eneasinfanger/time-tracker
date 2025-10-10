@@ -1,7 +1,7 @@
-import {TimeCalculator} from "./time-calculator.js";
-import {DomUtils} from "./dom-utils.js";
-import {StorageManager} from "./storage.js";
 import { Activity, ActivitySummary, FormattedDate, Time } from './types';
+import { getActivitiesForDate, saveActivitiesForDate } from './storage';
+import { collectActivitiesFromTable, renderActivities } from './dom-utils';
+import { calculateTimePerActivity } from './time-calculator';
 
 class TimeTrackerApp {
     currentDate: Date;
@@ -52,8 +52,8 @@ class TimeTrackerApp {
     }
 
     loadActivitiesForCurrentDay() {
-        const activities = StorageManager.getActivitiesForDate(this.currentDateString) || [];
-        DomUtils.renderActivities(activities);
+        const activities = getActivitiesForDate(this.currentDateString) || [];
+        renderActivities(activities);
 
         if (activities.length === 0) {
             this.addNewActivity();
@@ -61,12 +61,12 @@ class TimeTrackerApp {
     }
 
     saveCurrentActivities() {
-        const activities = DomUtils.collectActivitiesFromTable();
-        StorageManager.saveActivitiesForDate(this.currentDateString, activities);
+        const activities = collectActivitiesFromTable();
+        saveActivitiesForDate(this.currentDateString, activities);
     }
 
     addNewActivity(insertAfterIndex = null) {
-        const activities = DomUtils.collectActivitiesFromTable();
+        const activities = collectActivitiesFromTable();
 
         const newActivity: Activity = {
             startTime: '' as Time,
@@ -81,13 +81,13 @@ class TimeTrackerApp {
             activities.push(newActivity);
         }
 
-        DomUtils.renderActivities(activities);
+        renderActivities(activities);
     }
 
     calculateAndShowSummary() {
         this.saveCurrentActivities();
-        const activities = StorageManager.getActivitiesForDate(this.currentDateString) || [];
-        const summary = TimeCalculator.calculateTimePerActivity(activities);
+        const activities = getActivitiesForDate(this.currentDateString) || [];
+        const summary = calculateTimePerActivity(activities);
 
         this.showSummary(summary);
     }

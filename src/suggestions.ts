@@ -1,17 +1,11 @@
-import {StorageManager} from "./storage.js";
 import { getApp } from './main';
 import { FormattedDate, Time } from './types';
+import { getLastEndTime, getPastActivities } from './storage';
 
-export const Suggestions = {
-    getActivitySuggestions,
-    getTimeSuggestions,
-    createSuggestionDropdown,
-}
-
-function getActivitySuggestions(input: string) {
+export function getActivitySuggestions(input: string) {
     let lastWeek = new Date(getApp().currentDate);
     lastWeek.setDate(lastWeek.getDate() - 7);
-    const allActivities = StorageManager.getPastActivities(getApp().formatDate(lastWeek), getApp().currentDateString);
+    const allActivities = getPastActivities(getApp().formatDate(lastWeek), getApp().currentDateString);
     const uniqueDescriptions = [...new Set(allActivities
         .filter(activity => activity.type === 'activity' && activity.description)
         .map(activity => activity.description)
@@ -24,12 +18,12 @@ function getActivitySuggestions(input: string) {
     );
 }
 
-function getTimeSuggestions(date: FormattedDate): Time[] {
-    const endTime = StorageManager.getLastEndTime(date);
+export function getTimeSuggestions(date: FormattedDate): Time[] {
+    const endTime = getLastEndTime(date);
     return endTime ? [endTime] : [];
 }
 
-function createSuggestionDropdown(input: HTMLInputElement, suggestions: string[], onSelect: (selection: string) => void) {
+export function createSuggestionDropdown(input: HTMLInputElement, suggestions: string[], onSelect: (selection: string) => void) {
     // Remove existing dropdown
     const existingDropdown = document.querySelector('.suggestion-dropdown');
     if (existingDropdown) {

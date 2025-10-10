@@ -1,13 +1,6 @@
 import { Activity, FormattedDate, Time } from './types';
 
-export const StorageManager = {
-    saveActivitiesForDate,
-    getActivitiesForDate,
-    getPastActivities,
-    getLastEndTime,
-}
-
-function saveActivitiesForDate(date: FormattedDate, activities: Activity[]) {
+export function saveActivitiesForDate(date: FormattedDate, activities: Activity[]) {
     const key = getStorageKey(date);
     const filtered = activities.filter(ac => ac.startTime || ac.endTime || ac.description);
 
@@ -18,7 +11,7 @@ function saveActivitiesForDate(date: FormattedDate, activities: Activity[]) {
     }
 }
 
-function getActivitiesForDate(date: FormattedDate): Activity[] | null {
+export function getActivitiesForDate(date: FormattedDate): Activity[] | null {
     const key = getStorageKey(date);
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : null;
@@ -30,7 +23,7 @@ function getStorageKey(date: FormattedDate) {
     return `${storagePrefix}${date}`;
 }
 
-function getPastActivities(fromDate: FormattedDate, toDate: FormattedDate) {
+export function getPastActivities(fromDate: FormattedDate, toDate: FormattedDate) {
     const allActivities: Activity[] = [];
     const dates = getAllStoredDates(fromDate, toDate);
 
@@ -57,7 +50,7 @@ function getAllStoredDates(fromDate: FormattedDate, toDate: FormattedDate): Form
     return dates;
 }
 
-function getLastEndTime(date: FormattedDate): Time | undefined {
+export function getLastEndTime(date: FormattedDate): Time | undefined {
     const activities = getActivitiesForDate(date) || [];
     const timedActivities = activities.filter(activity =>
         activity.type === 'activity' && activity.endTime
