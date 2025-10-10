@@ -1,6 +1,6 @@
 import {Suggestions} from "./suggestions.js";
 
-export const DOMUtils = {
+export const DomUtils = {
     renderActivities,
     collectActivitiesFromTable,
 }

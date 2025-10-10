@@ -1,5 +1,5 @@
-import {TimeCalculator} from "./timeCalculator.js";
-import {DOMUtils} from "./domUtils.ts";
+import {TimeCalculator} from "./time-calculator.js";
+import {DomUtils} from "./dom-utils.ts";
 import {StorageManager} from "./storage.js";
 
 class TimeTrackerApp {
@@ -49,7 +49,7 @@ class TimeTrackerApp {
 
     loadActivitiesForCurrentDay() {
         const activities = StorageManager.getActivitiesForDate(this.currentDateString) || [];
-        DOMUtils.renderActivities(activities);
+        DomUtils.renderActivities(activities);
 
         if (activities.length === 0) {
             this.addNewActivity();
@@ -57,12 +57,12 @@ class TimeTrackerApp {
     }
 
     saveCurrentActivities() {
-        const activities = DOMUtils.collectActivitiesFromTable();
+        const activities = DomUtils.collectActivitiesFromTable();
         StorageManager.saveActivitiesForDate(this.currentDateString, activities);
     }
 
     addNewActivity(insertAfterIndex = null) {
-        const activities = DOMUtils.collectActivitiesFromTable();
+        const activities = DomUtils.collectActivitiesFromTable();
 
         const newActivity = {
             startTime: '',
@@ -77,7 +77,7 @@ class TimeTrackerApp {
             activities.push(newActivity);
         }
 
-        DOMUtils.renderActivities(activities);
+        DomUtils.renderActivities(activities);
     }
 
     calculateAndShowSummary() {
