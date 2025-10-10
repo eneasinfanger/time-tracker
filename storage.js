@@ -1,7 +1,7 @@
 export const StorageManager = {
     saveActivitiesForDate,
     getActivitiesForDate,
-    getAllActivities,
+    getPastActivities,
     getLastEndTime,
 }
 
@@ -22,13 +22,15 @@ function getActivitiesForDate(date) {
     return stored ? JSON.parse(stored) : null;
 }
 
+const storagePrefix = 'timetracker_';
+
 function getStorageKey(date) {
-    return `timetracker_${date}`;
+    return `${storagePrefix}${date}`;
 }
 
-function getAllActivities() {
+function getPastActivities(fromDate, toDate) {
     const allActivities = [];
-    const dates = getAllStoredDates();
+    const dates = getAllStoredDates(fromDate, toDate);
 
     dates.forEach(date => {
         const activities = getActivitiesForDate(date);
@@ -40,12 +42,14 @@ function getAllActivities() {
     return allActivities;
 }
 
-function getAllStoredDates() {
+function getAllStoredDates(fromDate, toDate) {
+    const fromDateKey = getStorageKey(fromDate);
+    const toDateKey = getStorageKey(toDate);
     const dates = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('timetracker_')) {
-            dates.push(key.replace('timetracker_', ''));
+        if (key && key.startsWith(storagePrefix) && key >= fromDateKey && key <= toDateKey) {
+            dates.push(key.replace(storagePrefix, ''));
         }
     }
     return dates;

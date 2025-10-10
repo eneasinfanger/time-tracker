@@ -7,7 +7,9 @@ export const Suggestions = {
 }
 
 function getActivitySuggestions(input) {
-    const allActivities = StorageManager.getAllActivities();
+    let lastWeek = new Date(app.currentDate);
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    const allActivities = StorageManager.getPastActivities(app.formatDate(lastWeek), app.currentDateString);
     const uniqueDescriptions = [...new Set(allActivities
         .filter(activity => activity.type === 'activity' && activity.description)
         .map(activity => activity.description)
