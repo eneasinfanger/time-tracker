@@ -1,0 +1,59 @@
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+  <!-- Header -->
+  <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-4">Time Tracker</h1>
+
+    <!-- Day Navigation -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <button (click)="navigateDay(-1)" class="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Previous Day
+        </button>
+
+        <div class="text-xl font-semibold text-gray-900">{{ formatDateDisplay(currentDate()) }}</div>
+
+        <button (click)="navigateDay(1)" class="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+          Next Day
+          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+
+      <button (click)="calculateAndShowSummary()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">Calculate Time</button>
+    </div>
+  </div>
+
+  <!-- Activities Table -->
+  <div class="bg-white rounded-lg shadow-sm border">
+    <div class="p-6">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Activities</h2>
+
+      <div>
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-gray-200">
+              <th class="text-left py-3 px-4 font-medium text-gray-700">Start Time</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-700">End Time</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-700">Activity / Description</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-700">Type</th>
+              <th class="text-left py-3 px-4 font-medium text-gray-700 w-32">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="activitiesTable">
+            <ng-container *ngFor="let activity of activities(); let i = index">
+              <tr activity-row class="border-b border-gray-100 hover:bg-gray-50" [activity]="activity" [currentDate]="currentDateString()" (addRow)="addNewActivity(i)" (removeRow)="removeActivity(i)"></tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+
+      <button (click)="addNewActivity()" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">+ Add Activity</button>
+    </div>
+  </div>
+
+  <time-summary [visible]="summaryVisible()" [summary]="summary()" [dateDisplay]="formatDateDisplay(currentDate())"></time-summary>
+</div>

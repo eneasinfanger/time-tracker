@@ -1,0 +1,15 @@
+<div *ngIf="visible" class="bg-white rounded-lg shadow-sm border p-6 mt-6">
+  <h2 class="text-xl font-semibold text-gray-900 mb-4">Time Summary for <span>{{dateDisplay}}</span></h2>
+  <div class="space-y-2">
+    <ng-container *ngIf="hasSummary(); else none">
+      <div *ngFor="let item of entries()" class="flex justify-between items-center py-2 px-4 bg-gray-50 rounded-lg">
+        <span class="font-medium text-gray-900">{{item[0]}}</span>
+        <span class="text-blue-600 font-semibold">{{formatDuration(item[1])}}</span>
+      </div>
+    </ng-container>
+    <ng-template #none>
+      <p class="text-gray-500">No timed activities found for this day.</p>
+    </ng-template>
+  </div>
+</div>
+

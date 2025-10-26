@@ -1,0 +1,13 @@
+.table-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+input, select {
+  box-sizing: border-box;
+}
+
