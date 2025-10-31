@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { StorageService } from '../storage.service';
-import { TimeCalculatorService } from '../time-calculator.service';
+import { StorageService } from '../services/storage.service';
+import { TimeCalculatorService } from '../services/time-calculator.service';
 import { TimeSummaryComponent } from '../time-summary/time-summary.component';
 import { ActivityRowComponent } from '../activity-row/activity-row.component';
 import { Activity, ActivitySummary } from '../models';

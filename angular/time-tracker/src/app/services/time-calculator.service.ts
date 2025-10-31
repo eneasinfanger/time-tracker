@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Activity, ActivitySummary, Time } from './models';
+import { Activity, ActivitySummary, Time } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class TimeCalculatorService {

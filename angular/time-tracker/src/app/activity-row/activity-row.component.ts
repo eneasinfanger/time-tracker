@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, AfterV
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Activity } from '../models';
-import { SuggestionsService } from '../suggestions.service';
+import { SuggestionsService } from '../services/suggestions.service';
 
 @Component({
   selector: 'tr[activity-row]',

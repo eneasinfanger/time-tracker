@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Activity, FormattedDate, Time } from './models';
+import { Activity, FormattedDate, Time } from '../models';
 
 const storagePrefix = 'timetracker_';
 

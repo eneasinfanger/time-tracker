@@ -1,7 +1,7 @@
 import { Injectable, inject, ApplicationRef, createComponent, EnvironmentInjector } from '@angular/core';
 import { StorageService } from './storage.service';
-import { Activity } from './models';
-import { SuggestionDropdownComponent } from './suggestion-dropdown/suggestion-dropdown.component';
+import { Activity } from '../models';
+import { SuggestionDropdownComponent } from '../suggestion-dropdown/suggestion-dropdown.component';
 
 type Listener = { element: HTMLElement, type: string, handler: EventListenerOrEventListenerObject };
 
@@ -129,5 +129,4 @@ export class SuggestionsService {
       t = setTimeout(() => fn(e), wait);
     };
   }
-
 }
