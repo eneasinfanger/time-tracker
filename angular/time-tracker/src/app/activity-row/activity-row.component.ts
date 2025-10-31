@@ -1,22 +1,20 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, AfterViewInit, ElementRef, inject, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, input, OnDestroy, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Activity } from '../models';
 import { SuggestionsService } from '../services/suggestions.service';
 
 @Component({
   selector: 'tr[activity-row]',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './activity-row.component.html',
   styleUrls: ['./activity-row.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ActivityRowComponent implements AfterViewInit, OnDestroy {
-  @Input() activity!: Activity;
-  @Input() currentDate?: string;
-  @Output() addRow = new EventEmitter<void>();
-  @Output() removeRow = new EventEmitter<void>();
+  readonly activity = input.required<Activity>();
+  readonly currentDate = input<string>();
+  readonly addRow = output<void>();
+  readonly removeRow = output<void>();
 
   private host = inject(ElementRef).nativeElement as HTMLElement;
   private suggestions = inject(SuggestionsService);
@@ -32,7 +30,7 @@ export class ActivityRowComponent implements AfterViewInit, OnDestroy {
   }
 
   isText() {
-    return this.activity.type === 'text';
+    return this.activity().type === 'text';
   }
 
   private attachListeners() {
@@ -44,8 +42,8 @@ export class ActivityRowComponent implements AfterViewInit, OnDestroy {
     if (!startTimeInput || !endTimeInput || !descriptionInput || !typeSelect) return;
 
     // Attach suggestion behavior via service
-    this.suggestions.attachSuggestionsToInput(startTimeInput, (_value, dateIso) => this.suggestions.getTimeSuggestions(dateIso), () => this.currentDate || new Date().toISOString().split('T')[0]);
-    this.suggestions.attachSuggestionsToInput(descriptionInput, (value, dateIso) => this.suggestions.getActivitySuggestions(value, dateIso), () => this.currentDate || new Date().toISOString().split('T')[0]);
+    this.suggestions.attachSuggestionsToInput(startTimeInput, (_value, dateIso) => this.suggestions.getTimeSuggestions(dateIso), () => this.currentDate() || new Date().toISOString().split('T')[0]);
+    this.suggestions.attachSuggestionsToInput(descriptionInput, (value, dateIso) => this.suggestions.getActivitySuggestions(value, dateIso), () => this.currentDate() || new Date().toISOString().split('T')[0]);
     this.attachedInputs.push(startTimeInput, descriptionInput);
 
     typeSelect.addEventListener('change', (e) => {
@@ -66,6 +64,4 @@ export class ActivityRowComponent implements AfterViewInit, OnDestroy {
       }
     });
   }
-
-  // dropdown is handled by SuggestionsService which mounts the SuggestionDropdownComponent dynamically
 }

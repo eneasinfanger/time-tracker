@@ -1,21 +1,24 @@
 <td class="py-3 px-4">
-    <input type="time" [disabled]="isText()" class="start-time w-full p-2 border border-gray-300 rounded-lg" [(ngModel)]="activity.startTime">
-  </td>
-  <td class="py-3 px-4">
-    <input type="time" [disabled]="isText()" class="end-time w-full p-2 border border-gray-300 rounded-lg" [(ngModel)]="activity.endTime">
-  </td>
-  <td class="py-3 px-4 relative">
-    <input type="text" class="description w-full p-2 border border-gray-300 rounded-lg" [(ngModel)]="activity.description" placeholder="Enter activity or description...">
-  </td>
-  <td class="py-3 px-4">
-    <select class="activity-type w-full p-2 border border-gray-300 rounded-lg" [(ngModel)]="activity.type">
-      <option value="activity">Timed Activity</option>
-      <option value="text">Text Only</option>
-    </select>
-  </td>
-  <td class="py-3 px-4">
-    <div class="flex space-x-2">
-      <button type="button" class="table-action-button text-green-600" (click)="addRow.emit()">＋</button>
-      <button type="button" class="table-action-button text-red-600" (click)="removeRow.emit()">✕</button>
-    </div>
-  </td>
+  <input type="time" [disabled]="isText()" class="start-time w-full p-2 border border-gray-300 rounded-lg"
+    [(ngModel)]="activity().startTime">
+</td>
+<td class="py-3 px-4">
+  <input type="time" [disabled]="isText()" class="end-time w-full p-2 border border-gray-300 rounded-lg"
+    [(ngModel)]="activity().endTime">
+</td>
+<td class="py-3 px-4 relative">
+  <input type="text" class="description w-full p-2 border border-gray-300 rounded-lg"
+    [(ngModel)]="activity().description" placeholder="Enter activity or description...">
+</td>
+<td class="py-3 px-4">
+  <select class="activity-type w-full p-2 border border-gray-300 rounded-lg" [(ngModel)]="activity().type">
+    <option value="activity">Timed Activity</option>
+    <option value="text">Text Only</option>
+  </select>
+</td>
+<td class="py-3 px-4">
+  <div class="flex space-x-2">
+    <button type="button" class="table-action-button text-green-600" (click)="addRow.emit()">＋</button>
+    <button type="button" class="table-action-button text-red-600" (click)="removeRow.emit()">✕</button>
+  </div>
+</td>

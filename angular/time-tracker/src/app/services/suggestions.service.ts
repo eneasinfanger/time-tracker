@@ -1,4 +1,4 @@
-import { Injectable, inject, ApplicationRef, createComponent, EnvironmentInjector } from '@angular/core';
+import { ApplicationRef, createComponent, EnvironmentInjector, inject, Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { Activity } from '../models';
 import { SuggestionDropdownComponent } from '../suggestion-dropdown/suggestion-dropdown.component';
@@ -26,7 +26,7 @@ export class SuggestionsService {
     const all: Activity[] = this.storage.getPastActivities(from, to) || [];
     const unique = [...new Set(all
       .filter(a => a.type === 'activity' && a.description)
-      .map(a => a.description)
+      .map(a => a.description),
     )];
 
     if (!input) return unique;
@@ -45,7 +45,7 @@ export class SuggestionsService {
     this.closeDropdown();
 
     const comp = createComponent(SuggestionDropdownComponent, { environmentInjector: this.envInj });
-    comp.instance.items = items || [];
+    comp.instance.items.set(items || []);
     comp.instance.select.subscribe((s: string) => {
       onSelect(s);
       this.closeDropdown();
@@ -61,9 +61,9 @@ export class SuggestionsService {
     // position it under the host
     const rect = host.getBoundingClientRect();
     domEl.style.position = 'absolute';
-    domEl.style.left = `${rect.left + window.scrollX}px`;
-    domEl.style.top = `${rect.bottom + window.scrollY}px`;
-    domEl.style.minWidth = `${rect.width}px`;
+    domEl.style.left = `${ rect.left + window.scrollX }px`;
+    domEl.style.top = `${ rect.bottom + window.scrollY }px`;
+    domEl.style.minWidth = `${ rect.width }px`;
 
     const onDocClick = (e: MouseEvent) => {
       if (!domEl.contains(e.target as Node) && e.target !== host) {

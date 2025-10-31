@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StorageService } from '../services/storage.service';
 import { TimeCalculatorService } from '../services/time-calculator.service';
@@ -9,8 +8,7 @@ import { Activity, ActivitySummary } from '../models';
 
 @Component({
   selector: 'app-site',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TimeSummaryComponent, ActivityRowComponent],
+  imports: [FormsModule, ReactiveFormsModule, TimeSummaryComponent, ActivityRowComponent],
   templateUrl: './site.component.html',
   styleUrls: ['./site.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

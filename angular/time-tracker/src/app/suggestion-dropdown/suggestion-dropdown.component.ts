@@ -1,17 +1,15 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, model, output } from '@angular/core';
 
 @Component({
   selector: 'tt-suggestion-dropdown',
-  standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './suggestion-dropdown.component.html',
   styleUrls: ['./suggestion-dropdown.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SuggestionDropdownComponent {
-  @Input() items: string[] = [];
-  @Output() select = new EventEmitter<string>();
+  readonly items = model<string[]>([]);
+  readonly select = output<string>();
 
   selectItem(item: string) {
     this.select.emit(item);

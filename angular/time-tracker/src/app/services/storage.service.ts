@@ -23,7 +23,7 @@ export class StorageService {
   }
 
   private getStorageKey(date: FormattedDate) {
-    return `${storagePrefix}${date}`;
+    return `${ storagePrefix }${ date }`;
   }
 
   getPastActivities(fromDate: FormattedDate, toDate: FormattedDate) {
