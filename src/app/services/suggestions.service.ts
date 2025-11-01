@@ -13,8 +13,6 @@ export class SuggestionsService {
   private envInj = inject(EnvironmentInjector);
   private currentCompRef: any = null;
 
-  private listeners = new Map<HTMLElement, Listener[]>();
-
   /**
    * Return unique activity descriptions from the last week (or filtered by input).
    */

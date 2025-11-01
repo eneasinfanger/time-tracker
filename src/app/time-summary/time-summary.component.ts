@@ -14,9 +14,12 @@ export class TimeSummaryComponent {
 
   readonly sortMode = signal<'start' | 'alpha'>('start');
   readonly sortReverse = signal(false);
+  readonly viewMode = signal<'description' | 'task'>('description');
 
   readonly sorted: Signal<[string, ActivitySummaryEntry][]> = computed(() => {
-    const entries = Array.from(this.summary().entries());
+    const entries = Array.from(this.viewMode() == 'description'
+      ? this.summary().getTotalByDescription()
+      : this.summary().getTotalByTask());
 
     if (this.sortMode() === 'alpha') {
       entries.sort((a, b) => a[0].localeCompare(b[0]));
@@ -43,12 +46,22 @@ export class TimeSummaryComponent {
     this.sortReverse.update(v => !v);
   }
 
+  setViewMode(mode: 'description' | 'task') {
+    this.viewMode.set(mode);
+  }
+
   hasSummary() {
-    return this.summary().size > 0;
+    return this.viewMode() === 'description'
+      ? this.summary().hasActivitiesWithDescription()
+      : this.summary().hasActivitiesWithTask();
   }
 
   listTasks(activities: Activity[]) {
     return [...new Set(activities.map(a => a.task))].join('; ');
+  }
+
+  listDescriptions(activities: Activity[]) {
+    return [...new Set(activities.map(a => a.description))].join('; ');
   }
 
   formatDuration(minutes: number) {

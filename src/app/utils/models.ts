@@ -1,6 +1,15 @@
 import { UUID } from './crypto';
 
-export type ActivitySummary = Map<string, ActivitySummaryEntry>;
+export interface ActivitySummary {
+  getTotalByDescription(): Map<string, ActivitySummaryEntry>;
+
+  getTotalByTask(): Map<string, ActivitySummaryEntry>;
+
+  hasActivitiesWithDescription(): boolean;
+
+  hasActivitiesWithTask(): boolean;
+}
+
 export type ActivitySummaryEntry = { activities: Activity[]; totalMinutes: number };
 
 export type Activity = {

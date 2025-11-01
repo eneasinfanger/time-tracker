@@ -1,20 +1,43 @@
 import { Injectable } from '@angular/core';
-import { Activity, ActivitySummary, Time } from '../utils/models';
+import { Activity, ActivitySummary, ActivitySummaryEntry, Time } from '../utils/models';
 
 @Injectable({ providedIn: 'root' })
 export class TimeCalculatorService {
   calculateTimePerActivity(activities: Activity[]): ActivitySummary {
-    const activityTimes: ActivitySummary = new Map();
+    const getTotalByMapKey = this.getTotalMapByKey.bind(this, activities);
+    const hasActivitiesWithKey = this.hasActivitiesWithKey.bind(this, activities);
+    return {
+      getTotalByDescription(): Map<string, ActivitySummaryEntry> {
+        return getTotalByMapKey('description');
+      },
+      getTotalByTask(): Map<string, ActivitySummaryEntry> {
+        return getTotalByMapKey('task');
+      },
+      hasActivitiesWithDescription(): boolean {
+        return hasActivitiesWithKey('description');
+      },
+      hasActivitiesWithTask(): boolean {
+        return hasActivitiesWithKey('task');
+      },
+    };
+  }
+
+  private hasActivitiesWithKey(activities: Activity[], key: 'description' | 'task'): boolean {
+    return activities.filter(ac => ac.type == 'activity' && ac.startTime && ac.endTime && ac[key]).length > 0;
+  }
+
+  private getTotalMapByKey(activities: Activity[], key: 'description' | 'task'): Map<string, ActivitySummaryEntry> {
+    const activityTimes: Map<string, ActivitySummaryEntry> = new Map();
 
     activities.forEach(activity => {
-      if (activity.type === 'activity' && activity.startTime && activity.endTime && activity.description) {
+      if (activity.type === 'activity' && activity.startTime && activity.endTime && activity[key]) {
         const duration = this.calculateDuration(activity.startTime, activity.endTime);
 
         if (duration > 0) {
-          const entry = activityTimes.get(activity.description) ?? { activities: [], totalMinutes: 0 };
+          const entry = activityTimes.get(activity[key]) ?? { activities: [], totalMinutes: 0 };
           entry.activities.push(activity);
           entry.totalMinutes += duration;
-          activityTimes.set(activity.description, entry);
+          activityTimes.set(activity[key], entry);
         }
       }
     });

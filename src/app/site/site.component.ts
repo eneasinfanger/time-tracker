@@ -20,7 +20,7 @@ export class SiteComponent {
   protected readonly currentDate = signal(new Date());
   protected readonly currentDateString = computed(() => formatDate(this.currentDate()));
   protected readonly activities = signal<WritableSignal<Activity>[]>([]);
-  protected readonly summary = signal<ActivitySummary>(new Map());
+  protected readonly summary = signal<ActivitySummary>({} as ActivitySummary);
 
   private storage = inject(StorageService);
   private calculator = inject(TimeCalculatorService);
