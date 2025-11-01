@@ -5,6 +5,8 @@ import { SuggestionsService } from '../services/suggestions.service';
 import { initUsing } from '../utils/signals';
 import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
 import { NgClass } from '@angular/common';
+import { StorageService } from '../services/storage.service';
+import { formatDate } from '../utils/dates';
 
 @Component({
   selector: 'tr[activity-row]',
@@ -15,6 +17,7 @@ import { NgClass } from '@angular/common';
 })
 export class ActivityRowComponent implements OnInit {
   readonly suggestions = inject(SuggestionsService);
+  readonly storage = inject(StorageService);
 
   readonly activity = input.required<WritableSignal<Activity>>();
   readonly currentDate = input.required<FormattedDate>();
@@ -57,4 +60,24 @@ export class ActivityRowComponent implements OnInit {
   getTaskSuggestions = (value: string) => {
     return this.suggestions.getTaskSuggestions(value, this.currentDate());
   };
+
+  setTaskFromDescription(description: string) {
+    if (!this.task()) {
+      this.task.set(this.findMatchingActivity(a => a.description == description)?.task ?? '');
+    }
+  }
+
+  setDescriptionFromTask(task: string) {
+    if (!this.description()) {
+      this.description.set(this.findMatchingActivity(a => a.task == task)?.description ?? '');
+    }
+  }
+
+  private findMatchingActivity(comparison: (a: Activity) => boolean) {
+    const lastWeek = new Date(this.currentDate());
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    return this.storage.getPastActivities(formatDate(lastWeek), this.currentDate())
+      .filter(comparison)
+      .pop();
+  }
 }

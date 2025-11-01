@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output } from '@angular/core';
 import { SuggestionsService } from '../services/suggestions.service';
 import { Debouncer, dispatchEvents, SharedDebouncer } from '../utils/events';
 
@@ -19,6 +19,7 @@ export class SuggestableInputComponent {
   readonly hostRef: ElementRef<HTMLInputElement> = inject(ElementRef);
 
   readonly suggestionProvider = input.required<(value: string) => string[]>();
+  readonly itemSelected = output<string>();
 
   onChange() {
     this.debouncer.run(() => {
@@ -30,6 +31,7 @@ export class SuggestableInputComponent {
         this.service.openDropdown(this.hostRef, suggestions, selection => {
           hostElement.value = selection;
           dispatchEvents(hostElement, 'input', 'change');
+          this.itemSelected.emit(selection);
         });
       }
     });

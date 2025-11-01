@@ -9,11 +9,11 @@
 <td class="py-3 px-4 relative">
   <input suggestable type="text" class="w-full p-2 border border-gray-300 rounded-lg"
     [(ngModel)]="description" [suggestionProvider]="getActivitySuggestions"
-    placeholder="Enter activity or description...">
+    (itemSelected)="setTaskFromDescription($event)" placeholder="Enter activity or description...">
 </td>
 <td class="py-3 px-4 relative">
   <input suggestable type="text" class="w-full p-2 border border-gray-300 rounded-lg"
-    [(ngModel)]="task" [suggestionProvider]="getTaskSuggestions"
+    [(ngModel)]="task" [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
     placeholder="Enter task-number..">
 </td>
 <td class="py-3 px-4">
