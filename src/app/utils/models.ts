@@ -1,6 +1,7 @@
 import { UUID } from './crypto';
 
-export type ActivitySummary = Map<string, { activities: Activity[]; totalMinutes: number }>;
+export type ActivitySummary = Map<string, ActivitySummaryEntry>;
+export type ActivitySummaryEntry = { activities: Activity[]; totalMinutes: number };
 
 export type Activity = {
   id: UUID;

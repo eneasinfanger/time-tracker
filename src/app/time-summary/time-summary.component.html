@@ -1,8 +1,18 @@
 <div class="bg-white rounded-lg shadow-sm border p-6 mt-6">
-  <h2 class="text-xl font-semibold text-gray-900 mb-4">Time Summary for <span>{{ dateDisplay() }}</span></h2>
+  <h2 class="text-xl font-semibold text-gray-900 mb-2">Time Summary for <span>{{ dateDisplay() }}</span></h2>
+
+  <div class="flex items-center justify-between mb-3">
+    <div class="text-sm text-gray-600">Summary</div>
+    <div class="flex items-center space-x-2">
+      <button type="button" (click)="setSortMode('start')" class="text-sm px-2 py-1 rounded border" [class.font-semibold]="sortMode() === 'start'">Start time</button>
+      <button type="button" (click)="setSortMode('alpha')" class="text-sm px-2 py-1 rounded border" [class.font-semibold]="sortMode() === 'alpha'">Alphabetical</button>
+      <button type="button" (click)="toggleReverse()" class="text-sm px-2 py-1 rounded border">{{ sortReverse() ? 'Reversed' : 'Normal' }}</button>
+    </div>
+  </div>
+
   <div class="space-y-1">
     @if (hasSummary()) {
-      @for (item of summary(); track item[0]) {
+      @for (item of sorted(); track item[0]) {
         <div class="flex justify-between items-center py-1 px-4 bg-gray-50 rounded-lg">
           <div class="flex-1 min-w-0">
             <div class="font-medium text-gray-900">{{ item[0] }}</div>
