@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal, Signal } from '@angular/core';
 import { Activity, ActivitySummary, ActivitySummaryEntry } from '../utils/models';
+import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
 
 @Component({
   selector: 'time-summary',
-  imports: [],
+  imports: [SettingsMenuComponent],
   templateUrl: './time-summary.component.html',
   styleUrls: ['./time-summary.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +49,10 @@ export class TimeSummaryComponent {
 
   setViewMode(mode: 'description' | 'task') {
     this.viewMode.set(mode);
+  }
+
+  onSettingsChange(_settings: unknown) {
+    // UI-only integration point for settings (no logic applied yet)
   }
 
   hasSummary() {

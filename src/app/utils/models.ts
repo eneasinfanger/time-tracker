@@ -21,5 +21,12 @@ export type Activity = {
   type: 'activity' | 'text';
 };
 
+export type PersistentActivity = {
+  id: UUID;
+  description: string;
+  task: string;
+}
+
 export type FormattedDate = string & { __formattedDate__: void };
 export type Time = '' | `${ number }${ number }:${ number }${ number }`;
+export type Duration = { weeks: number; days: number; hours: number; minutes: number };

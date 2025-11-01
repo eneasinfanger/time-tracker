@@ -8,10 +8,11 @@ import { Activity, ActivitySummary } from '../utils/models';
 import { unwrapSignal, wrapInSignal } from '../utils/signals';
 import { formatDate } from '../utils/dates';
 import { generateUUID, UUID } from '../utils/crypto';
+import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
 
 @Component({
   selector: 'app-site',
-  imports: [FormsModule, ReactiveFormsModule, TimeSummaryComponent, ActivityRowComponent],
+  imports: [FormsModule, ReactiveFormsModule, TimeSummaryComponent, ActivityRowComponent, SettingsMenuComponent],
   templateUrl: './site.component.html',
   styleUrls: ['./site.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -102,5 +103,9 @@ export class SiteComponent {
     this.saveCurrentActivities();
     const activities = this.storage.getActivitiesForDate(this.currentDateString()) || [];
     this.summary.set(this.calculator.calculateTimePerActivity(activities as Activity[]));
+  }
+
+  onSettingsChange($event: any) {
+    console.log('Settings changed:', $event);
   }
 }
