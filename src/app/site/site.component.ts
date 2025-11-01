@@ -1,22 +1,24 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StorageService } from '../services/storage.service';
 import { TimeCalculatorService } from '../services/time-calculator.service';
 import { TimeSummaryComponent } from '../time-summary/time-summary.component';
 import { ActivityRowComponent } from '../activity-row/activity-row.component';
-import { Activity, ActivitySummary } from '../models';
+import { Activity, ActivitySummary } from '../utils/models';
+import { unwrapSignal, wrapInSignal } from '../utils/signals';
+import { formatDate } from '../utils/dates';
 
 @Component({
   selector: 'app-site',
   imports: [FormsModule, ReactiveFormsModule, TimeSummaryComponent, ActivityRowComponent],
   templateUrl: './site.component.html',
   styleUrls: ['./site.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SiteComponent {
   protected readonly currentDate = signal(new Date());
-  protected readonly currentDateString = computed(() => this.formatDate(this.currentDate()));
-  protected readonly activities = signal<Activity[]>([]);
+  protected readonly currentDateString = computed(() => formatDate(this.currentDate()));
+  protected readonly activities = signal<WritableSignal<Activity>[]>([]);
 
   protected readonly summaryVisible = signal(false);
   protected readonly summary = signal<ActivitySummary>({});
@@ -34,11 +36,8 @@ export class SiteComponent {
     effect(() => {
       this.activities();
       this.saveCurrentActivities();
+      this.calculateAndShowSummary();
     });
-  }
-
-  formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
   }
 
   formatDateDisplay(date: Date): string {
@@ -46,7 +45,7 @@ export class SiteComponent {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -63,10 +62,10 @@ export class SiteComponent {
     const activities = this.storage.getActivitiesForDate(date as unknown as any) || [];
     if (activities.length === 0) {
       this.activities.set([
-        { startTime: '' as any, endTime: '' as any, description: '', type: 'activity' } as Activity
+        signal({ startTime: '' as any, endTime: '' as any, description: '', type: 'activity' }),
       ]);
     } else {
-      this.activities.set(activities as Activity[]);
+      this.activities.set(activities.map(wrapInSignal));
     }
     this.summaryVisible.set(false);
     this.summary.set({});
@@ -74,16 +73,16 @@ export class SiteComponent {
 
   saveCurrentActivities() {
     const date = this.currentDateString();
-    this.storage.saveActivitiesForDate(date as unknown as any, this.activities());
+    this.storage.saveActivitiesForDate(date, this.activities().map(unwrapSignal));
   }
 
   addNewActivity(insertAfterIndex: number | null = null) {
-    const newActivity: Activity = {
+    const newActivity: WritableSignal<Activity> = signal({
       startTime: '' as any,
       endTime: '' as any,
       description: '',
-      type: 'activity'
-    };
+      type: 'activity',
+    });
 
     const copy = [...this.activities()];
     if (insertAfterIndex !== null) {
@@ -103,7 +102,6 @@ export class SiteComponent {
   }
 
   calculateAndShowSummary() {
-    // ensure latest is saved
     this.saveCurrentActivities();
     const activities = this.storage.getActivitiesForDate(this.currentDateString() as unknown as any) || [];
     const summaryObj = this.calculator.calculateTimePerActivity(activities as Activity[]);

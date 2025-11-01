@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Activity, FormattedDate, Time } from '../models';
+import { Activity, FormattedDate, Time } from '../utils/models';
 
 const storagePrefix = 'timetracker_';
 
@@ -56,7 +56,7 @@ export class StorageService {
   getLastEndTime(date: FormattedDate): Time | undefined {
     const activities = this.getActivitiesForDate(date) || [];
     const timedActivities = activities.filter(activity =>
-      activity.type === 'activity' && activity.endTime
+      activity.type === 'activity' && activity.endTime,
     );
 
     if (timedActivities.length === 0) return;

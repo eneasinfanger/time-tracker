@@ -10,3 +10,4 @@ export type Activity = {
 export type FormattedDate = string & { __formattedDate__: void };
 export type Time = ('' | `${ number }${ number }:${ number }${ number }`) & { __time__: void };
 
+export const EMPTY_TIME = '' as Time;

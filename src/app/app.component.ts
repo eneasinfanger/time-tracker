@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Injector } from '@angular/core';
 import { SiteComponent } from './site/site.component';
 import { RouterOutlet } from '@angular/router';
 
@@ -7,7 +7,14 @@ import { RouterOutlet } from '@angular/router';
   imports: [SiteComponent, RouterOutlet],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
+  static appInjector: Injector;
+
+  constructor(injector: Injector) {
+    AppComponent.appInjector = injector;
+  }
 }
+
+export const appInjector = () => AppComponent.appInjector;

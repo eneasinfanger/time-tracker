@@ -1,67 +1,52 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, inject, input, OnDestroy, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, model, OnInit, output, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Activity } from '../models';
+import { Activity, EMPTY_TIME, Time } from '../utils/models';
 import { SuggestionsService } from '../services/suggestions.service';
+import { initUsing } from '../utils/signals';
+import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'tr[activity-row]',
-  imports: [FormsModule],
+  imports: [FormsModule, SuggestableInputComponent, NgClass],
   templateUrl: './activity-row.component.html',
   styleUrls: ['./activity-row.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ActivityRowComponent implements AfterViewInit, OnDestroy {
-  readonly activity = input.required<Activity>();
-  readonly currentDate = input<string>();
+export class ActivityRowComponent implements OnInit {
+  readonly suggestions = inject(SuggestionsService);
+
+  readonly activity = input.required<WritableSignal<Activity>>();
+  readonly currentDate = input.required<string>();
   readonly addRow = output<void>();
   readonly removeRow = output<void>();
 
-  private host = inject(ElementRef).nativeElement as HTMLElement;
-  private suggestions = inject(SuggestionsService);
+  readonly startTime = model<Time>(EMPTY_TIME);
+  readonly endTime = model<Time>(EMPTY_TIME);
+  readonly description = model('');
+  readonly type = model<Activity['type']>('activity');
 
-  private attachedInputs: HTMLInputElement[] = [];
-
-  ngAfterViewInit() {
-    this.attachListeners();
-  }
-
-  ngOnDestroy() {
-    this.attachedInputs.forEach(i => this.suggestions.detachSuggestionsFromInput(i));
+  ngOnInit() {
+    initUsing(this.activity())
+      .set(this.startTime, 'startTime')
+      .set(this.endTime, 'endTime')
+      .set(this.description, 'description')
+      .set(this.type, 'type');
   }
 
   isText() {
-    return this.activity().type === 'text';
+    return this.activity()().type === 'text';
   }
 
-  private attachListeners() {
-    const startTimeInput = this.host.querySelector<HTMLInputElement>('.start-time');
-    const endTimeInput = this.host.querySelector<HTMLInputElement>('.end-time');
-    const descriptionInput = this.host.querySelector<HTMLInputElement>('.description');
-    const typeSelect = this.host.querySelector<HTMLSelectElement>('.activity-type');
+  getStartSuggestions = () => {
+    return this.suggestions.getTimeSuggestions(this.currentDate());
+  };
 
-    if (!startTimeInput || !endTimeInput || !descriptionInput || !typeSelect) return;
+  getEndSuggestions = () => {
+    return this.suggestions.getTimeSuggestions(this.currentDate());
+  };
 
-    // Attach suggestion behavior via service
-    this.suggestions.attachSuggestionsToInput(startTimeInput, (_value, dateIso) => this.suggestions.getTimeSuggestions(dateIso), () => this.currentDate() || new Date().toISOString().split('T')[0]);
-    this.suggestions.attachSuggestionsToInput(descriptionInput, (value, dateIso) => this.suggestions.getActivitySuggestions(value, dateIso), () => this.currentDate() || new Date().toISOString().split('T')[0]);
-    this.attachedInputs.push(startTimeInput, descriptionInput);
-
-    typeSelect.addEventListener('change', (e) => {
-      const isTextOnly = (e.target as HTMLSelectElement).value === 'text';
-      if (startTimeInput && endTimeInput) {
-        startTimeInput.disabled = isTextOnly;
-        endTimeInput.disabled = isTextOnly;
-
-        if (isTextOnly) {
-          startTimeInput.classList.add('bg-gray-100');
-          endTimeInput.classList.add('bg-gray-100');
-          startTimeInput.value = '';
-          endTimeInput.value = '';
-        } else {
-          startTimeInput.classList.remove('bg-gray-100');
-          endTimeInput.classList.remove('bg-gray-100');
-        }
-      }
-    });
-  }
+  getActivitySuggestions = (value: string) => {
+    return this.suggestions.getActivitySuggestions(value, this.currentDate());
+  };
 }

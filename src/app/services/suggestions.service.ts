@@ -1,7 +1,7 @@
-import { ApplicationRef, createComponent, EnvironmentInjector, inject, Injectable } from '@angular/core';
+import { ApplicationRef, createComponent, ElementRef, EnvironmentInjector, inject, Injectable, Injector } from '@angular/core';
 import { StorageService } from './storage.service';
-import { Activity } from '../models';
-import { SuggestionDropdownComponent } from '../suggestion-dropdown/suggestion-dropdown.component';
+import { Activity } from '../utils/models';
+import { HOST_ELEMENT, SuggestionDropdownComponent } from '../suggestion-dropdown/suggestion-dropdown.component';
 
 type Listener = { element: HTMLElement, type: string, handler: EventListenerOrEventListenerObject };
 
@@ -41,38 +41,27 @@ export class SuggestionsService {
     return end ? [end] : [];
   }
 
-  openDropdown(host: HTMLElement, items: string[], onSelect: (s: string) => void) {
+  openDropdown(host: ElementRef<HTMLInputElement>, suggestions: string[], onSelect: (s: string) => void) {
     this.closeDropdown();
 
-    const comp = createComponent(SuggestionDropdownComponent, { environmentInjector: this.envInj });
-    comp.instance.items.set(items || []);
-    comp.instance.select.subscribe((s: string) => {
-      onSelect(s);
+    const options: Parameters<typeof createComponent>[1] = {
+      environmentInjector: this.envInj,
+      elementInjector: Injector.create({
+        providers: [{ provide: HOST_ELEMENT, useValue: host }],
+      }),
+    };
+    const comp = createComponent(SuggestionDropdownComponent, options);
+    comp.instance.items.set(suggestions);
+    comp.instance.select.subscribe((s: string | null) => {
+      if (s !== null) { onSelect(s); }
       this.closeDropdown();
     });
 
     this.currentCompRef = comp;
 
-    // attach to body
     this.appRef.attachView(comp.hostView);
     const domEl = (comp.hostView as any).rootNodes[0] as HTMLElement;
     document.body.appendChild(domEl);
-
-    // position it under the host
-    const rect = host.getBoundingClientRect();
-    domEl.style.position = 'absolute';
-    domEl.style.left = `${ rect.left + window.scrollX }px`;
-    domEl.style.top = `${ rect.bottom + window.scrollY }px`;
-    domEl.style.minWidth = `${ rect.width }px`;
-
-    const onDocClick = (e: MouseEvent) => {
-      if (!domEl.contains(e.target as Node) && e.target !== host) {
-        this.closeDropdown();
-      }
-    };
-
-    setTimeout(() => document.addEventListener('click', onDocClick));
-    comp.onDestroy(() => document.removeEventListener('click', onDocClick));
   }
 
   closeDropdown() {
@@ -84,49 +73,5 @@ export class SuggestionsService {
       // ignore
     }
     this.currentCompRef = null;
-  }
-
-  /**
-   * Attach suggestion behavior to an input element.
-   * suggestionProvider: (value) => string[]
-   * getDateIso: () => string
-   */
-  attachSuggestionsToInput(input: HTMLInputElement, suggestionProvider: (value: string, dateIso: string) => string[], getDateIso: () => string) {
-    const handler = (e: Event) => {
-      this.closeDropdown();
-      const value = (e.target as HTMLInputElement).value;
-      const dateIso = getDateIso();
-      const items = suggestionProvider(value, dateIso);
-      if (items && items.length > 0) {
-        this.openDropdown(input, items, (s) => {
-          input.value = s;
-          input.dispatchEvent(new Event('input'));
-          input.dispatchEvent(new Event('change'));
-        });
-      }
-    };
-
-    const debounced = this.debounce(handler, 300);
-    input.addEventListener('input', debounced);
-    input.addEventListener('focus', debounced);
-
-    const list = this.listeners.get(input) || [];
-    list.push({ element: input, type: 'input', handler: debounced });
-    list.push({ element: input, type: 'focus', handler: debounced });
-    this.listeners.set(input, list);
-  }
-
-  detachSuggestionsFromInput(input: HTMLInputElement) {
-    const list = this.listeners.get(input) || [];
-    list.forEach(l => input.removeEventListener(l.type, l.handler));
-    this.listeners.delete(input);
-  }
-
-  private debounce(fn: EventListener, wait = 300) {
-    let t: any;
-    return (e: Event) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(e), wait);
-    };
   }
 }

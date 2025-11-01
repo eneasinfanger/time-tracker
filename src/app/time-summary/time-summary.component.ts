@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { ActivitySummary } from '../models';
+import { ActivitySummary } from '../utils/models';
 
 @Component({
   selector: 'time-summary',
   imports: [],
   templateUrl: './time-summary.component.html',
   styleUrls: ['./time-summary.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeSummaryComponent {
   readonly visible = input(false);

@@ -1,17 +1,18 @@
 <td class="py-3 px-4">
-  <input type="time" [disabled]="isText()" class="start-time w-full p-2 border border-gray-300 rounded-lg"
-    [(ngModel)]="activity().startTime">
+  <input suggestable type="time" [disabled]="isText()" class="w-full p-2 border border-gray-300 rounded-lg"
+    [ngClass]="{'bg-gray-100': isText()}" [(ngModel)]="startTime" [suggestionProvider]="getStartSuggestions">
 </td>
 <td class="py-3 px-4">
-  <input type="time" [disabled]="isText()" class="end-time w-full p-2 border border-gray-300 rounded-lg"
-    [(ngModel)]="activity().endTime">
+  <input suggestable type="time" [disabled]="isText()" class="w-full p-2 border border-gray-300 rounded-lg"
+    [ngClass]="{'bg-gray-100': isText()}" [(ngModel)]="endTime" [suggestionProvider]="getEndSuggestions">
 </td>
 <td class="py-3 px-4 relative">
-  <input type="text" class="description w-full p-2 border border-gray-300 rounded-lg"
-    [(ngModel)]="activity().description" placeholder="Enter activity or description...">
+  <input suggestable type="text" class="w-full p-2 border border-gray-300 rounded-lg"
+    [(ngModel)]="description" [suggestionProvider]="getActivitySuggestions"
+    placeholder="Enter activity or description...">
 </td>
 <td class="py-3 px-4">
-  <select class="activity-type w-full p-2 border border-gray-300 rounded-lg" [(ngModel)]="activity().type">
+  <select class="w-full p-2 border border-gray-300 rounded-lg" [(ngModel)]="type">
     <option value="activity">Timed Activity</option>
     <option value="text">Text Only</option>
   </select>
