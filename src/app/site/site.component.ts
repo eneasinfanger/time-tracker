@@ -20,9 +20,7 @@ export class SiteComponent {
   protected readonly currentDate = signal(new Date());
   protected readonly currentDateString = computed(() => formatDate(this.currentDate()));
   protected readonly activities = signal<WritableSignal<Activity>[]>([]);
-
-  protected readonly summaryVisible = signal(false);
-  protected readonly summary = signal<ActivitySummary>({});
+  protected readonly summary = signal<ActivitySummary>(new Map());
 
   private storage = inject(StorageService);
   private calculator = inject(TimeCalculatorService);
@@ -55,7 +53,6 @@ export class SiteComponent {
     d.setDate(d.getDate() + direction);
     this.currentDate.set(d);
     this.loadActivitiesForCurrentDay();
-    this.summaryVisible.set(false);
   }
 
   loadActivitiesForCurrentDay() {
@@ -64,8 +61,6 @@ export class SiteComponent {
     if (activities.length !== 0) {
       this.activities.set(activities.map(wrapInSignal));
     }
-    this.summaryVisible.set(false);
-    this.summary.set({});
   }
 
   saveCurrentActivities() {
@@ -78,6 +73,7 @@ export class SiteComponent {
       id: generateUUID(),
       startTime: '',
       endTime: '',
+      task: '',
       description: '',
       type: 'activity',
     });
@@ -105,8 +101,6 @@ export class SiteComponent {
   calculateAndShowSummary() {
     this.saveCurrentActivities();
     const activities = this.storage.getActivitiesForDate(this.currentDateString()) || [];
-    const summaryObj = this.calculator.calculateTimePerActivity(activities as Activity[]);
-    this.summary.set(summaryObj);
-    this.summaryVisible.set(true);
+    this.summary.set(this.calculator.calculateTimePerActivity(activities as Activity[]));
   }
 }

@@ -11,6 +11,11 @@
     [(ngModel)]="description" [suggestionProvider]="getActivitySuggestions"
     placeholder="Enter activity or description...">
 </td>
+<td class="py-3 px-4 relative">
+  <input suggestable type="text" class="w-full p-2 border border-gray-300 rounded-lg"
+    [(ngModel)]="task" [suggestionProvider]="getTaskSuggestions"
+    placeholder="Enter task-number..">
+</td>
 <td class="py-3 px-4">
   <select class="w-full p-2 border border-gray-300 rounded-lg" [(ngModel)]="type">
     <option value="activity">Timed Activity</option>

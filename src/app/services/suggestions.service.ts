@@ -19,12 +19,20 @@ export class SuggestionsService {
    * Return unique activity descriptions from the last week (or filtered by input).
    */
   getActivitySuggestions(input: string, currentDateIso: FormattedDate): string[] {
+    return this.processPastActivities(input, currentDateIso, a => a.description);
+  }
+
+  getTaskSuggestions(input: string, currentDateIso: FormattedDate): string[] {
+    return this.processPastActivities(input, currentDateIso, a => a.task);
+  }
+
+  private processPastActivities(input: string, currentDateIso: FormattedDate, getter: (a: Activity) => string): string[] {
     const lastWeek = new Date(currentDateIso);
     lastWeek.setDate(lastWeek.getDate() - 7);
     const all: Activity[] = this.storage.getPastActivities(formatDate(lastWeek), currentDateIso) || [];
     const unique = [...new Set(all
-      .filter(a => a.type === 'activity' && a.description)
-      .map(a => a.description),
+      .filter(a => a.type === 'activity' && getter(a))
+      .map(getter),
     )];
 
     if (!input) return unique;

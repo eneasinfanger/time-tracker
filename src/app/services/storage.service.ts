@@ -8,11 +8,15 @@ export class StorageService {
   saveActivitiesForDate(date: FormattedDate, activities: Activity[]) {
     const key = this.getStorageKey(date);
 
-    if (activities.length > 1 || (activities[0]?.startTime || activities[0]?.endTime || activities[0]?.description)) {
+    if (activities.length > 1 || this.isNotEmpty(activities[0])) {
       localStorage.setItem(key, JSON.stringify(activities));
     } else {
       localStorage.removeItem(key);
     }
+  }
+
+  private isNotEmpty(activity?: Activity) {
+    return activity?.startTime || activity?.endTime || activity?.description || activity?.task;
   }
 
   getActivitiesForDate(date: FormattedDate): Activity[] | null {

@@ -4,17 +4,17 @@ import { Activity, ActivitySummary, Time } from '../utils/models';
 @Injectable({ providedIn: 'root' })
 export class TimeCalculatorService {
   calculateTimePerActivity(activities: Activity[]): ActivitySummary {
-    const activityTimes: ActivitySummary = {};
+    const activityTimes: ActivitySummary = new Map();
 
     activities.forEach(activity => {
       if (activity.type === 'activity' && activity.startTime && activity.endTime && activity.description) {
         const duration = this.calculateDuration(activity.startTime, activity.endTime);
 
         if (duration > 0) {
-          if (!activityTimes[activity.description]) {
-            activityTimes[activity.description] = 0;
-          }
-          activityTimes[activity.description] += duration;
+          const entry = activityTimes.get(activity.description) ?? { activities: [], totalMinutes: 0 };
+          entry.activities.push(activity);
+          entry.totalMinutes += duration;
+          activityTimes.set(activity.description, entry);
         }
       }
     });

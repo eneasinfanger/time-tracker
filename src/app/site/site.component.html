@@ -39,6 +39,7 @@
             <th class="text-left py-3 px-4 font-medium text-gray-700">Start Time</th>
             <th class="text-left py-3 px-4 font-medium text-gray-700">End Time</th>
             <th class="text-left py-3 px-4 font-medium text-gray-700">Activity / Description</th>
+            <th class="text-left py-3 px-4 font-medium text-gray-700">Task</th>
             <th class="text-left py-3 px-4 font-medium text-gray-700">Type</th>
             <th class="text-left py-3 px-4 font-medium text-gray-700 w-32">Actions</th>
           </tr>
@@ -60,5 +61,5 @@
     </div>
   </div>
 
-  <time-summary [visible]="summaryVisible()" [summary]="summary()" [dateDisplay]="formatDateDisplay(currentDate())"/>
+  <time-summary [summary]="summary()" [dateDisplay]="formatDateDisplay(currentDate())"/>
 </div>

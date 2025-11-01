@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { ActivitySummary } from '../utils/models';
+import { Activity, ActivitySummary } from '../utils/models';
 
 @Component({
   selector: 'time-summary',
@@ -9,16 +9,15 @@ import { ActivitySummary } from '../utils/models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimeSummaryComponent {
-  readonly visible = input(false);
-  readonly summary = input<ActivitySummary>({});
-  readonly dateDisplay = input('');
-
-  entries() {
-    return Object.entries(this.summary()).sort((a, b) => a[0] > b[0] ? 1 : -1);
-  }
+  readonly summary = input.required<ActivitySummary>();
+  readonly dateDisplay = input.required();
 
   hasSummary() {
-    return Object.keys(this.summary()).length > 0;
+    return this.summary().size > 0;
+  }
+
+  listTasks(activities: Activity[]) {
+    return [...new Set(activities.map(a => a.task))].join('; ');
   }
 
   formatDuration(minutes: number) {

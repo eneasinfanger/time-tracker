@@ -24,6 +24,7 @@ export class ActivityRowComponent implements OnInit {
   readonly startTime = model<Time>('');
   readonly endTime = model<Time>('');
   readonly description = model('');
+  readonly task = model('');
   readonly type = model<Activity['type']>('activity');
 
   ngOnInit() {
@@ -31,6 +32,7 @@ export class ActivityRowComponent implements OnInit {
       .set(this.startTime, 'startTime')
       .set(this.endTime, 'endTime')
       .set(this.description, 'description')
+      .set(this.task, 'task')
       .set(this.type, 'type');
   }
 
@@ -50,5 +52,9 @@ export class ActivityRowComponent implements OnInit {
 
   getActivitySuggestions = (value: string) => {
     return this.suggestions.getActivitySuggestions(value, this.currentDate());
+  };
+
+  getTaskSuggestions = (value: string) => {
+    return this.suggestions.getTaskSuggestions(value, this.currentDate());
   };
 }
