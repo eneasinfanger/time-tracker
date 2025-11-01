@@ -51,7 +51,8 @@
           <tbody id="activitiesTable">
             @for (activity of activities(); track activity; let i = $index) {
               <tr activity-row class="border-b border-gray-100 hover:bg-gray-50" [activity]="activity"
-                [currentDate]="currentDateString()" (addRow)="addNewActivity(i)" (removeRow)="removeActivity(i)"></tr>
+                [storageIndex]="i" [currentDate]="currentDateString()" (addRow)="addNewActivity(i)"
+                (removeRow)="removeActivity(i)"></tr>
             }
           </tbody>
         </table>

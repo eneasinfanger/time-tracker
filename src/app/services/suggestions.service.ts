@@ -31,12 +31,22 @@ export class SuggestionsService {
     return unique.filter(d => d.toLowerCase().includes(input.toLowerCase()));
   }
 
-  /**
-   * Return last end time for the provided date as an array (to match original API)
-   */
-  getTimeSuggestions(currentDateIso: string): string[] {
-    const end = this.storage.getLastEndTime(currentDateIso as unknown as any);
-    return end ? [end] : [];
+  getStartSuggestions(currentDateIso: FormattedDate, storageIndex: number): string[] {
+    const activities = this.storage.getSortedActivitiesForDate(currentDateIso);
+    const before = activities
+      ?.slice(0, storageIndex)
+      ?.filter(ac => ac.type == 'activity' && ac.endTime)
+      ?.pop();
+    return before ? [before.endTime] : [];
+  }
+
+  getEndSuggestions(currentDateIso: FormattedDate, storageIndex: number): string[] {
+    const activities = this.storage.getSortedActivitiesForDate(currentDateIso);
+    const after = activities
+      ?.slice(storageIndex + 1)
+      ?.filter(ac => ac.type == 'activity' && ac.startTime)
+      ?.shift();
+    return after ? [after.startTime] : [];
   }
 
   openDropdown(host: ElementRef<HTMLInputElement>, suggestions: string[], onSelect: (s: string) => void) {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Activity, FormattedDate, Time } from '../utils/models';
+import { Activity, FormattedDate } from '../utils/models';
 
 const storagePrefix = 'timetracker_';
 
@@ -20,6 +20,18 @@ export class StorageService {
     const key = this.getStorageKey(date);
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : null;
+  }
+
+  getSortedActivitiesForDate(date: FormattedDate): Activity[] | null {
+    return this.getActivitiesForDate(date)
+      ?.sort((a, b) => {
+        if (a.startTime && b.startTime) {
+          return a.startTime.localeCompare(b.startTime);
+        } else if (a.endTime && b.endTime) {
+          return a.endTime.localeCompare(b.endTime);
+        }
+        return 0;
+      }) ?? null;
   }
 
   private getStorageKey(date: FormattedDate) {
@@ -51,18 +63,5 @@ export class StorageService {
       }
     }
     return dates;
-  }
-
-  getLastEndTime(date: FormattedDate): Time | undefined {
-    const activities = this.getActivitiesForDate(date) || [];
-    const timedActivities = activities.filter(activity =>
-      activity.type === 'activity' && activity.endTime,
-    );
-
-    if (timedActivities.length === 0) return;
-
-    return timedActivities
-      .sort((a, b) => a.endTime.localeCompare(b.endTime))
-      .pop()?.endTime;
   }
 }

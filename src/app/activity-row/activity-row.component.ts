@@ -17,6 +17,7 @@ export class ActivityRowComponent implements OnInit {
   readonly suggestions = inject(SuggestionsService);
 
   readonly activity = input.required<WritableSignal<Activity>>();
+  readonly storageIndex = input.required<number>();
   readonly currentDate = input.required<FormattedDate>();
   readonly addRow = output<void>();
   readonly removeRow = output<void>();
@@ -39,11 +40,11 @@ export class ActivityRowComponent implements OnInit {
   }
 
   getStartSuggestions = () => {
-    return this.suggestions.getTimeSuggestions(this.currentDate());
+    return this.suggestions.getStartSuggestions(this.currentDate(), this.storageIndex());
   };
 
   getEndSuggestions = () => {
-    return this.suggestions.getTimeSuggestions(this.currentDate());
+    return this.suggestions.getEndSuggestions(this.currentDate(), this.storageIndex());
   };
 
   getActivitySuggestions = (value: string) => {

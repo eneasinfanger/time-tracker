@@ -94,8 +94,10 @@ export class SiteComponent {
   }
 
   removeActivity(index: number) {
-    const copy = [...this.activities()];
-    if (copy.length > 1) {
+    if (this.activities().length == 1) {
+      this.activities.set([]);
+    } else if (this.activities().length) {
+      const copy = [...this.activities()];
       copy.splice(index, 1);
       this.activities.set(copy);
     }
