@@ -31,8 +31,9 @@ export class SuggestionsService {
     return unique.filter(d => d.toLowerCase().includes(input.toLowerCase()));
   }
 
-  getStartSuggestions(currentDateIso: FormattedDate, storageIndex: number): string[] {
+  getStartSuggestions(currentDateIso: FormattedDate, compareFunction: (a: Activity) => boolean): string[] {
     const activities = this.storage.getSortedActivitiesForDate(currentDateIso);
+    const storageIndex = activities?.findIndex(compareFunction);
     const before = activities
       ?.slice(0, storageIndex)
       ?.filter(ac => ac.type == 'activity' && ac.endTime)
@@ -40,8 +41,12 @@ export class SuggestionsService {
     return before ? [before.endTime] : [];
   }
 
-  getEndSuggestions(currentDateIso: FormattedDate, storageIndex: number): string[] {
+  getEndSuggestions(currentDateIso: FormattedDate, compareFunction: (a: Activity) => boolean): string[] {
     const activities = this.storage.getSortedActivitiesForDate(currentDateIso);
+    const storageIndex = activities?.findIndex(compareFunction);
+    if (!storageIndex) {
+      return [];
+    }
     const after = activities
       ?.slice(storageIndex + 1)
       ?.filter(ac => ac.type == 'activity' && ac.startTime)

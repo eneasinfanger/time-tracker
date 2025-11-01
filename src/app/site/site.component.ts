@@ -7,6 +7,7 @@ import { ActivityRowComponent } from '../activity-row/activity-row.component';
 import { Activity, ActivitySummary } from '../utils/models';
 import { unwrapSignal, wrapInSignal } from '../utils/signals';
 import { formatDate } from '../utils/dates';
+import { generateUUID, UUID } from '../utils/crypto';
 
 @Component({
   selector: 'app-site',
@@ -60,11 +61,7 @@ export class SiteComponent {
   loadActivitiesForCurrentDay() {
     const date = this.currentDateString();
     const activities = this.storage.getActivitiesForDate(date) || [];
-    if (activities.length === 0) {
-      this.activities.set([
-        signal({ startTime: '', endTime: '', description: '', type: 'activity' }),
-      ]);
-    } else {
+    if (activities.length !== 0) {
       this.activities.set(activities.map(wrapInSignal));
     }
     this.summaryVisible.set(false);
@@ -76,8 +73,9 @@ export class SiteComponent {
     this.storage.saveActivitiesForDate(date, this.activities().map(unwrapSignal));
   }
 
-  addNewActivity(insertAfterIndex: number | null = null) {
+  addNewActivity(afterId: UUID | null = null) {
     const newActivity: WritableSignal<Activity> = signal({
+      id: generateUUID(),
       startTime: '',
       endTime: '',
       description: '',
@@ -85,6 +83,7 @@ export class SiteComponent {
     });
 
     const copy = [...this.activities()];
+    const insertAfterIndex = afterId ? copy.findIndex(ac => ac().id === afterId) : null;
     if (insertAfterIndex !== null) {
       copy.splice(insertAfterIndex + 1, 0, newActivity);
     } else {
@@ -93,12 +92,12 @@ export class SiteComponent {
     this.activities.set(copy);
   }
 
-  removeActivity(index: number) {
+  removeActivity(id: UUID) {
     if (this.activities().length == 1) {
       this.activities.set([]);
     } else if (this.activities().length) {
       const copy = [...this.activities()];
-      copy.splice(index, 1);
+      copy.splice(copy.findIndex(a => a().id == id), 1);
       this.activities.set(copy);
     }
   }

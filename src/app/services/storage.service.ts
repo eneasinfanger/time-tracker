@@ -7,10 +7,9 @@ const storagePrefix = 'timetracker_';
 export class StorageService {
   saveActivitiesForDate(date: FormattedDate, activities: Activity[]) {
     const key = this.getStorageKey(date);
-    const filtered = activities.filter(ac => ac.startTime || ac.endTime || ac.description);
 
-    if (filtered.length) {
-      localStorage.setItem(key, JSON.stringify(filtered));
+    if (activities.length > 1 || (activities[0]?.startTime || activities[0]?.endTime || activities[0]?.description)) {
+      localStorage.setItem(key, JSON.stringify(activities));
     } else {
       localStorage.removeItem(key);
     }
