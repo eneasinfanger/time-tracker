@@ -59,10 +59,10 @@ export class SiteComponent {
 
   loadActivitiesForCurrentDay() {
     const date = this.currentDateString();
-    const activities = this.storage.getActivitiesForDate(date as unknown as any) || [];
+    const activities = this.storage.getActivitiesForDate(date) || [];
     if (activities.length === 0) {
       this.activities.set([
-        signal({ startTime: '' as any, endTime: '' as any, description: '', type: 'activity' }),
+        signal({ startTime: '', endTime: '', description: '', type: 'activity' }),
       ]);
     } else {
       this.activities.set(activities.map(wrapInSignal));
@@ -78,8 +78,8 @@ export class SiteComponent {
 
   addNewActivity(insertAfterIndex: number | null = null) {
     const newActivity: WritableSignal<Activity> = signal({
-      startTime: '' as any,
-      endTime: '' as any,
+      startTime: '',
+      endTime: '',
       description: '',
       type: 'activity',
     });
@@ -103,7 +103,7 @@ export class SiteComponent {
 
   calculateAndShowSummary() {
     this.saveCurrentActivities();
-    const activities = this.storage.getActivitiesForDate(this.currentDateString() as unknown as any) || [];
+    const activities = this.storage.getActivitiesForDate(this.currentDateString()) || [];
     const summaryObj = this.calculator.calculateTimePerActivity(activities as Activity[]);
     this.summary.set(summaryObj);
     this.summaryVisible.set(true);

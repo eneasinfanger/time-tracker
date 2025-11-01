@@ -1,7 +1,8 @@
 import { ApplicationRef, createComponent, ElementRef, EnvironmentInjector, inject, Injectable, Injector } from '@angular/core';
 import { StorageService } from './storage.service';
-import { Activity } from '../utils/models';
+import { Activity, FormattedDate } from '../utils/models';
 import { HOST_ELEMENT, SuggestionDropdownComponent } from '../suggestion-dropdown/suggestion-dropdown.component';
+import { formatDate } from '../utils/dates';
 
 type Listener = { element: HTMLElement, type: string, handler: EventListenerOrEventListenerObject };
 
@@ -17,13 +18,10 @@ export class SuggestionsService {
   /**
    * Return unique activity descriptions from the last week (or filtered by input).
    */
-  getActivitySuggestions(input: string, currentDateIso: string): string[] {
+  getActivitySuggestions(input: string, currentDateIso: FormattedDate): string[] {
     const lastWeek = new Date(currentDateIso);
     lastWeek.setDate(lastWeek.getDate() - 7);
-    const from = lastWeek.toISOString().split('T')[0] as unknown as any;
-    const to = currentDateIso as unknown as any;
-
-    const all: Activity[] = this.storage.getPastActivities(from, to) || [];
+    const all: Activity[] = this.storage.getPastActivities(formatDate(lastWeek), currentDateIso) || [];
     const unique = [...new Set(all
       .filter(a => a.type === 'activity' && a.description)
       .map(a => a.description),
