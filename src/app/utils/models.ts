@@ -21,7 +21,7 @@ export type Activity = {
   type: 'activity' | 'text';
 };
 
-export type PersistentActivity = {
+export type ActivityDetails = {
   id: UUID;
   description: string;
   task: string;
@@ -32,7 +32,7 @@ export type Time = '' | `${ number }${ number }:${ number }${ number }`;
 export type Duration = { weeks: number; days: number; hours: number; minutes: number };
 
 export type Settings = {
-  alwaysShownActivities: PersistentActivity[];
+  alwaysShownActivities: ActivityDetails[];
   durationThreshold: Duration;
   enableTasks: boolean;
 }

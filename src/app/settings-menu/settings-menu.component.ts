@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, effect, input, OnInit, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Duration, PersistentActivity, Settings } from '../utils/models';
+import { ActivityDetails, Duration, Settings } from '../utils/models';
 import { generateUUID, UUID } from '../utils/crypto';
 
 @Component({
@@ -24,7 +24,7 @@ export class SettingsMenuComponent implements OnInit {
 
   enableTasks = signal(true);
   durationThreshold = signal<Duration>({} as Duration);
-  alwaysShownActivities = signal<PersistentActivity[]>([]);
+  alwaysShownActivities = signal<ActivityDetails[]>([]);
 
   durationThresholdInput = signal('');
   descriptionInput = signal('');

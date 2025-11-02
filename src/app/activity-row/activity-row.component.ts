@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, input, model, OnInit, output, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Activity, FormattedDate, Time } from '../utils/models';
+import { Activity, ActivityDetails, FormattedDate, Time } from '../utils/models';
 import { SuggestionsService } from '../services/suggestions.service';
 import { initUsing } from '../utils/signals';
 import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
 import { NgClass } from '@angular/common';
 import { StorageService } from '../services/storage.service';
+import { SettingsHolder } from '../utils/settings';
 
 @Component({
   selector: 'tr[activity-row]',
@@ -72,8 +73,9 @@ export class ActivityRowComponent implements OnInit {
     }
   }
 
-  private findMatchingActivity(comparison: (a: Activity) => boolean) {
+  private findMatchingActivity(comparison: (a: ActivityDetails) => boolean) {
     return this.storage.getPastActivities(this.currentDate())
+      .concat(...SettingsHolder.getSettings().alwaysShownActivities as Activity[])
       .filter(comparison)
       .pop();
   }

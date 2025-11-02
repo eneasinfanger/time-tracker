@@ -1,7 +1,8 @@
 import { ApplicationRef, createComponent, ElementRef, EnvironmentInjector, inject, Injectable, Injector } from '@angular/core';
 import { StorageService } from './storage.service';
-import { Activity, FormattedDate } from '../utils/models';
+import { Activity, ActivityDetails, FormattedDate } from '../utils/models';
 import { HOST_ELEMENT, SuggestionDropdownComponent } from '../suggestion-dropdown/suggestion-dropdown.component';
+import { SettingsHolder } from '../utils/settings';
 
 @Injectable({ providedIn: 'root' })
 export class SuggestionsService {
@@ -21,10 +22,10 @@ export class SuggestionsService {
     return this.processPastActivities(input, currentDateIso, a => a.task);
   }
 
-  private processPastActivities(input: string, currentDateIso: FormattedDate, getter: (a: Activity) => string): string[] {
-    const all: Activity[] = this.storage.getPastActivities(currentDateIso);
-    const unique = [...new Set(all
+  private processPastActivities(input: string, currentDateIso: FormattedDate, getter: (a: ActivityDetails) => string): string[] {
+    const unique = [...new Set(this.storage.getPastActivities(currentDateIso)
       .filter(a => a.type === 'activity' && getter(a))
+      .concat(...SettingsHolder.getSettings().alwaysShownActivities.filter(getter) as Activity[])
       .map(getter),
     )];
 

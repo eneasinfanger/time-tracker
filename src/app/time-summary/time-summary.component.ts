@@ -1,10 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal, Signal } from '@angular/core';
 import { Activity, ActivitySummary, ActivitySummaryEntry } from '../utils/models';
-import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
 
 @Component({
   selector: 'time-summary',
-  imports: [SettingsMenuComponent],
+  imports: [],
   templateUrl: './time-summary.component.html',
   styleUrls: ['./time-summary.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
