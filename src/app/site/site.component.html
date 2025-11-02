@@ -24,7 +24,7 @@
           </svg>
         </button>
       </div>
-      <settings-menu (settingsChange)="onSettingsChange($event)"></settings-menu>
+      <settings-menu [currentSettings]="settings()" (settingsChange)="settings.set($event)"></settings-menu>
     </div>
   </div>
 

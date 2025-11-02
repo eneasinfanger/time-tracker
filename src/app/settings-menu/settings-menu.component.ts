@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, effect, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, input, OnInit, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Duration, PersistentActivity } from '../utils/models';
+import { Duration, PersistentActivity, Settings } from '../utils/models';
 import { generateUUID, UUID } from '../utils/crypto';
 
 @Component({
@@ -12,15 +12,12 @@ import { generateUUID, UUID } from '../utils/crypto';
     FormsModule,
   ],
 })
-export class SettingsMenuComponent {
+export class SettingsMenuComponent implements OnInit {
   readonly ERROR_INVALID_DURATION = 'Invalid duration format!';
   readonly ERROR_DUPLICATE_ACTIVITY = 'Duplicate activity entry!';
 
-  readonly settingsChange = output<{
-    alwaysShownActivities: PersistentActivity[];
-    durationThreshold: Duration;
-    enableTasks: boolean;
-  }>();
+  readonly currentSettings = input.required<Settings>();
+  readonly settingsChange = output<Settings>();
 
   open = signal(false);
   errors = signal<Set<string>>(new Set());
@@ -38,6 +35,12 @@ export class SettingsMenuComponent {
       this.durationThreshold();
       this.durationThresholdInput.set(this.formatDurationThreshold());
     });
+  }
+
+  ngOnInit() {
+    this.durationThreshold.set(this.currentSettings().durationThreshold);
+    this.alwaysShownActivities.set(this.currentSettings().alwaysShownActivities);
+    this.enableTasks.set(this.currentSettings().enableTasks);
   }
 
   toggle() {

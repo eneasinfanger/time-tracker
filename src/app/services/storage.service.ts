@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Activity, FormattedDate } from '../utils/models';
-
-const storagePrefix = 'timetracker_';
+import { Activity, FormattedDate, Settings } from '../utils/models';
+import { formatDate, subtractDuration } from '../utils/dates';
+import { SettingsHolder } from '../utils/settings';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
+  private readonly storagePrefix = 'timetracker_';
+  private readonly settingsKey = 'timetracker_settings';
+
   saveActivitiesForDate(date: FormattedDate, activities: Activity[]) {
     const key = this.getStorageKey(date);
 
@@ -38,12 +41,13 @@ export class StorageService {
   }
 
   private getStorageKey(date: FormattedDate) {
-    return `${ storagePrefix }${ date }`;
+    return `${ this.storagePrefix }${ date }`;
   }
 
-  getPastActivities(fromDate: FormattedDate, toDate: FormattedDate) {
+  getPastActivities(currentDate: FormattedDate): Activity[] {
+    const from = formatDate(subtractDuration(new Date(currentDate), SettingsHolder.getSettings().durationThreshold));
     const allActivities: Activity[] = [];
-    const dates = this.getAllStoredDates(fromDate, toDate);
+    const dates = this.getAllStoredDates(from, currentDate);
 
     dates.forEach(date => {
       const activities = this.getActivitiesForDate(date);
@@ -61,10 +65,19 @@ export class StorageService {
     const dates: FormattedDate[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith(storagePrefix) && key >= fromDateKey && key <= toDateKey) {
-        dates.push(key.replace(storagePrefix, '') as FormattedDate);
+      if (key && key.startsWith(this.storagePrefix) && key >= fromDateKey && key <= toDateKey) {
+        dates.push(key.replace(this.storagePrefix, '') as FormattedDate);
       }
     }
     return dates;
+  }
+
+  saveSettings(settings: Settings) {
+    localStorage.setItem(this.settingsKey, JSON.stringify(settings));
+  }
+
+  getSettings(): Settings | null {
+    const stored = localStorage.getItem(this.settingsKey);
+    return stored ? JSON.parse(stored) : null;
   }
 }

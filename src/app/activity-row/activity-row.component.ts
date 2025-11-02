@@ -6,7 +6,6 @@ import { initUsing } from '../utils/signals';
 import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
 import { NgClass } from '@angular/common';
 import { StorageService } from '../services/storage.service';
-import { formatDate } from '../utils/dates';
 
 @Component({
   selector: 'tr[activity-row]',
@@ -74,9 +73,7 @@ export class ActivityRowComponent implements OnInit {
   }
 
   private findMatchingActivity(comparison: (a: Activity) => boolean) {
-    const lastWeek = new Date(this.currentDate());
-    lastWeek.setDate(lastWeek.getDate() - 7);
-    return this.storage.getPastActivities(formatDate(lastWeek), this.currentDate())
+    return this.storage.getPastActivities(this.currentDate())
       .filter(comparison)
       .pop();
   }

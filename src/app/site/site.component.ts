@@ -4,11 +4,12 @@ import { StorageService } from '../services/storage.service';
 import { TimeCalculatorService } from '../services/time-calculator.service';
 import { TimeSummaryComponent } from '../time-summary/time-summary.component';
 import { ActivityRowComponent } from '../activity-row/activity-row.component';
-import { Activity, ActivitySummary } from '../utils/models';
+import { Activity, ActivitySummary, Settings } from '../utils/models';
 import { unwrapSignal, wrapInSignal } from '../utils/signals';
 import { formatDate } from '../utils/dates';
 import { generateUUID, UUID } from '../utils/crypto';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
+import { SettingsHolder } from '../utils/settings';
 
 @Component({
   selector: 'app-site',
@@ -18,10 +19,11 @@ import { SettingsMenuComponent } from '../settings-menu/settings-menu.component'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SiteComponent {
-  protected readonly currentDate = signal(new Date());
-  protected readonly currentDateString = computed(() => formatDate(this.currentDate()));
-  protected readonly activities = signal<WritableSignal<Activity>[]>([]);
-  protected readonly summary = signal<ActivitySummary>({} as ActivitySummary);
+  readonly currentDate = signal(new Date());
+  readonly currentDateString = computed(() => formatDate(this.currentDate()));
+  readonly activities = signal<WritableSignal<Activity>[]>([]);
+  readonly summary = signal<ActivitySummary>({} as ActivitySummary);
+  readonly settings = signal<Settings>({} as Settings);
 
   private storage = inject(StorageService);
   private calculator = inject(TimeCalculatorService);
@@ -31,13 +33,33 @@ export class SiteComponent {
   }
 
   private initialize() {
+    this.loadSettings();
     this.loadActivitiesForCurrentDay();
+
+    effect(() => {
+      this.storage.saveSettings(this.settings());
+      SettingsHolder.setSettings(this.settings());
+    });
 
     effect(() => {
       this.activities();
       this.saveCurrentActivities();
       this.calculateAndShowSummary();
     });
+  }
+
+  private loadSettings() {
+    let settings = this.storage.getSettings();
+    if (!settings) {
+      settings = {
+        alwaysShownActivities: [],
+        durationThreshold: { weeks: 1, days: 0, hours: 0, minutes: 0 },
+        enableTasks: true,
+      };
+      this.storage.saveSettings(settings);
+    }
+    this.settings.set(settings);
+    SettingsHolder.setSettings(settings);
   }
 
   formatDateDisplay(date: Date): string {
@@ -99,9 +121,5 @@ export class SiteComponent {
 
   calculateAndShowSummary() {
     this.summary.set(this.calculator.calculateTimePerActivity(this.activities().map(unwrapSignal)));
-  }
-
-  onSettingsChange($event: any) {
-    console.log('Settings changed:', $event);
   }
 }

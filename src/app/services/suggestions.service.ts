@@ -2,9 +2,6 @@ import { ApplicationRef, createComponent, ElementRef, EnvironmentInjector, injec
 import { StorageService } from './storage.service';
 import { Activity, FormattedDate } from '../utils/models';
 import { HOST_ELEMENT, SuggestionDropdownComponent } from '../suggestion-dropdown/suggestion-dropdown.component';
-import { formatDate } from '../utils/dates';
-
-type Listener = { element: HTMLElement, type: string, handler: EventListenerOrEventListenerObject };
 
 @Injectable({ providedIn: 'root' })
 export class SuggestionsService {
@@ -25,9 +22,7 @@ export class SuggestionsService {
   }
 
   private processPastActivities(input: string, currentDateIso: FormattedDate, getter: (a: Activity) => string): string[] {
-    const lastWeek = new Date(currentDateIso);
-    lastWeek.setDate(lastWeek.getDate() - 7);
-    const all: Activity[] = this.storage.getPastActivities(formatDate(lastWeek), currentDateIso) || [];
+    const all: Activity[] = this.storage.getPastActivities(currentDateIso);
     const unique = [...new Set(all
       .filter(a => a.type === 'activity' && getter(a))
       .map(getter),
