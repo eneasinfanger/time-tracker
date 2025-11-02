@@ -50,18 +50,16 @@ export class SiteComponent {
   }
 
   navigateDay(direction: number) {
-    const d = new Date(this.currentDate());
+    const d = this.currentDate();
     d.setDate(d.getDate() + direction);
-    this.currentDate.set(d);
+    this.currentDate.set(new Date(d));
     this.loadActivitiesForCurrentDay();
   }
 
   loadActivitiesForCurrentDay() {
     const date = this.currentDateString();
     const activities = this.storage.getActivitiesForDate(date) || [];
-    if (activities.length !== 0) {
-      this.activities.set(activities.map(wrapInSignal));
-    }
+    this.activities.set(activities.map(wrapInSignal));
   }
 
   saveCurrentActivities() {
@@ -100,9 +98,7 @@ export class SiteComponent {
   }
 
   calculateAndShowSummary() {
-    this.saveCurrentActivities();
-    const activities = this.storage.getActivitiesForDate(this.currentDateString()) || [];
-    this.summary.set(this.calculator.calculateTimePerActivity(activities as Activity[]));
+    this.summary.set(this.calculator.calculateTimePerActivity(this.activities().map(unwrapSignal)));
   }
 
   onSettingsChange($event: any) {
