@@ -61,11 +61,15 @@ export class TimeSummaryComponent {
   }
 
   listTasks(activities: Activity[]) {
-    return [...new Set(activities.map(a => a.task))].join('; ');
+    return this.listUnique(activities, 'task');
   }
 
   listDescriptions(activities: Activity[]) {
-    return [...new Set(activities.map(a => a.description))].join('; ');
+    return this.listUnique(activities, 'description');
+  }
+
+  private listUnique(activities: Activity[], key: 'description' | 'task'): string {
+    return [...new Set(activities.map(a => a[key]).filter(s => s))].join('; ');
   }
 
   formatDuration(minutes: number) {
@@ -74,4 +78,3 @@ export class TimeSummaryComponent {
     return hours > 0 ? `${ hours }h ${ mins }m` : `${ mins }m`;
   }
 }
-
