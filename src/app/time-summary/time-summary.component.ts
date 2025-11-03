@@ -53,10 +53,6 @@ export class TimeSummaryComponent {
     this.viewMode.set(mode);
   }
 
-  onSettingsChange(_settings: unknown) {
-    // UI-only integration point for settings (no logic applied yet)
-  }
-
   hasSummary() {
     return this.viewMode() === 'description'
       ? this.summary().hasActivitiesWithDescription()

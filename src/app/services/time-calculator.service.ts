@@ -6,18 +6,24 @@ export class TimeCalculatorService {
   calculateTimePerActivity(activities: Activity[]): ActivitySummary {
     const getTotalByMapKey = this.getTotalMapByKey.bind(this, activities);
     const hasActivitiesWithKey = this.hasActivitiesWithKey.bind(this, activities);
+    const cache: Partial<{
+      totalByDescription: Map<string, ActivitySummaryEntry>,
+      totalByTask: Map<string, ActivitySummaryEntry>,
+      hasActivitiesWithDescription: boolean,
+      hasActivitiesWithTask: boolean,
+    }> = {};
     return {
       getTotalByDescription(): Map<string, ActivitySummaryEntry> {
-        return getTotalByMapKey('description');
+        return cache.totalByDescription ?? (cache.totalByDescription = getTotalByMapKey('description'));
       },
       getTotalByTask(): Map<string, ActivitySummaryEntry> {
-        return getTotalByMapKey('task');
+        return cache.totalByTask ?? (cache.totalByTask = getTotalByMapKey('task'));
       },
       hasActivitiesWithDescription(): boolean {
-        return hasActivitiesWithKey('description');
+        return cache.hasActivitiesWithDescription ?? (cache.hasActivitiesWithDescription = hasActivitiesWithKey('description'));
       },
       hasActivitiesWithTask(): boolean {
-        return hasActivitiesWithKey('task');
+        return cache.hasActivitiesWithTask ?? (cache.hasActivitiesWithTask = hasActivitiesWithKey('task'));
       },
     };
   }
