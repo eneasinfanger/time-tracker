@@ -1,0 +1,5 @@
+@if (taskLink()) {
+  <a class="text-blue-600 underline" [href]="taskLink()">{{ taskNr() }}</a>
+} @else {
+  {{ taskNr() }}
+}

@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal, Signal } from '@angular/core';
 import { Activity, ActivitySummary, ActivitySummaryEntry } from '../utils/models';
+import {TaskLinkComponent} from "../task-link/task-link.component";
 
 @Component({
   selector: 'time-summary',
-  imports: [],
+  imports: [
+    TaskLinkComponent
+  ],
   templateUrl: './time-summary.component.html',
   styleUrls: ['./time-summary.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,7 +19,7 @@ export class TimeSummaryComponent {
   readonly sortReverse = signal(false);
   readonly viewMode = signal<'description' | 'task'>('description');
 
-  readonly sorted: Signal<[string, ActivitySummaryEntry][]> = computed(() => {
+  readonly sortedEntries: Signal<[string, ActivitySummaryEntry][]> = computed(() => {
     const entries = Array.from(this.viewMode() == 'description'
       ? this.summary().getTotalByDescription()
       : this.summary().getTotalByTask());
@@ -60,16 +63,12 @@ export class TimeSummaryComponent {
       : this.summary().hasActivitiesWithTask();
   }
 
-  listTasks(activities: Activity[]) {
-    return this.listUnique(activities, 'task');
+  listUnique(activities: Activity[], key: 'description' | 'task'): string[] {
+    return [...new Set(activities.map(a => a[key]).filter(s => s))];
   }
 
-  listDescriptions(activities: Activity[]) {
-    return this.listUnique(activities, 'description');
-  }
-
-  private listUnique(activities: Activity[], key: 'description' | 'task'): string {
-    return [...new Set(activities.map(a => a[key]).filter(s => s))].join('; ');
+  joinUnique(activities: Activity[], key: 'description' | 'task'): string {
+    return this.listUnique(activities, key).join('; ');
   }
 
   formatDuration(minutes: number) {

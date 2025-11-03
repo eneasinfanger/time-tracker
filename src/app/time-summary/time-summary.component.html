@@ -7,37 +7,50 @@
     <div class="text-sm text-gray-600">Summary</div>
     <div class="flex items-center space-x-2">
       <button type="button" (click)="setSortMode('start')" class="text-sm px-2 py-1 rounded border"
-        [class.font-semibold]="sortMode() === 'start'">Start time
+              [class.font-semibold]="sortMode() === 'start'">Start time
       </button>
       <button type="button" (click)="setSortMode('alpha')" class="text-sm px-2 py-1 rounded border"
-        [class.font-semibold]="sortMode() === 'alpha'">Alphabetical
+              [class.font-semibold]="sortMode() === 'alpha'">Alphabetical
       </button>
       <button type="button" (click)="toggleReverse()"
-        class="text-sm px-2 py-1 rounded border">{{ sortReverse() ? 'Reversed' : 'Normal' }}
+              class="text-sm px-2 py-1 rounded border">{{ sortReverse() ? 'Reversed' : 'Normal' }}
       </button>
 
       <div class="h-6 w-px bg-gray-200 mx-2"></div>
 
       <button type="button" (click)="setViewMode('description')" class="text-sm px-2 py-1 rounded border"
-        [class.font-semibold]="viewMode() === 'description'">Group by description
+              [class.font-semibold]="viewMode() === 'description'">Group by description
       </button>
       <button type="button" (click)="setViewMode('task')" class="text-sm px-2 py-1 rounded border"
-        [class.font-semibold]="viewMode() === 'task'">Group by task
+              [class.font-semibold]="viewMode() === 'task'">Group by task
       </button>
     </div>
   </div>
 
   <div class="space-y-1">
     @if (hasSummary()) {
-      @for (item of sorted(); track item[0]) {
+      @for (entry of sortedEntries(); track entry[0]) {
         <div class="flex justify-between items-center py-1 px-4 bg-gray-50 rounded-lg">
           <div class="flex-1 min-w-0">
-            <div class="font-medium text-gray-900">{{ item[0] }}</div>
+            <div class="font-medium text-gray-900">
+              @if (viewMode() === 'task') {
+                <task-link [taskNr]="entry[0]"/>
+              } @else {
+                {{ entry[0] }}
+              }
+            </div>
             <div class="text-sm text-gray-500 pl-4 mt-0.5">
-              {{ viewMode() === 'description' ? listTasks(item[1].activities) : listDescriptions(item[1].activities) }}
+              @if (viewMode() === 'task') {
+                {{ joinUnique(entry[1].activities, 'description') }}
+              } @else {
+                @for (task of listUnique(entry[1].activities, 'task'); track task; let last = $last) {
+                  <task-link [taskNr]="task"/>
+                  @if (!last) {; }
+                }
+              }
             </div>
           </div>
-          <div class="ml-4 text-blue-600 font-semibold">{{ formatDuration(item[1].totalMinutes) }}</div>
+          <div class="ml-4 text-blue-600 font-semibold">{{ formatDuration(entry[1].totalMinutes) }}</div>
         </div>
       }
     } @else {
