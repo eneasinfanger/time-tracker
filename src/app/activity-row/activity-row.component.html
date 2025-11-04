@@ -1,30 +1,35 @@
 <td class="py-3 px-4">
   <input suggestable type="time" [disabled]="isText()" class="w-full p-2 border border-gray-300 rounded-lg"
-    [ngClass]="{'bg-gray-100': isText()}" [(ngModel)]="startTime" [suggestionProvider]="getStartSuggestions">
+    [ngClass]="{'bg-gray-100': isText()}" [(ngModel)]="startTime" [suggestionProvider]="getStartSuggestions"
+    title="Enter the start time of the activity">
 </td>
 <td class="py-3 px-4">
   <input suggestable type="time" [disabled]="isText()" class="w-full p-2 border border-gray-300 rounded-lg"
-    [ngClass]="{'bg-gray-100': isText()}" [(ngModel)]="endTime" [suggestionProvider]="getEndSuggestions">
+    [ngClass]="{'bg-gray-100': isText()}" [(ngModel)]="endTime" [suggestionProvider]="getEndSuggestions"
+    title="Enter the end time of the activity">
 </td>
 <td class="py-3 px-4 relative">
   <input suggestable type="text" class="w-full p-2 border border-gray-300 rounded-lg"
     [(ngModel)]="description" [suggestionProvider]="getActivitySuggestions"
-    (itemSelected)="setTaskFromDescription($event)" placeholder="Enter activity or description...">
+    (itemSelected)="setTaskFromDescription($event)" placeholder="Activity or description"
+    title="Enter an activity or a description">
 </td>
 <td class="py-3 px-4 relative w-28">
   <input suggestable type="text" class="w-full p-2 border border-gray-300 rounded-lg"
     [(ngModel)]="task" [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
-    placeholder="Enter task-number..">
+    placeholder="ID" title="Enter the JIRA task identifier">
 </td>
 <td class="py-3 px-4">
-  <select class="w-full p-2 border border-gray-300 rounded-lg" [(ngModel)]="type">
+  <select class="w-full p-2 border border-gray-300 rounded-lg" [(ngModel)]="type" title="Select a type">
     <option value="activity">Timed Activity</option>
     <option value="text">Text Only</option>
   </select>
 </td>
 <td class="py-3 px-4">
   <div class="flex space-x-2">
-    <button type="button" class="table-action-button text-green-600" (click)="addRow.emit()">＋</button>
-    <button type="button" class="table-action-button text-red-600" (click)="removeRow.emit()">✕</button>
+    <button type="button" class="table-action-button text-green-600" (click)="addRow.emit()"
+      title="Add an activity after this one">＋</button>
+    <button type="button" class="table-action-button text-red-600" (click)="removeRow.emit()"
+      title="Delete this activity">✕</button>
   </div>
 </td>

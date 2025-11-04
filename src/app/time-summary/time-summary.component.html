@@ -7,22 +7,23 @@
     <div class="text-sm text-gray-600">Summary</div>
     <div class="flex items-center space-x-2">
       <button type="button" (click)="setSortMode('start')" class="text-sm px-2 py-1 rounded border"
-              [class.font-semibold]="sortMode() === 'start'">Start time
+        [class.font-semibold]="sortMode() === 'start'" title="Sort by start time">Start time
       </button>
       <button type="button" (click)="setSortMode('alpha')" class="text-sm px-2 py-1 rounded border"
-              [class.font-semibold]="sortMode() === 'alpha'">Alphabetical
+        [class.font-semibold]="sortMode() === 'alpha'" title="Sort by name">Alphabetical
       </button>
       <button type="button" (click)="toggleReverse()"
-              class="text-sm px-2 py-1 rounded border">{{ sortReverse() ? 'Reversed' : 'Normal' }}
+        class="text-sm px-2 py-1 rounded border" title="Reverse sorting">
+        {{ sortReverse() ? 'Reversed' : 'Normal' }}
       </button>
 
       <div class="h-6 w-px bg-gray-200 mx-2"></div>
 
       <button type="button" (click)="setViewMode('description')" class="text-sm px-2 py-1 rounded border"
-              [class.font-semibold]="viewMode() === 'description'">Group by description
+        [class.font-semibold]="viewMode() === 'description'" title="Group items by description">Group by description
       </button>
       <button type="button" (click)="setViewMode('task')" class="text-sm px-2 py-1 rounded border"
-              [class.font-semibold]="viewMode() === 'task'">Group by task
+        [class.font-semibold]="viewMode() === 'task'" title="Group items by task">Group by task
       </button>
     </div>
   </div>
