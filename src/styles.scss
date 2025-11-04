@@ -19,11 +19,9 @@ table td {
 
 /* Inputs/selects inside table cells: use block layout and consistent height so they align with headers */
 table td input,
-table td select,
 table td textarea {
   box-sizing: border-box;
   display: block;
-  vertical-align: middle;
   height: 2.25rem; /* consistent control height */
   padding: 0.5rem; /* match visual spacing of previous p-2 */
   width: 100%;
