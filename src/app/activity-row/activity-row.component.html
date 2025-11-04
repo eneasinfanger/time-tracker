@@ -14,7 +14,7 @@
     (itemSelected)="setTaskFromDescription($event)" placeholder="Activity or description"
     title="Enter an activity or a description">
 </td>
-<td class="py-3 px-4 relative w-28">
+<td class="py-3 px-4 relative w-36">
   <input suggestable type="text" class="w-full p-2 border border-gray-300 rounded-lg"
     [(ngModel)]="task" [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
     placeholder="ID" title="Enter the JIRA task identifier">
