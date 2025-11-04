@@ -31,6 +31,10 @@ table td textarea {
   margin: 0; /* remove accidental margins */
 }
 
+input {
+  @apply placeholder:text-gray-500
+}
+
 /* Specialized case: actions cell contains icon buttons; keep them inline via flex */
 table td .flex {
   display: flex !important;
