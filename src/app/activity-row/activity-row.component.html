@@ -1,11 +1,11 @@
 <td class="py-3 px-4">
-  <input suggestable type="time" [disabled]="isText()" class="w-full p-2 border border-gray-300 rounded-lg"
-    [ngClass]="{'bg-gray-100': isText()}" [(ngModel)]="startTime" [suggestionProvider]="getStartSuggestions"
+  <input suggestable type="time" [disabled]="isText()" [(ngModel)]="startTime" [suggestionProvider]="getStartSuggestions"
+    class="w-full p-2 border border-gray-300 rounded-lg disabled:bg-gray-100"
     title="Enter the start time of the activity">
 </td>
 <td class="py-3 px-4">
-  <input suggestable type="time" [disabled]="isText()" class="w-full p-2 border border-gray-300 rounded-lg"
-    [ngClass]="{'bg-gray-100': isText()}" [(ngModel)]="endTime" [suggestionProvider]="getEndSuggestions"
+  <input suggestable type="time" [disabled]="isText()" [(ngModel)]="endTime" [suggestionProvider]="getEndSuggestions"
+    class="w-full p-2 border border-gray-300 rounded-lg disabled:bg-gray-100"
     title="Enter the end time of the activity">
 </td>
 <td class="py-3 px-4 relative">
@@ -15,8 +15,9 @@
     title="Enter an activity or a description">
 </td>
 <td class="py-3 px-4 relative w-36">
-  <input suggestable type="text" class="w-full p-2 border border-gray-300 rounded-lg"
-    [(ngModel)]="task" [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
+  <input suggestable type="text" [disabled]="isText()" [(ngModel)]="task"
+    [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
+    class="w-full p-2 border border-gray-300 rounded-lg disabled:bg-gray-100"
     placeholder="ID" title="Enter the JIRA task identifier">
 </td>
 <td class="py-3 px-4">

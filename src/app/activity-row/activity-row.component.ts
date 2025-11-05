@@ -4,13 +4,12 @@ import { Activity, ActivityDetails, FormattedDate, Time } from '../utils/models'
 import { SuggestionsService } from '../services/suggestions.service';
 import { initUsing } from '../utils/signals';
 import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
-import { NgClass } from '@angular/common';
 import { StorageService } from '../services/storage.service';
 import { SettingsHolder } from '../utils/settings';
 
 @Component({
   selector: 'tr[activity-row]',
-  imports: [FormsModule, SuggestableInputComponent, NgClass],
+  imports: [FormsModule, SuggestableInputComponent],
   templateUrl: './activity-row.component.html',
   styleUrls: ['./activity-row.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
