@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal, Signal } from '@angular/core';
-import { Activity, ActivitySummary, ActivitySummaryEntry } from '../utils/models';
+import {Activity, ActivitySummary, ActivitySummaryEntry, ActivityTotal} from '../utils/models';
 import {TaskLinkComponent} from "../task-link/task-link.component";
 
 @Component({
@@ -19,10 +19,14 @@ export class TimeSummaryComponent {
   readonly sortReverse = signal(false);
   readonly viewMode = signal<'description' | 'task'>('description');
 
-  readonly sortedEntries: Signal<[string, ActivitySummaryEntry][]> = computed(() => {
-    const entries = Array.from(this.viewMode() == 'description'
+  readonly totalByViewMode: Signal<ActivityTotal> = computed(()=>{
+    return this.viewMode() == 'description'
       ? this.summary().getTotalByDescription()
-      : this.summary().getTotalByTask());
+      : this.summary().getTotalByTask();
+  });
+
+  readonly sortedEntries: Signal<[string, ActivitySummaryEntry][]> = computed(() => {
+    const entries = Array.from(this.totalByViewMode());
 
     if (this.sortMode() === 'alpha') {
       entries.sort((a, b) => a[0].localeCompare(b[0]));
@@ -38,7 +42,16 @@ export class TimeSummaryComponent {
 
     if (this.sortReverse()) { entries.reverse(); }
 
+    // move entries without task/description to end
+    entries.sort((a, b) => Number(!a[0]) - Number(!b[0]));
+
     return entries;
+  });
+
+  readonly totalMinutes: Signal<number> = computed(() => {
+    return [...this.totalByViewMode().values()]
+      .map(entry => entry.totalMinutes)
+      .reduce((a, b) => a + b, 0);
   });
 
   setSortMode(mode: 'start' | 'alpha') {

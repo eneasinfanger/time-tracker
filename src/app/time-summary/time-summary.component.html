@@ -35,9 +35,13 @@
           <div class="flex-1 min-w-0">
             <div class="font-medium text-gray-900">
               @if (viewMode() === 'task') {
-                <task-link [taskNr]="entry[0]"/>
+                @if (entry[0]) {
+                  <task-link [taskNr]="entry[0]"/>
+                } @else {
+                  (No task)
+                }
               } @else {
-                {{ entry[0] }}
+                {{ entry[0] || '(No description)' }}
               }
             </div>
             <div class="text-sm text-gray-500 pl-4 mt-0.5">
@@ -54,6 +58,14 @@
           <div class="ml-4 text-blue-600 font-semibold">{{ formatDuration(entry[1].totalMinutes) }}</div>
         </div>
       }
+      <div class="flex justify-between items-center mt-3 py-1 px-4 bg-gray-50 rounded-lg">
+        <div class="flex-1 min-w-0">
+          <div class="font-medium text-gray-900">
+            <b>Total</b>
+          </div>
+        </div>
+        <div class="ml-4 text-blue-600 font-semibold">{{ formatDuration(totalMinutes()) }}</div>
+      </div>
     } @else {
       <p class="text-gray-500">No timed activities found for this day.</p>
     }

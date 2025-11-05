@@ -1,23 +1,23 @@
 import { Injectable } from '@angular/core';
-import { Activity, ActivitySummary, ActivitySummaryEntry, Time } from '../utils/models';
+import {Activity, ActivitySummary, ActivitySummaryEntry, ActivityTotal, Time} from '../utils/models';
 
 @Injectable({ providedIn: 'root' })
 export class TimeCalculatorService {
   calculateTimePerActivity(activities: Activity[]): ActivitySummary {
-    const getTotalByMapKey = this.getTotalMapByKey.bind(this, activities);
+    const getTotalMapByKey = this.getTotalMapByKey.bind(this, activities);
     const hasActivitiesWithKey = this.hasActivitiesWithKey.bind(this, activities);
     const cache: Partial<{
-      totalByDescription: Map<string, ActivitySummaryEntry>,
-      totalByTask: Map<string, ActivitySummaryEntry>,
+      totalByDescription: ActivityTotal,
+      totalByTask: ActivityTotal,
       hasActivitiesWithDescription: boolean,
       hasActivitiesWithTask: boolean,
     }> = {};
     return {
-      getTotalByDescription(): Map<string, ActivitySummaryEntry> {
-        return cache.totalByDescription ?? (cache.totalByDescription = getTotalByMapKey('description'));
+      getTotalByDescription(): ActivityTotal {
+        return cache.totalByDescription ?? (cache.totalByDescription = getTotalMapByKey('description'));
       },
-      getTotalByTask(): Map<string, ActivitySummaryEntry> {
-        return cache.totalByTask ?? (cache.totalByTask = getTotalByMapKey('task'));
+      getTotalByTask(): ActivityTotal {
+        return cache.totalByTask ?? (cache.totalByTask = getTotalMapByKey('task'));
       },
       hasActivitiesWithDescription(): boolean {
         return cache.hasActivitiesWithDescription ?? (cache.hasActivitiesWithDescription = hasActivitiesWithKey('description'));
@@ -32,11 +32,11 @@ export class TimeCalculatorService {
     return activities.filter(ac => ac.type == 'activity' && ac.startTime && ac.endTime && ac[key]).length > 0;
   }
 
-  private getTotalMapByKey(activities: Activity[], key: 'description' | 'task'): Map<string, ActivitySummaryEntry> {
-    const activityTimes: Map<string, ActivitySummaryEntry> = new Map();
+  private getTotalMapByKey(activities: Activity[], key: 'description' | 'task'): ActivityTotal {
+    const activityTimes: ActivityTotal = new Map();
 
     activities.forEach(activity => {
-      if (activity.type === 'activity' && activity.startTime && activity.endTime && activity[key]) {
+      if (activity.type === 'activity' && activity.startTime && activity.endTime) {
         const duration = this.calculateDuration(activity.startTime, activity.endTime);
 
         if (duration > 0) {
