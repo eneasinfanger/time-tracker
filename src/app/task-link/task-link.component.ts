@@ -15,7 +15,7 @@ export class TaskLinkComponent {
 
   private resolveTask(taskNr: string): string | null {
     const parts = taskNr.split('-');
-    if (parts.length == 2 && /[A-Z]/.test(parts[0]) && /\d+/.test(parts[1])) {
+    if (parts.length == 2 && /^[A-Z]+$/.test(parts[0]) && /^\d+$/.test(parts[1])) {
       if (this.loepa_projects.includes(parts[0])) {
         return `https://jira.loewenfels.ch/jira/browse/${taskNr}`;
       } else if (this.svanet_projects.includes(parts[0])) {
