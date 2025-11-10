@@ -98,7 +98,7 @@ export class SettingsMenuComponent implements OnInit {
     if (this.durationThreshold().minutes) {
       str += `${ this.durationThreshold().minutes }m `;
     }
-    return str || '0m';
+    return str ? str.trim() : '0m';
   }
 
   updateDurationThreshold(input: Event) {
