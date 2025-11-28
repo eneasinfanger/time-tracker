@@ -5,9 +5,7 @@ export interface ActivitySummary {
 
   getTotalByTask(): ActivityTotal;
 
-  hasActivitiesWithDescription(): boolean;
-
-  hasActivitiesWithTask(): boolean;
+  hasActivities(): boolean;
 }
 export type ActivitySummaryEntry = { activities: Activity[]; totalMinutes: number };
 export type ActivityTotal = Map<string, ActivitySummaryEntry>;

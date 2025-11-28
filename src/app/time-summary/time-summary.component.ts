@@ -67,9 +67,7 @@ export class TimeSummaryComponent {
   }
 
   hasSummary() {
-    return this.viewMode() === 'description'
-      ? this.summary().hasActivitiesWithDescription()
-      : this.summary().hasActivitiesWithTask();
+    return this.summary().hasActivities();
   }
 
   listUnique(activities: Activity[], key: 'description' | 'task'): string[] {
@@ -83,6 +81,9 @@ export class TimeSummaryComponent {
   formatDuration(minutes: number) {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    return hours > 0 ? `${ hours }h ${ mins }m` : `${ mins }m`;
+    if (hours > 0 && mins > 0) {
+      return `${hours}h ${mins}m`;
+    }
+    return hours > 0 ? `${hours}h` : `${mins}m`;
   }
 }
