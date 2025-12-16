@@ -7,8 +7,9 @@ import {Component, computed, input} from '@angular/core';
   styleUrl: './task-link.component.scss',
 })
 export class TaskLinkComponent {
+  // TODO add setting for projects
   private readonly loepa_projects = ['LOEPA', 'LAB', 'SYS', 'ENG', 'TECH', 'TC'];
-  private readonly svanet_projects = ['TB', 'LADEV', 'TT', 'AKB', 'ARTAG'];
+  private readonly svanet_projects = ['TB', 'LADEV', 'TT', 'AKB', 'ARTAG', 'TRB'];
 
   readonly taskNr = input.required<string>();
   readonly taskLink = computed(() => this.resolveTask(this.taskNr()));
