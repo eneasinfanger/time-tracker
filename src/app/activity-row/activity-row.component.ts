@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, model, OnInit, output, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Activity, ActivityDetails, FormattedDate, Time } from '../utils/models';
+import { Activity, ActivityDetails, ActivityType, FormattedDate, Time } from '../utils/models';
 import { SuggestionsService } from '../services/suggestions.service';
 import { initUsing } from '../utils/signals';
 import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
@@ -27,7 +27,7 @@ export class ActivityRowComponent implements OnInit {
   readonly endTime = model<Time>('');
   readonly description = model('');
   readonly task = model('');
-  readonly type = model<Activity['type']>('activity');
+  readonly type = model<ActivityType>('activity');
 
   ngOnInit() {
     initUsing(this.activity())
@@ -52,8 +52,8 @@ export class ActivityRowComponent implements OnInit {
 
   private compareIds = (ac: Activity) => ac.id == this.activity()().id;
 
-  getActivitySuggestions = (value: string) => {
-    return this.suggestions.getActivitySuggestions(value, this.currentDate());
+  getDescriptionSuggestions = (value: string) => {
+    return this.suggestions.getActivitySuggestions(value, this.currentDate(), this.type());
   };
 
   getTaskSuggestions = (value: string) => {

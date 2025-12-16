@@ -10,7 +10,7 @@
 </td>
 <td class="py-3 px-4 relative">
   <input suggestable type="text" class="w-full p-2 border border-gray-300 rounded-lg"
-    [(ngModel)]="description" [suggestionProvider]="getActivitySuggestions"
+    [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
     (itemSelected)="setTaskFromDescription($event)" placeholder="Activity or description"
     title="Enter an activity or a description">
 </td>

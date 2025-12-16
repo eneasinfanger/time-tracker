@@ -1,6 +1,6 @@
 import { ApplicationRef, createComponent, ElementRef, EnvironmentInjector, inject, Injectable, Injector } from '@angular/core';
 import { StorageService } from './storage.service';
-import { Activity, ActivityDetails, FormattedDate } from '../utils/models';
+import { Activity, ActivityDetails, ActivityType, FormattedDate } from '../utils/models';
 import { HOST_ELEMENT, SuggestionDropdownComponent } from '../suggestion-dropdown/suggestion-dropdown.component';
 import { SettingsHolder } from '../utils/settings';
 
@@ -11,20 +11,17 @@ export class SuggestionsService {
   private envInj = inject(EnvironmentInjector);
   private currentCompRef: any = null;
 
-  /**
-   * Return unique activity descriptions from the last week (or filtered by input).
-   */
-  getActivitySuggestions(input: string, currentDateIso: FormattedDate): string[] {
-    return this.processPastActivities(input, currentDateIso, a => a.description);
+  getActivitySuggestions(input: string, currentDateIso: FormattedDate, type: ActivityType): string[] {
+    return this.processPastActivities(input, currentDateIso, a => a.type === type, a => a.description, type === 'activity');
   }
 
   getTaskSuggestions(input: string, currentDateIso: FormattedDate): string[] {
-    return this.processPastActivities(input, currentDateIso, a => a.task);
+    return this.processPastActivities(input, currentDateIso, a => a.type === 'activity', a => a.task, true);
   }
 
-  private processPastActivities(input: string, currentDateIso: FormattedDate, getter: (a: ActivityDetails) => string): string[] {
+  private processPastActivities(input: string, currentDateIso: FormattedDate, filter: (a: Activity) => boolean, getter: (a: ActivityDetails) => string, includeSettings: boolean): string[] {
     const unique = [...new Set(this.storage.getPastActivities(currentDateIso)
-      .filter(a => a.type === 'activity' && getter(a))
+      .filter(a => filter(a) && getter(a))
       .concat(...SettingsHolder.getSettings().alwaysShownActivities.filter(getter) as Activity[])
       .map(getter),
     )];
@@ -68,7 +65,9 @@ export class SuggestionsService {
     const comp = createComponent(SuggestionDropdownComponent, options);
     comp.instance.items.set(suggestions);
     comp.instance.select.subscribe((s: string | null) => {
-      if (s !== null) { onSelect(s); }
+      if (s !== null) {
+        onSelect(s);
+      }
       this.closeDropdown();
     });
 

@@ -19,6 +19,8 @@ export type Activity = {
   type: 'activity' | 'text';
 };
 
+export type ActivityType = Activity['type'];
+
 export type ActivityDetails = {
   id: UUID;
   description: string;
