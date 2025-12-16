@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Activity, FormattedDate, Settings } from '../utils/models';
-import { formatDate, subtractDuration } from '../utils/dates';
+import { formatDate, parseISODate, subtractDuration } from '../utils/dates';
 import { SettingsHolder } from '../utils/settings';
 
 @Injectable({ providedIn: 'root' })
@@ -45,7 +45,8 @@ export class StorageService {
   }
 
   getPastActivities(currentDate: FormattedDate): Activity[] {
-    const from = formatDate(subtractDuration(new Date(currentDate), SettingsHolder.getSettings().durationThreshold));
+    const parsed = parseISODate(currentDate);
+    const from = formatDate(subtractDuration(parsed, SettingsHolder.getSettings().durationThreshold));
     const allActivities: Activity[] = [];
     const dates = this.getAllStoredDates(from, currentDate);
 

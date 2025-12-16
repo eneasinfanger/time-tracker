@@ -6,7 +6,7 @@ import { TimeSummaryComponent } from '../time-summary/time-summary.component';
 import { ActivityRowComponent } from '../activity-row/activity-row.component';
 import { Activity, ActivitySummary, Settings } from '../utils/models';
 import { unwrapSignal, wrapInSignal } from '../utils/signals';
-import { formatDate } from '../utils/dates';
+import { formatDate, formatDateToDisplay, parseISODate } from '../utils/dates';
 import { generateUUID, UUID } from '../utils/crypto';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
 import { SettingsHolder } from '../utils/settings';
@@ -20,10 +20,12 @@ import { SettingsHolder } from '../utils/settings';
 })
 export class SiteComponent {
   readonly currentDate = signal(new Date());
-  readonly currentDateString = computed(() => formatDate(this.currentDate()));
+  readonly currentDateFormatted = computed(() => formatDate(this.currentDate()));
   readonly activities = signal<WritableSignal<Activity>[]>([]);
   readonly summary = signal<ActivitySummary>({} as ActivitySummary);
   readonly settings = signal<Settings>({} as Settings);
+
+  protected readonly formatDateToDisplay = formatDateToDisplay;
 
   private storage = inject(StorageService);
   private calculator = inject(TimeCalculatorService);
@@ -62,30 +64,29 @@ export class SiteComponent {
     SettingsHolder.setSettings(settings);
   }
 
-  formatDateDisplay(date: Date): string {
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+  navigateDay(direction: number) {
+    const d = new Date(this.currentDate());
+    d.setDate(d.getDate() + direction);
+    this.currentDate.set(d);
+    this.loadActivitiesForCurrentDay();
   }
 
-  navigateDay(direction: number) {
-    const d = this.currentDate();
-    d.setDate(d.getDate() + direction);
-    this.currentDate.set(new Date(d));
+  navigateToInput(value: `${ number }-${ number }-${ number }` | '') {
+    if (!value) {
+      return;
+    }
+    this.currentDate.set(parseISODate(value));
     this.loadActivitiesForCurrentDay();
   }
 
   loadActivitiesForCurrentDay() {
-    const date = this.currentDateString();
+    const date = this.currentDateFormatted();
     const activities = this.storage.getActivitiesForDate(date) || [];
     this.activities.set(activities.map(wrapInSignal));
   }
 
   saveCurrentActivities() {
-    const date = this.currentDateString();
+    const date = this.currentDateFormatted();
     this.storage.saveActivitiesForDate(date, this.activities().map(unwrapSignal));
   }
 

@@ -14,7 +14,7 @@
           Previous Day
         </button>
 
-        <div class="text-xl font-semibold text-gray-900">{{ formatDateDisplay(currentDate()) }}</div>
+        <div class="text-xl font-semibold text-gray-900">{{ formatDateToDisplay(currentDate()) }}</div>
 
         <button (click)="navigateDay(1)"
           class="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
@@ -23,6 +23,9 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
         </button>
+
+        <!-- Date picker -->
+        <input type="date" class="ml-4 p-2 border rounded" [value]="currentDateFormatted()" (change)="navigateToInput($any($event.target).value)" />
       </div>
       <settings-menu [currentSettings]="settings()" (settingsChange)="settings.set($event)" title="Edit settings"/>
     </div>
@@ -48,19 +51,19 @@
           <tbody id="activitiesTable">
             @for (activity of activities(); track activity().id) {
               <tr activity-row class="border-b border-gray-100 hover:bg-gray-50" [activity]="activity"
-                [currentDate]="currentDateString()" (addRow)="addNewActivity(activity().id)"
-                (removeRow)="removeActivity(activity().id)"></tr>
+                  [currentDate]="currentDateFormatted()" (addRow)="addNewActivity(activity().id)"
+                  (removeRow)="removeActivity(activity().id)"></tr>
             }
           </tbody>
         </table>
       </div>
 
       <button (click)="addNewActivity()"
-        class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">+ Add
-        Activity
+        class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+        + Add Activity
       </button>
     </div>
   </div>
 
-  <time-summary [summary]="summary()" [dateDisplay]="formatDateDisplay(currentDate())"/>
+  <time-summary [summary]="summary()" [dateDisplay]="formatDateToDisplay(currentDate())"/>
 </div>
