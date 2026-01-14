@@ -53,11 +53,7 @@ export class SiteComponent {
   private loadSettings() {
     let settings = this.storage.getSettings();
     if (!settings) {
-      settings = {
-        alwaysShownActivities: [],
-        durationThreshold: { weeks: 1, days: 0, hours: 0, minutes: 0 },
-        enableTasks: true,
-      };
+      settings = SettingsHolder.getDefaultSettings();
       this.storage.saveSettings(settings);
     }
     this.settings.set(settings);

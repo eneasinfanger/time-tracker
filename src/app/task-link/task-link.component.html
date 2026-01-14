@@ -1,5 +1,7 @@
-@if (taskLink()) {
-  <a class="text-blue-600 underline" [href]="taskLink()">{{ taskNr() }}</a>
-} @else {
-  {{ taskNr() }}
+@for (textComponent of taskTextComponents(); track $index) {
+  @if (textComponent.link) {
+    <a class="text-blue-600 underline" [href]="textComponent.link">{{ textComponent.text }}</a>
+  } @else {
+    {{ textComponent.text }}
+  }
 }

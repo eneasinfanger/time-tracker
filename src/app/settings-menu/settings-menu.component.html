@@ -2,9 +2,9 @@
   <button type="button" class="p-2 rounded hover:bg-gray-100 border" (click)="toggle()" aria-label="Open settings">
     <!-- simple gear icon -->
     <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg">
+         xmlns="http://www.w3.org/2000/svg">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
     </svg>
   </button>
 
@@ -22,11 +22,11 @@
       <div class="mb-3 text-sm">
         <label class="block font-medium mb-1">Suggest activities until ... ago:</label>
         <input type="text" class="w-28 border rounded p-1 text-sm" [(ngModel)]="durationThresholdInput"
-          (input)="updateDurationThreshold($event)" placeholder="1w 2d 3h 4m"/>
+               (input)="updateDurationThreshold($event)" placeholder="1w 2d 3h 4m"/>
       </div>
 
       <div class="mb-3 text-sm">
-        <div class="font-medium mb-1">Activities to always show</div>
+        <div class="font-medium mb-1">Activities to always show:</div>
         @for (activity of alwaysShownActivities(); track activity.id) {
           <div class="flex items-center justify-between bg-gray-50 rounded px-2 py-1 mb-1">
             <div class="text-sm truncate">{{ activity.description }} / {{ activity.task }}</div>
@@ -35,14 +35,52 @@
         }
         <div class="grid grid-cols-2">
           <input type="text" class="w-full border rounded p-1 text-sm" placeholder="Add description"
-            [(ngModel)]="descriptionInput"/>
+                 [(ngModel)]="descriptionInput"/>
           <input type="text" class="w-full border rounded p-1 text-sm" placeholder="Add task" [(ngModel)]="taskInput"/>
         </div>
       </div>
 
       <div class="flex justify-center mb-3">
-        <button type="button" class="text-2xl w-10 h-10 rounded-full border flex items-center justify-center"
-          (click)="addFromInputs()">＋
+        <button type="button" class="text-l w-11 h-7 rounded-full border flex items-center justify-center"
+                (click)="addActivityFromInputs()">Add
+        </button>
+      </div>
+
+      <div class="mb-3 text-sm">
+        <div class="font-medium mb-1">Projects on Loepa JIRA:</div>
+        @for (project of loepaProjects(); track $index) {
+          <div class="flex items-center justify-between bg-gray-50 rounded px-2 py-1 mb-1">
+            <div class="text-sm truncate">{{ project }}</div>
+            <button type="button" class="text-red-500 px-2" (click)="removeProject('loepa',project)">−</button>
+          </div>
+        }
+        <div class="grid">
+          <input type="text" class="w-full border rounded p-1 text-sm" placeholder="Add project"
+                 [(ngModel)]="loepaProjectInput"/>
+        </div>
+      </div>
+      <div class="flex justify-center mb-3">
+        <button type="button" class="text-l w-11 h-7 rounded-full border flex items-center justify-center"
+                (click)="addProjectFromInput('loepa')">Add
+        </button>
+      </div>
+
+      <div class="mb-3 text-sm">
+        <div class="font-medium mb-1">Projects on Svanet JIRA:</div>
+        @for (project of svanetProjects(); track $index) {
+          <div class="flex items-center justify-between bg-gray-50 rounded px-2 py-1 mb-1">
+            <div class="text-sm truncate">{{ project }}</div>
+            <button type="button" class="text-red-500 px-2" (click)="removeProject('svanet',project)">−</button>
+          </div>
+        }
+        <div class="grid">
+          <input type="text" class="w-full border rounded p-1 text-sm" placeholder="Add project"
+                 [(ngModel)]="svanetProjectInput"/>
+        </div>
+      </div>
+      <div class="flex justify-center mb-3">
+        <button type="button" class="text-l w-11 h-7 rounded-full border flex items-center justify-center"
+                (click)="addProjectFromInput('svanet')">Add
         </button>
       </div>
 
@@ -57,7 +95,7 @@
           </div>
           <div class="space-y-1 text-sm">
             @for (err of errors(); track err) {
-              <div class="px-2 py-1 bg-white border border-red-100 rounded text-red-700 truncate">{{ err }}</div>
+              <div class="px-2 py-1 bg-white border border-red-100 rounded text-red-700">{{ err }}</div>
             }
           </div>
         </div>
@@ -66,7 +104,7 @@
       <div class="flex justify-end space-x-2">
         <button type="button" class="text-sm px-2 py-1 rounded border cursor-default" (click)="close()">Cancel</button>
         <button type="button" (click)="save()" [disabled]="errors().size > 0"
-          class="text-sm px-3 py-1 rounded bg-blue-600 text-white disabled:bg-gray-400 disabled:cursor-not-allowed">
+                class="text-sm px-3 py-1 rounded bg-blue-600 text-white disabled:bg-gray-400 disabled:cursor-not-allowed">
           Save
         </button>
       </div>

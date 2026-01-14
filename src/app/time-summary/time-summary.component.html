@@ -36,7 +36,7 @@
             <div class="font-medium text-gray-900">
               @if (viewMode() === 'task') {
                 @if (entry[0]) {
-                  <task-link [taskNr]="entry[0]"/>
+                  <task-link [taskText]="entry[0]"/>
                 } @else {
                   (No task)
                 }
@@ -49,7 +49,7 @@
                 {{ joinUnique(entry[1].activities, 'description') }}
               } @else {
                 @for (task of listUnique(entry[1].activities, 'task'); track task; let last = $last) {
-                  <task-link [taskNr]="task"/>
+                  <task-link [taskText]="task"/>
                   @if (!last) {; }
                 }
               }

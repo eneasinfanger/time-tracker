@@ -1,4 +1,5 @@
-import {Component, computed, input} from '@angular/core';
+import { Component, computed, input, Signal } from '@angular/core';
+import { SettingsHolder } from "../utils/settings";
 
 @Component({
   selector: 'task-link',
@@ -7,22 +8,41 @@ import {Component, computed, input} from '@angular/core';
   styleUrl: './task-link.component.scss',
 })
 export class TaskLinkComponent {
-  // TODO add setting for projects
-  private readonly loepa_projects = ['LOEPA', 'LAB', 'SYS', 'ENG', 'TECH', 'TC'];
-  private readonly svanet_projects = ['TB', 'LADEV', 'TT', 'AKB', 'ARTAG', 'TRB'];
+  static readonly TASK_REGEX = /[A-Z]+-\d+/g;
 
-  readonly taskNr = input.required<string>();
-  readonly taskLink = computed(() => this.resolveTask(this.taskNr()));
+  readonly taskText = input.required<string>();
+  readonly taskTextComponents: Signal<PossibleTaskLink[]> = computed(() => this.resolveTask(this.taskText()));
 
-  private resolveTask(taskNr: string): string | null {
-    const parts = taskNr.split('-');
-    if (parts.length == 2 && /^[A-Z]+$/.test(parts[0]) && /^\d+$/.test(parts[1])) {
-      if (this.loepa_projects.includes(parts[0])) {
-        return `https://jira.loewenfels.ch/jira/browse/${taskNr}`;
-      } else if (this.svanet_projects.includes(parts[0])) {
-        return `https://jira.svanet.ch/browse/${taskNr}`;
+  private resolveTask(taskText: string): PossibleTaskLink[] {
+    const { loepaProjects, svanetProjects } = SettingsHolder.getSettings();
+    const results: PossibleTaskLink[] = [];
+    let lastIndex = 0;
+    for (const match of taskText.matchAll(TaskLinkComponent.TASK_REGEX)) {
+      if (match.index > lastIndex) {
+        // non-matching part before match
+        results.push({ text: taskText.slice(lastIndex, match.index), link: null });
       }
+      // matched part
+      results.push({ text: match[0], link: this.resolveLink(match[0], loepaProjects, svanetProjects) });
+      lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < taskText.length) {
+      // remaining non-matching part
+      results.push({ text: taskText.slice(lastIndex), link: null });
+    }
+    return results;
+  }
+
+  private resolveLink(task: string, loepaProjects?: string[], svanetProjects?: string[]): string | null {
+    const project = task.substring(0, task.indexOf('-'));
+    // TODO make links configurable / jira systems generally
+    if (loepaProjects?.includes(project)) {
+      return `https://jira.loewenfels.ch/jira/browse/${ task }`;
+    } else if (svanetProjects?.includes(project)) {
+      return `https://jira.svanet.ch/browse/${ task }`;
     }
     return null;
   }
 }
+
+type PossibleTaskLink = { text: string, link: string | null };

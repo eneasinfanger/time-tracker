@@ -13,8 +13,10 @@ import { generateUUID, UUID } from '../utils/crypto';
   ],
 })
 export class SettingsMenuComponent implements OnInit {
-  readonly ERROR_INVALID_DURATION = 'Invalid duration format!';
+  readonly ERROR_INVALID_DURATION = 'Invalid duration format! (Allowed are numbers followed by \'w\' = weeks, \'d\' = days, \'h\' = hours and \'m\' = minutes.)';
+  readonly ERROR_INVALID_PROJECT = 'Invalid JIRA Project! (Allowed are uppercase letters only.)';
   readonly ERROR_DUPLICATE_ACTIVITY = 'Duplicate activity entry!';
+  readonly ERROR_DUPLICATE_PROJECT = 'Duplicate project entry!';
 
   readonly currentSettings = input.required<Settings>();
   readonly settingsChange = output<Settings>();
@@ -30,6 +32,11 @@ export class SettingsMenuComponent implements OnInit {
   descriptionInput = signal('');
   taskInput = signal('');
 
+  loepaProjectInput = signal('');
+  svanetProjectInput = signal('');
+  loepaProjects = signal<string[]>([]);
+  svanetProjects = signal<string[]>([]);
+
   constructor() {
     effect(() => {
       this.durationThreshold();
@@ -41,13 +48,15 @@ export class SettingsMenuComponent implements OnInit {
     this.durationThreshold.set(this.currentSettings().durationThreshold);
     this.alwaysShownActivities.set(this.currentSettings().alwaysShownActivities);
     this.enableTasks.set(this.currentSettings().enableTasks);
+    this.loepaProjects.set(this.currentSettings().loepaProjects || []);
+    this.svanetProjects.set(this.currentSettings().svanetProjects || []);
   }
 
   toggle() {
     this.open.update(v => !v);
   }
 
-  addFromInputs() {
+  addActivityFromInputs() {
     const description = this.descriptionInput().trim();
     const task = this.taskInput().trim();
     if (!description && !task) {
@@ -67,14 +76,39 @@ export class SettingsMenuComponent implements OnInit {
     this.alwaysShownActivities.update(arr => arr.filter(a => a.id !== id));
   }
 
+  addProjectFromInput(type: 'loepa' | 'svanet') {
+    const input = type === 'loepa' ? this.loepaProjectInput : this.svanetProjectInput;
+    const value = input().trim();
+    if (!/^[A-Z]+$/.test(value)) {
+      this.addError(this.ERROR_INVALID_PROJECT);
+      return;
+    }
+    this.removeError(this.ERROR_INVALID_PROJECT);
+    const projects = type === 'loepa' ? this.loepaProjects : this.svanetProjects;
+    if (this.loepaProjects().includes(value) || this.svanetProjects().includes(value)) {
+      this.addError(this.ERROR_DUPLICATE_PROJECT);
+      return;
+    }
+    this.removeError(this.ERROR_DUPLICATE_PROJECT);
+    projects.update(arr => [...arr, value]);
+    input.set('')
+  }
+
+  removeProject(type: 'loepa' | 'svanet', project: string) {
+    const projects = type === 'loepa' ? this.loepaProjects : this.svanetProjects;
+    projects.update(arr => arr.filter(p => p !== project));
+  }
+
   save() {
     if (this.errors().size > 0) {
       return;
     }
-    const settings = {
+    const settings: Settings = {
       alwaysShownActivities: this.alwaysShownActivities(),
       durationThreshold: this.durationThreshold(),
       enableTasks: this.enableTasks(),
+      loepaProjects: this.loepaProjects(),
+      svanetProjects: this.svanetProjects(),
     };
     this.settingsChange.emit(settings);
     this.close();
