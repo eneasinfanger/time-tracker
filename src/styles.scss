@@ -29,6 +29,7 @@ table td {
   *[data-theme="#{$theme}"] {
     input, select, option, textarea {
       color-scheme: only #{$theme};
+      @apply placeholder:text-gray-500
     }
   }
 }
