@@ -1,28 +1,28 @@
-<div class="bg-white rounded-lg shadow-sm border p-6 mt-6">
+<div class="bg-white rounded-lg shadow-sm border p-6 mt-6 dark:bg-slate-900 dark:border-gray-800">
   <div class="flex items-start justify-between mb-2">
-    <h2 class="text-xl font-semibold text-gray-900">Time Summary for <span>{{ dateDisplay() }}</span></h2>
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Time Summary for <span>{{ dateDisplay() }}</span></h2>
   </div>
 
   <div class="flex items-center justify-between mb-3">
-    <div class="text-sm text-gray-600">Summary</div>
+    <div class="text-sm text-gray-600 dark:text-gray-400">Summary</div>
     <div class="flex items-center space-x-2">
-      <button type="button" (click)="setSortMode('start')" class="text-sm px-2 py-1 rounded border"
+      <button type="button" (click)="setSortMode('start')" class="text-sm px-2 py-1 rounded border dark:border-gray-700 dark:text-gray-300"
         [class.font-semibold]="sortMode() === 'start'" title="Sort by start time">Start time
       </button>
-      <button type="button" (click)="setSortMode('alpha')" class="text-sm px-2 py-1 rounded border"
+      <button type="button" (click)="setSortMode('alpha')" class="text-sm px-2 py-1 rounded border dark:border-gray-700 dark:text-gray-300"
         [class.font-semibold]="sortMode() === 'alpha'" title="Sort by name">Alphabetical
       </button>
       <button type="button" (click)="toggleReverse()"
-        class="text-sm px-2 py-1 rounded border" title="Reverse sorting">
+        class="text-sm px-2 py-1 rounded border dark:border-gray-700 dark:text-gray-300" title="Reverse sorting">
         {{ sortReverse() ? 'Reversed' : 'Normal' }}
       </button>
 
-      <div class="h-6 w-px bg-gray-200 mx-2"></div>
+  <div class="h-6 w-px bg-gray-200 dark:bg-white/6 mx-2"></div>
 
-      <button type="button" (click)="setViewMode('description')" class="text-sm px-2 py-1 rounded border"
+      <button type="button" (click)="setViewMode('description')" class="text-sm px-2 py-1 rounded border dark:border-gray-700 dark:text-gray-300"
         [class.font-semibold]="viewMode() === 'description'" title="Group items by description">Group by description
       </button>
-      <button type="button" (click)="setViewMode('task')" class="text-sm px-2 py-1 rounded border"
+      <button type="button" (click)="setViewMode('task')" class="text-sm px-2 py-1 rounded border dark:border-gray-700 dark:text-gray-300"
         [class.font-semibold]="viewMode() === 'task'" title="Group items by task">Group by task
       </button>
     </div>
@@ -31,9 +31,9 @@
   <div class="space-y-1">
     @if (hasSummary()) {
       @for (entry of sortedEntries(); track entry[0]) {
-        <div class="flex justify-between items-center py-1 px-4 bg-gray-50 rounded-lg">
+  <div class="flex justify-between items-center py-1 px-4 bg-gray-50 dark:bg-white/5 rounded-lg">
           <div class="flex-1 min-w-0">
-            <div class="font-medium text-gray-900">
+            <div class="font-medium text-gray-900 dark:text-gray-100">
               @if (viewMode() === 'task') {
                 @if (entry[0]) {
                   <task-link [taskText]="entry[0]"/>
@@ -44,7 +44,7 @@
                 {{ entry[0] || '(No description)' }}
               }
             </div>
-            <div class="text-sm text-gray-500 pl-4 mt-0.5">
+            <div class="text-sm text-gray-500 dark:text-gray-400 pl-4 mt-0.5">
               @if (viewMode() === 'task') {
                 {{ joinUnique(entry[1].activities, 'description') }}
               } @else {
@@ -55,16 +55,16 @@
               }
             </div>
           </div>
-          <div class="ml-4 text-blue-600 font-semibold">{{ formatDuration(entry[1].totalMinutes) }}</div>
+          <div class="ml-4 text-blue-600 dark:text-sky-400 font-semibold">{{ formatDuration(entry[1].totalMinutes) }}</div>
         </div>
       }
-      <div class="flex justify-between items-center mt-3 py-1 px-4 bg-gray-50 rounded-lg">
+      <div class="flex justify-between items-center mt-3 py-1 px-4 bg-gray-50 dark:bg-white/5 rounded-lg">
         <div class="flex-1 min-w-0">
-          <div class="font-medium text-gray-900">
+          <div class="font-medium text-gray-900 dark:text-gray-100">
             <b>Total</b>
           </div>
         </div>
-        <div class="ml-4 text-blue-600 font-semibold">{{ formatDuration(totalMinutes()) }}</div>
+        <div class="ml-4 text-blue-600 dark:text-sky-400 font-semibold">{{ formatDuration(totalMinutes()) }}</div>
       </div>
     } @else {
       <p class="text-gray-500">No timed activities found for this day.</p>

@@ -1,6 +1,6 @@
-<div class="tt-suggestion-dropdown bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+<div class="tt-suggestion-dropdown bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-40 overflow-y-auto">
   @for (item of items(); track item) {
-    <div class="px-3 py-2 hover:bg-gray-100 cursor-pointer" (click)="selectItem(item)">{{ item }}</div>
+    <div class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer text-gray-800 dark:text-gray-100" (click)="selectItem(item)">{{ item }}</div>
   }
 </div>
 

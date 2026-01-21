@@ -1,7 +1,7 @@
 @for (textComponent of taskTextComponents(); track $index) {
   @if (textComponent.link) {
-    <a class="text-blue-600 underline" [href]="textComponent.link">{{ textComponent.text }}</a>
+    <a class="text-blue-600 dark:text-sky-400 underline" [href]="textComponent.link">{{ textComponent.text }}</a>
   } @else {
-    {{ textComponent.text }}
+    <span class="text-gray-800 dark:text-gray-100">{{ textComponent.text }}</span>
   }
 }

@@ -4,7 +4,7 @@ import { StorageService } from '../services/storage.service';
 import { TimeCalculatorService } from '../services/time-calculator.service';
 import { TimeSummaryComponent } from '../time-summary/time-summary.component';
 import { ActivityRowComponent } from '../activity-row/activity-row.component';
-import { Activity, ActivitySummary, Settings } from '../utils/models';
+import { Activity, ActivitySummary, Settings, Theme } from '../utils/models';
 import { unwrapSignal, wrapInSignal } from '../utils/signals';
 import { formatDate, formatDateToDisplay, parseISODate } from '../utils/dates';
 import { generateUUID, UUID } from '../utils/crypto';
@@ -41,6 +41,7 @@ export class SiteComponent {
     effect(() => {
       this.storage.saveSettings(this.settings());
       SettingsHolder.setSettings(this.settings());
+      this.applyTheme(this.settings().theme ?? 'system');
     });
 
     effect(() => {
@@ -50,14 +51,24 @@ export class SiteComponent {
     });
   }
 
+  private applyTheme(theme: Theme) {
+    const dark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.classList.toggle('dark', dark);
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  }
+
   private loadSettings() {
     let settings = this.storage.getSettings();
     if (!settings) {
       settings = SettingsHolder.getDefaultSettings();
       this.storage.saveSettings(settings);
     }
+    if (settings.theme == null) {
+      settings.theme = 'system';
+    }
     this.settings.set(settings);
     SettingsHolder.setSettings(settings);
+    this.applyTheme(settings.theme);
   }
 
   navigateDay(direction: number) {

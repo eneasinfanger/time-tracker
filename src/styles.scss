@@ -1,6 +1,8 @@
 @use "./tailwind.css";
 
-/* Make sure buttons and other interactive controls show the pointer */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* Ensure interactive controls show pointer when appropriate (Tailwind also provides cursor-pointer). */
 button,
 input[type="button"],
 input[type="submit"],
@@ -11,41 +13,25 @@ input[type="reset"],
   cursor: pointer;
 }
 
-/* Ensure table cells and headers align vertically in the middle. Do NOT override padding (Tailwind utilities handle it). */
+/* Tables: keep vertical alignment for cells */
 table th,
 table td {
   vertical-align: middle;
 }
 
-/* Inputs/selects inside table cells: use block layout and consistent height so they align with headers */
-table td input,
-table td textarea {
-  box-sizing: border-box;
-  display: block;
-  height: 2.25rem; /* consistent control height */
-  padding: 0.5rem; /* match visual spacing of previous p-2 */
-  width: 100%;
-  max-width: 100%;
-  margin: 0; /* remove accidental margins */
-}
-
-input {
-  @apply placeholder:text-gray-500
-}
-
-/* Specialized case: actions cell contains icon buttons; keep them inline via flex */
-table td .flex {
-  display: flex !important;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 /* Small helper for icon-only buttons inside the table actions column */
 .table-action-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.25rem; /* 4px */
-  line-height: 1;
-  cursor: pointer;
+  @apply inline-flex items-center justify-center p-1; /* keep compact icon buttons */
 }
+
+/* Also allow form controls to follow both color schemes where supported. */
+@mixin theme-controls($theme) {
+  *[data-theme="#{$theme}"] {
+    input, select, option, textarea {
+      color-scheme: only #{$theme};
+    }
+  }
+}
+
+@include theme-controls(dark);
+@include theme-controls(light);

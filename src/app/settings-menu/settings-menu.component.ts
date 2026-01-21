@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, effect, input, OnInit, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivityDetails, Duration, Settings } from '../utils/models';
+import { ActivityDetails, Duration, Settings, Theme } from '../utils/models';
 import { generateUUID, UUID } from '../utils/crypto';
 
 @Component({
@@ -25,6 +25,7 @@ export class SettingsMenuComponent implements OnInit {
   errors = signal<Set<string>>(new Set());
 
   enableTasks = signal(true);
+  theme = signal<Theme>('system');
   durationThreshold = signal<Duration>({} as Duration);
   alwaysShownActivities = signal<ActivityDetails[]>([]);
 
@@ -48,6 +49,7 @@ export class SettingsMenuComponent implements OnInit {
     this.durationThreshold.set(this.currentSettings().durationThreshold);
     this.alwaysShownActivities.set(this.currentSettings().alwaysShownActivities);
     this.enableTasks.set(this.currentSettings().enableTasks);
+    this.theme.set(this.currentSettings().theme ?? 'system');
     this.loepaProjects.set(this.currentSettings().loepaProjects || []);
     this.svanetProjects.set(this.currentSettings().svanetProjects || []);
   }
@@ -107,6 +109,7 @@ export class SettingsMenuComponent implements OnInit {
       alwaysShownActivities: this.alwaysShownActivities(),
       durationThreshold: this.durationThreshold(),
       enableTasks: this.enableTasks(),
+      theme: this.theme(),
       loepaProjects: this.loepaProjects(),
       svanetProjects: this.svanetProjects(),
     };

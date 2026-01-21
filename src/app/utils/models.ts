@@ -30,6 +30,7 @@ export type ActivityDetails = {
 export type FormattedDate = string & { __formattedDate__: void };
 export type Time = '' | `${ number }${ number }:${ number }${ number }`;
 export type Duration = { weeks: number; days: number; hours: number; minutes: number };
+export type Theme = 'light' | 'dark' | 'system';
 
 export type Settings = {
   alwaysShownActivities: ActivityDetails[];
@@ -37,4 +38,5 @@ export type Settings = {
   enableTasks: boolean;
   loepaProjects?: string[];
   svanetProjects?: string[];
+  theme?: Theme;
 }
