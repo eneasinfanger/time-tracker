@@ -57,6 +57,9 @@ export class ActivityRowComponent implements OnInit {
   };
 
   getTaskSuggestions = (value: string) => {
+    if (!value && this.description()) {
+      return this.suggestions.getTaskSuggestionsForDescription(this.description(), this.currentDate());
+    }
     return this.suggestions.getTaskSuggestions(value, this.currentDate());
   };
 

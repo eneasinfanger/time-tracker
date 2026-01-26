@@ -19,15 +19,25 @@ export class SuggestionsService {
     return this.processPastActivities(input, currentDateIso, a => a.type === 'activity', a => a.task, true);
   }
 
-  private processPastActivities(input: string, currentDateIso: FormattedDate, filter: (a: Activity) => boolean, getter: (a: ActivityDetails) => string, includeSettings: boolean): string[] {
+  getTaskSuggestionsForDescription(desc: string, currentDateIso: FormattedDate): string[] {
+    const descContains = this.textContainsOther(desc);
+    return this.processPastActivities('', currentDateIso, a => a.type === 'activity' && descContains(a.description), a => a.task, true);
+  }
+
+  private processPastActivities(input: string, currentDateIso: FormattedDate, filter: (a: ActivityDetails & Partial<Activity>) => boolean, getter: (a: ActivityDetails) => string, includeSettings: boolean): string[] {
     const unique = [...new Set(this.storage.getPastActivities(currentDateIso)
+      .concat(...(!includeSettings ? [] : SettingsHolder.getSettings().alwaysShownActivities.filter(getter) as Activity[]))
       .filter(a => filter(a) && getter(a))
-      .concat(...SettingsHolder.getSettings().alwaysShownActivities.filter(getter) as Activity[])
       .map(getter),
     )];
 
     if (!input) return unique;
-    return unique.filter(d => d.toLowerCase().includes(input.toLowerCase()));
+    return unique.filter(this.textContainsOther(input));
+  }
+
+  private textContainsOther(text: string): (other: string) => boolean {
+    const textL = text.toLowerCase();
+    return (other: string) => other.toLowerCase().includes(textL);
   }
 
   getStartSuggestions(currentDateIso: FormattedDate, compareFunction: (a: Activity) => boolean): string[] {
