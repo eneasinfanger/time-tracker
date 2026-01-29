@@ -72,10 +72,34 @@
             @for (source of jiraSources(); track source.name) {
               <div class="border rounded-lg p-3 bg-gray-50 dark:bg-white/5">
                 <div class="flex items-center justify-between mb-2">
-                  <div class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ source.name }}</div>
-                  <button type="button" class="text-red-500 dark:text-red-400"
-                          (click)="removeJiraSource(source.name)">−
-                  </button>
+                  @if (editingSource() !== source.name) {
+                    <div class="flex-1">
+                      <div class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ source.name }}</div>
+                      <div class="text-xs text-gray-600 dark:text-gray-400">{{ source.url }}</div>
+                    </div>
+                    <div class="flex space-x-2">
+                      <button type="button" class="text-sm px-2 py-1 rounded border" (click)="startEditSource(source.name)">Edit
+                      </button>
+                      <button type="button" class="text-red-500 dark:text-red-400"
+                              (click)="removeJiraSource(source.name)">Remove
+                      </button>
+                    </div>
+                  } @else {
+                    <div class="flex-1 grid grid-cols-1 gap-2">
+                      <input type="text" class="w-full border rounded p-1 text-sm"
+                             [(ngModel)]="editNameMap[source.name]" placeholder="Source name"/>
+                      <input type="text" class="w-full border rounded p-1 text-sm"
+                             [(ngModel)]="editUrlMap[source.name]" placeholder="Base URL"/>
+                    </div>
+                    <div class="flex space-x-2">
+                      <button type="button" class="text-sm px-2 py-1 rounded border"
+                              (click)="saveEditSource(source.name)">Save
+                      </button>
+                      <button type="button" class="text-sm px-2 py-1 rounded border"
+                              (click)="cancelEditSource(source.name)">Cancel
+                      </button>
+                    </div>
+                  }
                 </div>
 
                 <div class="space-y-2">
@@ -94,14 +118,13 @@
                   </div>
 
                   <div class="grid grid-cols-1 gap-2">
-                    <input type="text"
-                           class="w-full border rounded p-1 text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100"
-                           placeholder="Project key (e.g. LOEPA)" [(ngModel)]="newProjectInput"/>
+                    <input type="text" class="w-full border rounded p-1 text-sm"
+                           placeholder="Project key (e.g. LOEPA)" [(ngModel)]="newProjectMap[source.name]"/>
                   </div>
 
                   <div class="flex justify-center">
-                    <button type="button" class="text-l w-11 h-7 rounded-full border flex items-center justify-center"
-                            (click)="addProjectToSource(source.name)">Add
+                    <button type="button" class="text-l w-24 h-8 rounded-full border flex items-center justify-center"
+                            (click)="addProjectToSource(source.name)">Add Project
                     </button>
                   </div>
                 </div>

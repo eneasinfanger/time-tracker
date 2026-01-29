@@ -38,8 +38,7 @@ export class TaskLinkComponent {
     const project = task.substring(0, task.indexOf('-'));
     for (const src of jiraSources) {
       if (src.projects.includes(project)) {
-        // ensure no trailing slash duplication
-        return `${ src.url.replace(/\/+$/, '') }/${ task }`;
+        return `${ src.url }/${ task }`;
       }
     }
     return null;

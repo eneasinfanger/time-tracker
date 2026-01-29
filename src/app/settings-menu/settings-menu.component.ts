@@ -20,6 +20,8 @@ export class SettingsMenuComponent implements OnInit {
   readonly ERROR_INVALID_PROJECT = 'Invalid JIRA Project! (Allowed are uppercase letters only.)';
   readonly ERROR_DUPLICATE_ACTIVITY = 'Duplicate activity entry!';
   readonly ERROR_DUPLICATE_PROJECT = 'Duplicate project entry!';
+  readonly ERROR_DUPLICATE_SOURCE_NAME = 'Duplicate JIRA source name!';
+  readonly ERROR_DUPLICATE_SOURCE_URL = 'Duplicate JIRA source URL!';
 
   closed = output<void>();
   errors = signal<Set<string>>(new Set());
@@ -33,9 +35,13 @@ export class SettingsMenuComponent implements OnInit {
   durationThresholdInput = signal('');
   descriptionInput = signal('');
   taskInput = signal('');
-  newSourceName = signal('');
-  newSourceUrl = signal('');
-  newProjectInput = signal('');
+
+  newSourceName = '';
+  newSourceUrl = '';
+  newProjectMap: Record<string, string> = {};
+  editNameMap: Record<string, string> = {};
+  editUrlMap: Record<string, string> = {};
+  editingSource = signal<string | null>(null);
 
   constructor() {
     effect(() => {
@@ -78,25 +84,92 @@ export class SettingsMenuComponent implements OnInit {
   }
 
   addJiraSource() {
-    const name = this.newSourceName().trim();
-    const url = this.newSourceUrl().trim();
-    if (!name || !url) return;
-    if (this.jiraSources().some(s => s.name === name)) {
-      this.addError('Duplicate JIRA source name');
+    const name = this.newSourceName.trim();
+    const url = this.newSourceUrl.trim().replace(/\/+$/, '');
+    if (!name || !url) {
       return;
     }
-    this.removeError('Duplicate JIRA source name');
-    this.jiraSources.update(arr => [...arr, { name, url: url.replace(/\/+$/, ''), projects: [] }]);
-    this.newSourceName.set('');
-    this.newSourceUrl.set('');
+    if (this.jiraSources().some(s => s.name === name)) {
+      this.addError(this.ERROR_DUPLICATE_SOURCE_NAME);
+      return;
+    }
+    if (this.jiraSources().some(s => s.url === url)) {
+      this.addError(this.ERROR_DUPLICATE_SOURCE_URL);
+      return;
+    }
+    this.removeError(this.ERROR_DUPLICATE_SOURCE_NAME);
+    this.removeError(this.ERROR_DUPLICATE_SOURCE_URL);
+    this.jiraSources.update(arr => [...arr, { name, url, projects: [] }]);
+    this.newSourceName = '';
+    this.newSourceUrl = '';
   }
 
   removeJiraSource(name: string) {
     this.jiraSources.update(arr => arr.filter(s => s.name !== name));
+    delete this.newProjectMap[name];
+    delete this.editNameMap[name];
+    delete this.editUrlMap[name];
+    if (this.editingSource() === name) {
+      this.editingSource.set(null);
+    }
+  }
+
+  startEditSource(name: string) {
+    const src = this.jiraSources().find(s => s.name === name);
+    if (!src) {
+      return;
+    }
+    this.editNameMap[name] = src.name;
+    this.editUrlMap[name] = src.url;
+    this.editingSource.set(name);
+  }
+
+  saveEditSource(oldName: string) {
+    const newName = (this.editNameMap[oldName] || '').trim();
+    const newUrl = (this.editUrlMap[oldName] || '').trim().replace(/\/+$/, '');
+    if (!newName || !newUrl) {
+      return;
+    }
+    // check duplicates except the current source
+    if (this.jiraSources().some(s => s.name === newName && s.name !== oldName)) {
+      this.addError(this.ERROR_DUPLICATE_SOURCE_NAME);
+      return;
+    }
+    if (this.jiraSources().some(s => s.url === newUrl && s.name !== oldName)) {
+      this.addError(this.ERROR_DUPLICATE_SOURCE_URL);
+      return;
+    }
+    this.removeError(this.ERROR_DUPLICATE_SOURCE_NAME);
+    this.removeError(this.ERROR_DUPLICATE_SOURCE_URL);
+    const updated = this.jiraSources().map(s => s.name === oldName ? { ...s, name: newName, url: newUrl } : s);
+    // move temp maps to new key if name changed
+    if (newName !== oldName) {
+      // TODO reduce duplication
+      if (this.newProjectMap[oldName] !== undefined) {
+        this.newProjectMap[newName] = this.newProjectMap[oldName];
+        delete this.newProjectMap[oldName];
+      }
+      if (this.editNameMap[oldName] !== undefined) {
+        this.editNameMap[newName] = this.editNameMap[oldName];
+        delete this.editNameMap[oldName];
+      }
+      if (this.editUrlMap[oldName] !== undefined) {
+        this.editUrlMap[newName] = this.editUrlMap[oldName];
+        delete this.editUrlMap[oldName];
+      }
+    }
+    this.jiraSources.set(updated);
+    this.editingSource.set(null);
+  }
+
+  cancelEditSource(name: string) {
+    delete this.editNameMap[name];
+    delete this.editUrlMap[name];
+    this.editingSource.set(null);
   }
 
   addProjectToSource(sourceName: string) {
-    const project = this.newProjectInput().trim();
+    const project = (this.newProjectMap[sourceName] || '').trim();
     if (!/^[A-Z]+$/.test(project)) {
       this.addError(this.ERROR_INVALID_PROJECT);
       return;
@@ -109,7 +182,7 @@ export class SettingsMenuComponent implements OnInit {
     }
     this.removeError(this.ERROR_DUPLICATE_PROJECT);
     this.jiraSources.set(sources.map(s => s.name === sourceName ? { ...s, projects: [...s.projects, project] } : s));
-    this.newProjectInput.set('');
+    this.newProjectMap[sourceName] = '';
   }
 
   removeProjectFromSource(sourceName: string, project: string) {
