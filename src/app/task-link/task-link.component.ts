@@ -1,6 +1,6 @@
-import { Component, computed, input, Signal } from '@angular/core';
+import { Component, computed, effect, input, OnInit, signal, Signal } from '@angular/core';
 import { SettingsHolder } from '../utils/settings';
-import { JiraSource } from '../utils/models';
+import { JiraSource, Settings } from '../utils/models';
 
 @Component({
   selector: 'task-link',
@@ -12,10 +12,16 @@ export class TaskLinkComponent {
   static readonly TASK_REGEX = /[A-Z]+-\d+/g;
 
   readonly taskText = input.required<string>();
-  readonly taskTextComponents: Signal<PossibleTaskLink[]> = computed(() => this.resolveTask(this.taskText()));
+  readonly taskTextComponents = signal<PossibleTaskLink[]>([]);
 
-  private resolveTask(taskText: string): PossibleTaskLink[] {
-    const { jiraSources } = SettingsHolder.getSettings();
+  constructor() {
+    effect(() => {
+      this.resolveTask(this.taskText(), SettingsHolder.getSettings());
+    });
+    SettingsHolder.onSettingsChange(s => this.resolveTask(this.taskText(), s));
+  }
+
+  private resolveTask(taskText: string, settings: Settings) {
     const results: PossibleTaskLink[] = [];
     let lastIndex = 0;
     for (const match of taskText.matchAll(TaskLinkComponent.TASK_REGEX)) {
@@ -24,14 +30,14 @@ export class TaskLinkComponent {
         results.push({ text: taskText.slice(lastIndex, match.index), link: null });
       }
       // matched part
-      results.push({ text: match[0], link: this.resolveLink(match[0], jiraSources) });
+      results.push({ text: match[0], link: this.resolveLink(match[0], settings.jiraSources) });
       lastIndex = match.index + match[0].length;
     }
     if (lastIndex < taskText.length) {
       // remaining non-matching part
       results.push({ text: taskText.slice(lastIndex), link: null });
     }
-    return results;
+    this.taskTextComponents.set(results);
   }
 
   private resolveLink(task: string, jiraSources: JiraSource[]): string | null {
