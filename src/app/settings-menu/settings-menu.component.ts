@@ -47,9 +47,9 @@ export class SettingsMenuComponent implements OnInit {
     this.durationThreshold.set(settings.durationThreshold);
     this.alwaysShownActivities.set(settings.alwaysShownActivities);
     this.enableTasks.set(settings.enableTasks);
-    this.theme.set(settings.theme ?? 'system');
-    this.loepaProjects.set(settings.loepaProjects || []);
-    this.svanetProjects.set(settings.svanetProjects || []);
+    this.theme.set(settings.theme);
+    this.loepaProjects.set(settings.loepaProjects);
+    this.svanetProjects.set(settings.svanetProjects);
   }
 
   addActivityFromInputs() {

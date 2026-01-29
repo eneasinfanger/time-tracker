@@ -37,8 +37,8 @@ export class SiteComponent {
 
   private initialize() {
     this.storage.initSettings();
-    this.applyTheme(SettingsHolder.getSettings().theme ?? 'system');
-    SettingsHolder.onSettingsChange(s => this.applyTheme(s.theme ?? 'system'));
+    this.applyTheme(SettingsHolder.getSettings().theme);
+    SettingsHolder.onSettingsChange(s => this.applyTheme(s.theme));
 
     this.loadActivitiesForCurrentDay();
 

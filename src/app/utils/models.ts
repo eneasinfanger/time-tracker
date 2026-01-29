@@ -36,7 +36,7 @@ export type Settings = {
   alwaysShownActivities: ActivityDetails[];
   durationThreshold: Duration;
   enableTasks: boolean;
-  loepaProjects?: string[];
-  svanetProjects?: string[];
-  theme?: Theme;
+  loepaProjects: string[];
+  svanetProjects: string[];
+  theme: Theme;
 }

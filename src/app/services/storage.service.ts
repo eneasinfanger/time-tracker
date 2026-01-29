@@ -10,10 +10,16 @@ export class StorageService {
 
   initSettings() {
     let settings = this.getSettings();
+    const fullSettings = SettingsHolder.getDefaultSettings();
     if (!settings) {
-      settings = SettingsHolder.getDefaultSettings();
-      this.saveSettings(settings);
+      settings = fullSettings;
+    } else {
+      const filtered = Object.fromEntries(
+        Object.entries(settings).filter(([, v]) => v !== undefined)
+      ) as Partial<Settings>;
+      settings = { ...fullSettings, ...filtered };
     }
+    this.saveSettings(settings);
     SettingsHolder.setSettings(settings);
     SettingsHolder.onSettingsChange(s => this.saveSettings(s));
   }

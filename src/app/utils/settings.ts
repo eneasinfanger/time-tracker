@@ -20,5 +20,5 @@ export const SettingsHolder = {
     theme: 'system',
     loepaProjects: ['LOEPA', 'LAB', 'SYS', 'ENG', 'TECH', 'TC'],
     svanetProjects: ['TB', 'LADEV', 'TT', 'AKB', 'ARTAG', 'TRB'],
-  } satisfies Settings),
+  } as Settings),
 };
