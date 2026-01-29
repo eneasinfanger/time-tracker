@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivityDetails, Duration, Settings, Theme } from '../utils/models';
 import { generateUUID, UUID } from '../utils/crypto';
 import { SettingsHolder } from "../utils/settings";
+import { AutoFocusDirective } from "../directives/auto-focus.directive";
 
 @Component({
   selector: 'settings-menu',
@@ -11,6 +12,7 @@ import { SettingsHolder } from "../utils/settings";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
+    AutoFocusDirective,
   ],
 })
 export class SettingsMenuComponent implements OnInit {
@@ -50,6 +52,10 @@ export class SettingsMenuComponent implements OnInit {
     this.theme.set(settings.theme);
     this.loepaProjects.set(settings.loepaProjects);
     this.svanetProjects.set(settings.svanetProjects);
+  }
+
+  close() {
+    this.closed.emit();
   }
 
   addActivityFromInputs() {
@@ -108,7 +114,7 @@ export class SettingsMenuComponent implements OnInit {
       svanetProjects: this.svanetProjects(),
     };
     SettingsHolder.setSettings(settings);
-    this.closed.emit();
+    this.close();
   }
 
   formatDurationThreshold(): string {

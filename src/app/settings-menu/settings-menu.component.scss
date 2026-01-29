@@ -1,3 +1,15 @@
 .settings-menu { }
 
+.settings-overlay-backdrop { }
+
+.settings-overlay-panel {
+  /* Fallback accessibility styles in case Tailwind utilities are not available */
+  &:focus {
+    outline: 2px solid rgba(59,130,246,0.6); /* blue-500/60 */
+    outline-offset: 2px;
+  }
+
+  /* Keep custom styles minimal as Tailwind is used widely in templates */
+}
+
 /* using Tailwind utilities; kept intentionally minimal to avoid custom styles */
