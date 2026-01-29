@@ -4,16 +4,17 @@ import { StorageService } from '../services/storage.service';
 import { TimeCalculatorService } from '../services/time-calculator.service';
 import { TimeSummaryComponent } from '../time-summary/time-summary.component';
 import { ActivityRowComponent } from '../activity-row/activity-row.component';
-import { Activity, ActivitySummary, Settings, Theme } from '../utils/models';
+import { Activity, ActivitySummary, Theme } from '../utils/models';
 import { unwrapSignal, wrapInSignal } from '../utils/signals';
 import { formatDate, formatDateToDisplay, parseISODate } from '../utils/dates';
 import { generateUUID, UUID } from '../utils/crypto';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
 import { SettingsHolder } from '../utils/settings';
+import { SettingsButtonComponent } from "../settings-button/settings-button.component";
 
 @Component({
   selector: 'app-site',
-  imports: [FormsModule, ReactiveFormsModule, TimeSummaryComponent, ActivityRowComponent, SettingsMenuComponent],
+  imports: [FormsModule, ReactiveFormsModule, TimeSummaryComponent, ActivityRowComponent, SettingsMenuComponent, SettingsButtonComponent],
   templateUrl: './site.component.html',
   styleUrls: ['./site.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,7 +24,7 @@ export class SiteComponent {
   readonly currentDateFormatted = computed(() => formatDate(this.currentDate()));
   readonly activities = signal<WritableSignal<Activity>[]>([]);
   readonly summary = signal<ActivitySummary>({} as ActivitySummary);
-  readonly settings = signal<Settings>({} as Settings);
+  readonly settingsOpen = signal(false);
 
   protected readonly formatDateToDisplay = formatDateToDisplay;
 
@@ -35,14 +36,11 @@ export class SiteComponent {
   }
 
   private initialize() {
-    this.loadSettings();
-    this.loadActivitiesForCurrentDay();
+    this.storage.initSettings();
+    this.applyTheme(SettingsHolder.getSettings().theme ?? 'system');
+    SettingsHolder.onSettingsChange(s => this.applyTheme(s.theme ?? 'system'));
 
-    effect(() => {
-      this.storage.saveSettings(this.settings());
-      SettingsHolder.setSettings(this.settings());
-      this.applyTheme(this.settings().theme ?? 'system');
-    });
+    this.loadActivitiesForCurrentDay();
 
     effect(() => {
       this.activities();
@@ -55,20 +53,6 @@ export class SiteComponent {
     const dark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.classList.toggle('dark', dark);
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-  }
-
-  private loadSettings() {
-    let settings = this.storage.getSettings();
-    if (!settings) {
-      settings = SettingsHolder.getDefaultSettings();
-      this.storage.saveSettings(settings);
-    }
-    if (settings.theme == null) {
-      settings.theme = 'system';
-    }
-    this.settings.set(settings);
-    SettingsHolder.setSettings(settings);
-    this.applyTheme(settings.theme);
   }
 
   navigateDay(direction: number) {

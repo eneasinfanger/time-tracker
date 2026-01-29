@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, effect, input, OnInit, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, OnInit, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivityDetails, Duration, Settings, Theme } from '../utils/models';
 import { generateUUID, UUID } from '../utils/crypto';
+import { SettingsHolder } from "../utils/settings";
 
 @Component({
   selector: 'settings-menu',
@@ -18,25 +19,21 @@ export class SettingsMenuComponent implements OnInit {
   readonly ERROR_DUPLICATE_ACTIVITY = 'Duplicate activity entry!';
   readonly ERROR_DUPLICATE_PROJECT = 'Duplicate project entry!';
 
-  readonly currentSettings = input.required<Settings>();
-  readonly settingsChange = output<Settings>();
-
-  open = signal(false);
+  closed = output<void>();
   errors = signal<Set<string>>(new Set());
 
   enableTasks = signal(true);
   theme = signal<Theme>('system');
   durationThreshold = signal<Duration>({} as Duration);
   alwaysShownActivities = signal<ActivityDetails[]>([]);
+  loepaProjects = signal<string[]>([]);
+  svanetProjects = signal<string[]>([]);
 
   durationThresholdInput = signal('');
   descriptionInput = signal('');
   taskInput = signal('');
-
   loepaProjectInput = signal('');
   svanetProjectInput = signal('');
-  loepaProjects = signal<string[]>([]);
-  svanetProjects = signal<string[]>([]);
 
   constructor() {
     effect(() => {
@@ -46,16 +43,13 @@ export class SettingsMenuComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.durationThreshold.set(this.currentSettings().durationThreshold);
-    this.alwaysShownActivities.set(this.currentSettings().alwaysShownActivities);
-    this.enableTasks.set(this.currentSettings().enableTasks);
-    this.theme.set(this.currentSettings().theme ?? 'system');
-    this.loepaProjects.set(this.currentSettings().loepaProjects || []);
-    this.svanetProjects.set(this.currentSettings().svanetProjects || []);
-  }
-
-  toggle() {
-    this.open.update(v => !v);
+    const settings = SettingsHolder.getSettings();
+    this.durationThreshold.set(settings.durationThreshold);
+    this.alwaysShownActivities.set(settings.alwaysShownActivities);
+    this.enableTasks.set(settings.enableTasks);
+    this.theme.set(settings.theme ?? 'system');
+    this.loepaProjects.set(settings.loepaProjects || []);
+    this.svanetProjects.set(settings.svanetProjects || []);
   }
 
   addActivityFromInputs() {
@@ -113,12 +107,8 @@ export class SettingsMenuComponent implements OnInit {
       loepaProjects: this.loepaProjects(),
       svanetProjects: this.svanetProjects(),
     };
-    this.settingsChange.emit(settings);
-    this.close();
-  }
-
-  close() {
-    this.open.set(false);
+    SettingsHolder.setSettings(settings);
+    this.closed.emit();
   }
 
   formatDurationThreshold(): string {
@@ -165,7 +155,9 @@ export class SettingsMenuComponent implements OnInit {
     let match: RegExpExecArray | null;
     while ((match = pairRegEx.exec(input)) !== null) {
       const n = Number(match[1]);
-      if (!Number.isInteger(n)) { return null; }
+      if (!Number.isInteger(n)) {
+        return null;
+      }
       const unit = match[2].toLowerCase();
       // @formatter:off
       switch (unit) {

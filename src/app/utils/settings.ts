@@ -1,10 +1,18 @@
 import { Settings } from './models';
+import { Subject, Subscription } from "rxjs";
 
-let settings: Settings;
+let currentSettings: Settings;
+const settingsChange = new Subject<Settings>();
 
 export const SettingsHolder = {
-  getSettings: () => settings,
-  setSettings: (newSettings: Settings) => settings = newSettings,
+  getSettings: () => currentSettings,
+  setSettings: (newSettings: Settings) => {
+    currentSettings = newSettings;
+    settingsChange.next(newSettings);
+  },
+  onSettingsChange(callback: (settings: Settings) => void): Subscription {
+    return settingsChange.subscribe(callback);
+  },
   getDefaultSettings: () => ({
     alwaysShownActivities: [],
     durationThreshold: { weeks: 1, days: 0, hours: 0, minutes: 0 },

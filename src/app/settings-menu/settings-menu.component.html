@@ -1,122 +1,126 @@
-<div class="relative">
-  <button type="button" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-white/5 border" (click)="toggle()" aria-label="Open settings">
-    <!-- simple gear icon -->
-    <svg class="w-5 h-5 text-gray-700 dark:text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-         xmlns="http://www.w3.org/2000/svg">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-  </button>
+<div
+  class="absolute right-0 mt-2 w-96 bg-white border rounded-md shadow-lg p-4 z-50 dark:bg-slate-900 dark:border-gray-800">
+  <h3 class="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Settings</h3>
 
-  @if (open()) {
-    <div class="absolute right-0 mt-2 w-96 bg-white border rounded-md shadow-lg p-4 z-50 dark:bg-slate-900 dark:border-gray-800">
-      <h3 class="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Settings</h3>
+  <div class="mb-3">
+    <label class="flex items-center space-x-2 text-sm">
+      <input type="checkbox" class="form-checkbox" [(ngModel)]="enableTasks"/>
+      <span class="text-gray-700 dark:text-gray-200">Enable task functionality</span>
+    </label>
+  </div>
 
-      <div class="mb-3">
-        <label class="flex items-center space-x-2 text-sm">
-          <input type="checkbox" class="form-checkbox" [(ngModel)]="enableTasks"/>
-          <span class="text-gray-700 dark:text-gray-200">Enable task functionality</span>
-        </label>
+  <div class="mb-3 text-sm">
+    <label class="block font-medium mb-1 text-gray-800 dark:text-gray-200">Theme</label>
+    <select class="w-40 p-1 border rounded text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100"
+            [(ngModel)]="theme">
+      <option class="dark:bg-slate-800 dark:text-gray-100" value="light">Light</option>
+      <option class="dark:bg-slate-800 dark:text-gray-100" value="dark">Dark</option>
+      <option class="dark:bg-slate-800 dark:text-gray-100" value="system">System</option>
+    </select>
+  </div>
+
+  <div class="mb-3 text-sm">
+    <label class="block font-medium mb-1 text-gray-800 dark:text-gray-200">Suggest activities until ... ago:</label>
+    <input type="text"
+           class="w-28 border rounded p-1 text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100"
+           [(ngModel)]="durationThresholdInput"
+           (input)="updateDurationThreshold($event)" placeholder="1w 2d 3h 4m"/>
+  </div>
+
+  <div class="mb-3 text-sm">
+    <div class="font-medium mb-1 text-gray-800 dark:text-gray-200">Activities to always show:</div>
+    @for (activity of alwaysShownActivities(); track activity.id) {
+      <div class="flex items-center justify-between bg-gray-50 dark:bg-white/5 rounded px-2 py-1 mb-1">
+        <div class="text-sm truncate text-gray-800 dark:text-gray-200">{{ activity.description }}/ {{ activity.task }}
+        </div>
+        <button type="button" class="text-red-500 px-2 dark:text-red-400" (click)="removeActivity(activity.id)">−
+        </button>
       </div>
+    }
+    <div class="grid grid-cols-2">
+      <input type="text"
+             class="w-full border rounded p-1 text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100"
+             placeholder="Add description"
+             [(ngModel)]="descriptionInput"/>
+      <input type="text"
+             class="w-full border rounded p-1 text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100"
+             placeholder="Add task" [(ngModel)]="taskInput"/>
+    </div>
+  </div>
 
-      <div class="mb-3 text-sm">
-        <label class="block font-medium mb-1 text-gray-800 dark:text-gray-200">Theme</label>
-        <select class="w-40 p-1 border rounded text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100" [(ngModel)]="theme">
-          <option class="dark:bg-slate-800 dark:text-gray-100" value="light">Light</option>
-          <option class="dark:bg-slate-800 dark:text-gray-100" value="dark">Dark</option>
-          <option class="dark:bg-slate-800 dark:text-gray-100" value="system">System</option>
-        </select>
+  <div class="flex justify-center mb-3">
+    <button type="button" class="text-l w-11 h-7 rounded-full border flex items-center justify-center"
+            (click)="addActivityFromInputs()">Add
+    </button>
+  </div>
+
+  <div class="mb-3 text-sm">
+    <div class="font-medium mb-1 text-gray-800 dark:text-gray-200">Projects on Loepa JIRA:</div>
+    @for (project of loepaProjects(); track $index) {
+      <div class="flex items-center justify-between bg-gray-50 dark:bg-white/5 rounded px-2 py-1 mb-1">
+        <div class="text-sm truncate text-gray-800 dark:text-gray-200">{{ project }}</div>
+        <button type="button" class="text-red-500 px-2 dark:text-red-400" (click)="removeProject('loepa',project)">−
+        </button>
       </div>
+    }
+    <div class="grid">
+      <input type="text"
+             class="w-full border rounded p-1 text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100"
+             placeholder="Add project"
+             [(ngModel)]="loepaProjectInput"/>
+    </div>
+  </div>
+  <div class="flex justify-center mb-3">
+    <button type="button" class="text-l w-11 h-7 rounded-full border flex items-center justify-center"
+            (click)="addProjectFromInput('loepa')">Add
+    </button>
+  </div>
 
-      <div class="mb-3 text-sm">
-        <label class="block font-medium mb-1 text-gray-800 dark:text-gray-200">Suggest activities until ... ago:</label>
-        <input type="text" class="w-28 border rounded p-1 text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100" [(ngModel)]="durationThresholdInput"
-               (input)="updateDurationThreshold($event)" placeholder="1w 2d 3h 4m"/>
+  <div class="mb-3 text-sm">
+    <div class="font-medium mb-1 text-gray-800 dark:text-gray-200">Projects on Svanet JIRA:</div>
+    @for (project of svanetProjects(); track $index) {
+      <div class="flex items-center justify-between bg-gray-50 dark:bg-white/5 rounded px-2 py-1 mb-1">
+        <div class="text-sm truncate text-gray-800 dark:text-gray-200">{{ project }}</div>
+        <button type="button" class="text-red-500 px-2 dark:text-red-400" (click)="removeProject('svanet',project)">−
+        </button>
       </div>
+    }
+    <div class="grid">
+      <input type="text"
+             class="w-full border rounded p-1 text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100"
+             placeholder="Add project"
+             [(ngModel)]="svanetProjectInput"/>
+    </div>
+  </div>
+  <div class="flex justify-center mb-3">
+    <button type="button" class="text-l w-11 h-7 rounded-full border flex items-center justify-center"
+            (click)="addProjectFromInput('svanet')">Add
+    </button>
+  </div>
 
-      <div class="mb-3 text-sm">
-        <div class="font-medium mb-1 text-gray-800 dark:text-gray-200">Activities to always show:</div>
-        @for (activity of alwaysShownActivities(); track activity.id) {
-          <div class="flex items-center justify-between bg-gray-50 dark:bg-white/5 rounded px-2 py-1 mb-1">
-            <div class="text-sm truncate text-gray-800 dark:text-gray-200">{{ activity.description }} / {{ activity.task }}</div>
-            <button type="button" class="text-red-500 px-2 dark:text-red-400" (click)="removeActivity(activity.id)">−</button>
-          </div>
+  @if (errors().size > 0) {
+    <div class="mb-3 bg-red-50 border border-red-200 text-red-800 rounded p-3">
+      <div class="text-sm font-medium mb-2">
+        @if (errors().size == 1) {
+          There is 1 validation error:
+        } @else {
+          There are {{ errors().size }} validation errors:
         }
-        <div class="grid grid-cols-2">
-          <input type="text" class="w-full border rounded p-1 text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100" placeholder="Add description"
-                 [(ngModel)]="descriptionInput"/>
-          <input type="text" class="w-full border rounded p-1 text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100" placeholder="Add task" [(ngModel)]="taskInput"/>
-        </div>
       </div>
-
-      <div class="flex justify-center mb-3">
-        <button type="button" class="text-l w-11 h-7 rounded-full border flex items-center justify-center"
-                (click)="addActivityFromInputs()">Add
-        </button>
-      </div>
-
-      <div class="mb-3 text-sm">
-        <div class="font-medium mb-1 text-gray-800 dark:text-gray-200">Projects on Loepa JIRA:</div>
-        @for (project of loepaProjects(); track $index) {
-          <div class="flex items-center justify-between bg-gray-50 dark:bg-white/5 rounded px-2 py-1 mb-1">
-            <div class="text-sm truncate text-gray-800 dark:text-gray-200">{{ project }}</div>
-            <button type="button" class="text-red-500 px-2 dark:text-red-400" (click)="removeProject('loepa',project)">−</button>
-          </div>
+      <div class="space-y-1 text-sm">
+        @for (err of errors(); track err) {
+          <div class="px-2 py-1 bg-white border border-red-100 rounded text-red-700">{{ err }}</div>
         }
-        <div class="grid">
-          <input type="text" class="w-full border rounded p-1 text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100" placeholder="Add project"
-                 [(ngModel)]="loepaProjectInput"/>
-        </div>
-      </div>
-      <div class="flex justify-center mb-3">
-        <button type="button" class="text-l w-11 h-7 rounded-full border flex items-center justify-center"
-                (click)="addProjectFromInput('loepa')">Add
-        </button>
-      </div>
-
-      <div class="mb-3 text-sm">
-        <div class="font-medium mb-1 text-gray-800 dark:text-gray-200">Projects on Svanet JIRA:</div>
-        @for (project of svanetProjects(); track $index) {
-          <div class="flex items-center justify-between bg-gray-50 dark:bg-white/5 rounded px-2 py-1 mb-1">
-            <div class="text-sm truncate text-gray-800 dark:text-gray-200">{{ project }}</div>
-            <button type="button" class="text-red-500 px-2 dark:text-red-400" (click)="removeProject('svanet',project)">−</button>
-          </div>
-        }
-        <div class="grid">
-          <input type="text" class="w-full border rounded p-1 text-sm dark:bg-transparent dark:border-gray-700 dark:text-gray-100" placeholder="Add project"
-                 [(ngModel)]="svanetProjectInput"/>
-        </div>
-      </div>
-      <div class="flex justify-center mb-3">
-        <button type="button" class="text-l w-11 h-7 rounded-full border flex items-center justify-center"
-                (click)="addProjectFromInput('svanet')">Add
-        </button>
-      </div>
-
-      @if (errors().size > 0) {
-        <div class="mb-3 bg-red-50 border border-red-200 text-red-800 rounded p-3">
-          <div class="text-sm font-medium mb-2">
-            @if (errors().size == 1) {
-              There is 1 validation error:
-            } @else {
-              There are {{ errors().size }} validation errors:
-            }
-          </div>
-          <div class="space-y-1 text-sm">
-            @for (err of errors(); track err) {
-              <div class="px-2 py-1 bg-white border border-red-100 rounded text-red-700">{{ err }}</div>
-            }
-          </div>
-        </div>
-      }
-
-      <div class="flex justify-end space-x-2">
-        <button type="button" class="text-sm px-2 py-1 rounded border cursor-default" (click)="close()">Cancel</button>
-        <button type="button" (click)="save()" [disabled]="errors().size > 0"
-                class="text-sm px-3 py-1 rounded bg-blue-600 text-white disabled:bg-gray-400 disabled:cursor-not-allowed">
-          Save
-        </button>
       </div>
     </div>
   }
+
+  <div class="flex justify-end space-x-2">
+    <button type="button" class="text-sm px-2 py-1 rounded border cursor-default" (click)="this.closed.emit();">Cancel
+    </button>
+    <button type="button" (click)="save()" [disabled]="errors().size > 0"
+            class="text-sm px-3 py-1 rounded bg-blue-600 text-white disabled:bg-gray-400 disabled:cursor-not-allowed">
+      Save
+    </button>
+  </div>
 </div>

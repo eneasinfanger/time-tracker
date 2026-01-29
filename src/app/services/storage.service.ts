@@ -8,6 +8,16 @@ export class StorageService {
   private readonly storagePrefix = 'timetracker_';
   private readonly settingsKey = 'timetracker_settings';
 
+  initSettings() {
+    let settings = this.getSettings();
+    if (!settings) {
+      settings = SettingsHolder.getDefaultSettings();
+      this.saveSettings(settings);
+    }
+    SettingsHolder.setSettings(settings);
+    SettingsHolder.onSettingsChange(s => this.saveSettings(s));
+  }
+
   saveActivitiesForDate(date: FormattedDate, activities: Activity[]) {
     const key = this.getStorageKey(date);
 
