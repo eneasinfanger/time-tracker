@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Activity, FormattedDate, Settings } from '../utils/models';
 import { formatDate, parseISODate, subtractDuration } from '../utils/dates';
 import { SettingsHolder } from '../utils/settings';
+import { settingsMigrations } from './storage.migrations';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
@@ -18,6 +19,9 @@ export class StorageService {
         Object.entries(settings).filter(([, v]) => v !== undefined)
       ) as Partial<Settings>;
       settings = { ...fullSettings, ...filtered };
+    }
+    for (const migration of settingsMigrations) {
+      migration.run(settings);
     }
     this.saveSettings(settings);
     SettingsHolder.setSettings(settings);

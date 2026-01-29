@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, effect, OnInit, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivityDetails, Duration, Settings, Theme } from '../utils/models';
+import { ActivityDetails, Duration, Settings, Theme, JiraSource } from '../utils/models';
 import { generateUUID, UUID } from '../utils/crypto';
-import { SettingsHolder } from "../utils/settings";
-import { AutoFocusDirective } from "../directives/auto-focus.directive";
+import { SettingsHolder } from '../utils/settings';
+import { AutoFocusDirective } from '../directives/auto-focus.directive';
 
 @Component({
   selector: 'settings-menu',
@@ -28,14 +28,14 @@ export class SettingsMenuComponent implements OnInit {
   theme = signal<Theme>('system');
   durationThreshold = signal<Duration>({} as Duration);
   alwaysShownActivities = signal<ActivityDetails[]>([]);
-  loepaProjects = signal<string[]>([]);
-  svanetProjects = signal<string[]>([]);
+  jiraSources = signal<JiraSource[]>([]);
 
   durationThresholdInput = signal('');
   descriptionInput = signal('');
   taskInput = signal('');
-  loepaProjectInput = signal('');
-  svanetProjectInput = signal('');
+  newSourceName = signal('');
+  newSourceUrl = signal('');
+  newProjectInput = signal('');
 
   constructor() {
     effect(() => {
@@ -50,8 +50,7 @@ export class SettingsMenuComponent implements OnInit {
     this.alwaysShownActivities.set(settings.alwaysShownActivities);
     this.enableTasks.set(settings.enableTasks);
     this.theme.set(settings.theme);
-    this.loepaProjects.set(settings.loepaProjects);
-    this.svanetProjects.set(settings.svanetProjects);
+    this.jiraSources.set(settings.jiraSources);
   }
 
   close() {
@@ -78,27 +77,46 @@ export class SettingsMenuComponent implements OnInit {
     this.alwaysShownActivities.update(arr => arr.filter(a => a.id !== id));
   }
 
-  addProjectFromInput(type: 'loepa' | 'svanet') {
-    const input = type === 'loepa' ? this.loepaProjectInput : this.svanetProjectInput;
-    const value = input().trim();
-    if (!/^[A-Z]+$/.test(value)) {
+  addJiraSource() {
+    const name = this.newSourceName().trim();
+    const url = this.newSourceUrl().trim();
+    if (!name || !url) return;
+    if (this.jiraSources().some(s => s.name === name)) {
+      this.addError('Duplicate JIRA source name');
+      return;
+    }
+    this.removeError('Duplicate JIRA source name');
+    this.jiraSources.update(arr => [...arr, { name, url: url.replace(/\/+$/, ''), projects: [] }]);
+    this.newSourceName.set('');
+    this.newSourceUrl.set('');
+  }
+
+  removeJiraSource(name: string) {
+    this.jiraSources.update(arr => arr.filter(s => s.name !== name));
+  }
+
+  addProjectToSource(sourceName: string) {
+    const project = this.newProjectInput().trim();
+    if (!/^[A-Z]+$/.test(project)) {
       this.addError(this.ERROR_INVALID_PROJECT);
       return;
     }
     this.removeError(this.ERROR_INVALID_PROJECT);
-    const projects = type === 'loepa' ? this.loepaProjects : this.svanetProjects;
-    if (this.loepaProjects().includes(value) || this.svanetProjects().includes(value)) {
+    const sources = this.jiraSources();
+    if (sources.some(s => s.projects.includes(project))) {
       this.addError(this.ERROR_DUPLICATE_PROJECT);
       return;
     }
     this.removeError(this.ERROR_DUPLICATE_PROJECT);
-    projects.update(arr => [...arr, value]);
-    input.set('')
+    this.jiraSources.set(sources.map(s => s.name === sourceName ? { ...s, projects: [...s.projects, project] } : s));
+    this.newProjectInput.set('');
   }
 
-  removeProject(type: 'loepa' | 'svanet', project: string) {
-    const projects = type === 'loepa' ? this.loepaProjects : this.svanetProjects;
-    projects.update(arr => arr.filter(p => p !== project));
+  removeProjectFromSource(sourceName: string, project: string) {
+    this.jiraSources.set(this.jiraSources().map(s => s.name === sourceName ? {
+      ...s,
+      projects: s.projects.filter(p => p !== project),
+    } : s));
   }
 
   save() {
@@ -110,8 +128,7 @@ export class SettingsMenuComponent implements OnInit {
       durationThreshold: this.durationThreshold(),
       enableTasks: this.enableTasks(),
       theme: this.theme(),
-      loepaProjects: this.loepaProjects(),
-      svanetProjects: this.svanetProjects(),
+      jiraSources: this.jiraSources(),
     };
     SettingsHolder.setSettings(settings);
     this.close();

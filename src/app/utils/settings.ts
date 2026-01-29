@@ -1,5 +1,5 @@
 import { Settings } from './models';
-import { Subject, Subscription } from "rxjs";
+import { Subject, Subscription } from 'rxjs';
 
 let currentSettings: Settings;
 const settingsChange = new Subject<Settings>();
@@ -18,7 +18,6 @@ export const SettingsHolder = {
     durationThreshold: { weeks: 1, days: 0, hours: 0, minutes: 0 },
     enableTasks: true,
     theme: 'system',
-    loepaProjects: ['LOEPA', 'LAB', 'SYS', 'ENG', 'TECH', 'TC'],
-    svanetProjects: ['TB', 'LADEV', 'TT', 'AKB', 'ARTAG', 'TRB'],
+    jiraSources: [],
   } as Settings),
 };

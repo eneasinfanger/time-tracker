@@ -1,5 +1,6 @@
 import { Component, computed, input, Signal } from '@angular/core';
-import { SettingsHolder } from "../utils/settings";
+import { SettingsHolder } from '../utils/settings';
+import { JiraSource } from '../utils/models';
 
 @Component({
   selector: 'task-link',
@@ -14,7 +15,7 @@ export class TaskLinkComponent {
   readonly taskTextComponents: Signal<PossibleTaskLink[]> = computed(() => this.resolveTask(this.taskText()));
 
   private resolveTask(taskText: string): PossibleTaskLink[] {
-    const { loepaProjects, svanetProjects } = SettingsHolder.getSettings();
+    const { jiraSources } = SettingsHolder.getSettings();
     const results: PossibleTaskLink[] = [];
     let lastIndex = 0;
     for (const match of taskText.matchAll(TaskLinkComponent.TASK_REGEX)) {
@@ -23,7 +24,7 @@ export class TaskLinkComponent {
         results.push({ text: taskText.slice(lastIndex, match.index), link: null });
       }
       // matched part
-      results.push({ text: match[0], link: this.resolveLink(match[0], loepaProjects, svanetProjects) });
+      results.push({ text: match[0], link: this.resolveLink(match[0], jiraSources) });
       lastIndex = match.index + match[0].length;
     }
     if (lastIndex < taskText.length) {
@@ -33,13 +34,13 @@ export class TaskLinkComponent {
     return results;
   }
 
-  private resolveLink(task: string, loepaProjects?: string[], svanetProjects?: string[]): string | null {
+  private resolveLink(task: string, jiraSources: JiraSource[]): string | null {
     const project = task.substring(0, task.indexOf('-'));
-    // TODO make links configurable / jira systems generally
-    if (loepaProjects?.includes(project)) {
-      return `https://jira.loewenfels.ch/jira/browse/${ task }`;
-    } else if (svanetProjects?.includes(project)) {
-      return `https://jira.svanet.ch/browse/${ task }`;
+    for (const src of jiraSources) {
+      if (src.projects.includes(project)) {
+        // ensure no trailing slash duplication
+        return `${ src.url.replace(/\/+$/, '') }/${ task }`;
+      }
     }
     return null;
   }
