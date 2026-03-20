@@ -1,6 +1,7 @@
-import { Component, computed, effect, input, OnInit, signal, Signal } from '@angular/core';
+import { Component, effect, input, signal } from '@angular/core';
 import { SettingsHolder } from '../utils/settings';
-import { JiraSource, Settings } from '../utils/models';
+import { Settings } from '../utils/models';
+import { PossibleTaskLink, resolveTaskLinks } from "../utils/task-parser";
 
 @Component({
   selector: 'task-link',
@@ -9,46 +10,16 @@ import { JiraSource, Settings } from '../utils/models';
   styleUrl: './task-link.component.scss',
 })
 export class TaskLinkComponent {
-  static readonly TASK_REGEX = /[A-Z]+-\d+/g;
-
   readonly taskText = input.required<string>();
   readonly taskTextComponents = signal<PossibleTaskLink[]>([]);
 
   constructor() {
+    const resolveTask = (taskText: string, settings: Settings) => {
+      this.taskTextComponents.set(resolveTaskLinks(taskText, settings.jiraSources));
+    }
     effect(() => {
-      this.resolveTask(this.taskText(), SettingsHolder.getSettings());
+      resolveTask(this.taskText(), SettingsHolder.getSettings());
     });
-    SettingsHolder.onSettingsChange(s => this.resolveTask(this.taskText(), s));
-  }
-
-  private resolveTask(taskText: string, settings: Settings) {
-    const results: PossibleTaskLink[] = [];
-    let lastIndex = 0;
-    for (const match of taskText.matchAll(TaskLinkComponent.TASK_REGEX)) {
-      if (match.index > lastIndex) {
-        // non-matching part before match
-        results.push({ text: taskText.slice(lastIndex, match.index), link: null });
-      }
-      // matched part
-      results.push({ text: match[0], link: this.resolveLink(match[0], settings.jiraSources) });
-      lastIndex = match.index + match[0].length;
-    }
-    if (lastIndex < taskText.length) {
-      // remaining non-matching part
-      results.push({ text: taskText.slice(lastIndex), link: null });
-    }
-    this.taskTextComponents.set(results);
-  }
-
-  private resolveLink(task: string, jiraSources: JiraSource[]): string | null {
-    const project = task.substring(0, task.indexOf('-'));
-    for (const src of jiraSources) {
-      if (src.projects.includes(project)) {
-        return `${ src.url }/${ task }`;
-      }
-    }
-    return null;
+    SettingsHolder.onSettingsChange(s => resolveTask(this.taskText(), s));
   }
 }
-
-type PossibleTaskLink = { text: string, link: string | null };

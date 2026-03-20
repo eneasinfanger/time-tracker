@@ -6,15 +6,14 @@
   <div class="flex items-center justify-between mb-3">
     <div class="text-sm text-gray-600 dark:text-gray-400">Summary</div>
     <div class="flex items-center space-x-2">
-      <button type="button" (click)="setSortMode('start')" class="text-sm px-2 py-1 rounded border dark:border-gray-700 dark:text-gray-300"
-        [class.font-semibold]="sortMode() === 'start'" title="Sort by start time">Start time
-      </button>
-      <button type="button" (click)="setSortMode('alpha')" class="text-sm px-2 py-1 rounded border dark:border-gray-700 dark:text-gray-300"
-        [class.font-semibold]="sortMode() === 'alpha'" title="Sort by name">Alphabetical
-      </button>
+      @for (mode of getSortModes(); track mode.label) {
+        <button type="button" (click)="setSortMode(mode)" class="text-sm px-2 py-1 rounded border dark:border-gray-700 dark:text-gray-300"
+                [class.font-semibold]="sortMode() === mode" [title]="mode.meta">{{ mode.label }}
+        </button>
+      }
       <button type="button" (click)="toggleReverse()"
         class="text-sm px-2 py-1 rounded border dark:border-gray-700 dark:text-gray-300" title="Reverse sorting">
-        {{ sortReverse() ? 'Reversed' : 'Normal' }}
+        {{ sortReverse() ? '⯅' : '⯆' }}
       </button>
 
   <div class="h-6 w-px bg-gray-200 dark:bg-white/6 mx-2"></div>
