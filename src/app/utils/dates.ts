@@ -1,10 +1,10 @@
-import { Duration, FormattedDate } from './models';
+import { Duration, ISODate } from './models';
 
-export function formatDate(date: Date): FormattedDate {
+export function formatDateISO(date: Date): ISODate {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}` as FormattedDate;
+  return `${y}-${m}-${d}` as ISODate;
 }
 
 export function formatDateToDisplay(date: Date): string {
@@ -15,10 +15,11 @@ export function formatDateToDisplay(date: Date): string {
     day: 'numeric',
   });
 }
+
 /**
  * @param value yyyy-mm-dd
  */
-export function parseISODate(value: `${ number }-${ number }-${ number }` | FormattedDate): Date {
+export function parseISODate(value: `${ number }-${ number }-${ number }` | ISODate): Date {
   const [year, month, day] = value.split("-").map(Number);
   return new Date(year, month - 1, day);
 }

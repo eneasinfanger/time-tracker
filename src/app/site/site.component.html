@@ -27,7 +27,7 @@
 
         <!-- Date picker -->
         <input type="date" class="ml-4 p-2 border rounded dark:bg-transparent dark:border-gray-700 dark:text-gray-100"
-               [value]="currentDateFormatted()" (change)="navigateToInput($any($event.target).value)"/>
+               [value]="currentDateISO()" (change)="navigateToInput($any($event.target).value)"/>
       </div>
 
       <div class="relative">
@@ -61,7 +61,7 @@
               <tr activity-row
                   class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-white/5"
                   [activity]="activity"
-                  [currentDate]="currentDateFormatted()" (addRow)="addNewActivity(activity().id)"
+                  [currentDate]="currentDateISO()" (addRow)="addNewActivity(activity().id)"
                   (removeRow)="removeActivity(activity().id)"></tr>
             }
           </tbody>

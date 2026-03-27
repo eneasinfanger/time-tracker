@@ -6,7 +6,7 @@ import { TimeSummaryComponent } from '../time-summary/time-summary.component';
 import { ActivityRowComponent } from '../activity-row/activity-row.component';
 import { Activity, ActivitySummary, Theme } from '../utils/models';
 import { unwrapSignal, wrapInSignal } from '../utils/signals';
-import { formatDate, formatDateToDisplay, parseISODate } from '../utils/dates';
+import { formatDateISO, formatDateToDisplay, parseISODate } from '../utils/dates';
 import { generateUUID, UUID } from '../utils/crypto';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
 import { SettingsHolder } from '../utils/settings';
@@ -21,7 +21,7 @@ import { SettingsButtonComponent } from "../settings-button/settings-button.comp
 })
 export class SiteComponent {
   readonly currentDate = signal(new Date());
-  readonly currentDateFormatted = computed(() => formatDate(this.currentDate()));
+  readonly currentDateISO = computed(() => formatDateISO(this.currentDate()));
   readonly activities = signal<WritableSignal<Activity>[]>([]);
   readonly summary = signal<ActivitySummary>({} as ActivitySummary);
   readonly settingsOpen = signal(false);
@@ -71,13 +71,13 @@ export class SiteComponent {
   }
 
   loadActivitiesForCurrentDay() {
-    const date = this.currentDateFormatted();
+    const date = this.currentDateISO();
     const activities = this.storage.getActivitiesForDate(date) || [];
     this.activities.set(activities.map(wrapInSignal));
   }
 
   saveCurrentActivities() {
-    const date = this.currentDateFormatted();
+    const date = this.currentDateISO();
     this.storage.saveActivitiesForDate(date, this.activities().map(unwrapSignal));
   }
 

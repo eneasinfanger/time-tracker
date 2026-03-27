@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, model, OnInit, output, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Activity, ActivityDetails, ActivityType, FormattedDate, Time } from '../utils/models';
+import { Activity, ActivityDetails, ActivityType, ISODate, Time } from '../utils/models';
 import { SuggestionsService } from '../services/suggestions.service';
 import { initUsing } from '../utils/signals';
 import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
@@ -19,7 +19,7 @@ export class ActivityRowComponent implements OnInit {
   readonly storage = inject(StorageService);
 
   readonly activity = input.required<WritableSignal<Activity>>();
-  readonly currentDate = input.required<FormattedDate>();
+  readonly currentDate = input.required<ISODate>();
   readonly addRow = output<void>();
   readonly removeRow = output<void>();
 
