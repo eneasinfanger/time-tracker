@@ -1,65 +1,140 @@
 import { inject, Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, doc, docData, setDoc, deleteDoc, query, where, orderBy, writeBatch } from '@angular/fire/firestore';
+import { collection, collectionData, deleteDoc, doc, docData, Firestore, orderBy, query, setDoc, where, writeBatch } from '@angular/fire/firestore';
 import { firstValueFrom, Observable } from "rxjs";
 import { Activity, ISODate, Settings } from "../utils/models";
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SyncService {
-  private readonly dataCollection = 'timetracker_data';
-  private readonly settingsCollection = 'timetracker_settings';
-  private readonly settingsDocId = 'settings';
+  private readonly USERS_COLLECTION = 'users';
+  private readonly SETTINGS_COLLECTION = 'settings';
+  private readonly SETTINGS_DOC_ID = 'settings';
+  private readonly APP_DATA_COLLECTION = 'appData';
+
   private readonly firestore = inject(Firestore);
+  private readonly auth = inject(AuthService);
 
-  saveSettings(settings: Settings): Promise<void> {
-    const ref = doc(this.firestore, this.settingsCollection, this.settingsDocId);
-    return setDoc(ref, settings, { merge: true });
+  private get uid(): string {
+    const user = this.auth.currentUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+    return user.uid;
   }
 
-  getSettings(): Promise<Settings | undefined> {
-    const ref = doc(this.firestore, this.settingsCollection, this.settingsDocId);
-    return firstValueFrom(docData(ref) as Observable<Settings | undefined>);
+  private settingsDoc() {
+    return doc(this.firestore, `${this.USERS_COLLECTION}/${this.uid}/${this.SETTINGS_COLLECTION}/${this.SETTINGS_DOC_ID}`);
   }
 
-  getActivitiesForDay(targetDay: ISODate): Promise<Activity[]> {
-    const aufgabenCollection = collection(this.firestore, this.dataCollection);
+  private appDataCollection() {
+    return collection(this.firestore, `${this.USERS_COLLECTION}/${this.uid}/${this.APP_DATA_COLLECTION}`);
+  }
+
+  async saveSettings(settings: Settings): Promise<void> {
+    try {
+      return await setDoc(this.settingsDoc(), settings, { merge: true });
+    } catch (err: unknown) {
+      this.handlePermissionError(err);
+      throw err;
+    }
+  }
+
+  async getSettings(): Promise<Settings | undefined> {
+    try {
+      return await firstValueFrom(
+        docData(this.settingsDoc()) as Observable<Settings | undefined>
+      );
+    } catch (err: unknown) {
+      this.handlePermissionError(err);
+      throw err;
+    }
+  }
+
+  async getActivitiesForDay(targetDay: ISODate): Promise<Activity[]> {
     const q = query(
-      aufgabenCollection,
+      this.appDataCollection(),
       where('date', '==', targetDay),
       orderBy('date', 'asc'),
     );
-    return firstValueFrom(collectionData(q, { idField: 'id' }) as Observable<Activity[]>);
+
+    try {
+      return await firstValueFrom(
+        collectionData(q, { idField: 'id' }) as Observable<Activity[]>
+      );
+    } catch (err: unknown) {
+      this.handlePermissionError(err);
+      throw err;
+    }
   }
 
-  getActivitiesBetween(startDate: ISODate, endDate: ISODate): Promise<Activity[]> {
-    const aufgabenCollection = collection(this.firestore, this.dataCollection);
+  async getActivitiesBetween(startDate: ISODate, endDate: ISODate): Promise<Activity[]> {
     const q = query(
-      aufgabenCollection,
+      this.appDataCollection(),
       where('date', '>=', startDate),
       where('date', '<=', endDate),
       orderBy('date', 'asc'),
     );
-    return firstValueFrom(collectionData(q, { idField: 'id' }) as Observable<Activity[]>);
+
+    try {
+      return await firstValueFrom(
+        collectionData(q, { idField: 'id' }) as Observable<Activity[]>
+      );
+    } catch (err: unknown) {
+      this.handlePermissionError(err);
+      throw err;
+    }
   }
 
   async saveActivities(activities: Activity[]): Promise<void> {
     const batch = writeBatch(this.firestore);
     activities.forEach(activity => {
       if (this.isNotEmpty(activity)) {
-        const ref = doc(this.firestore, `${ this.dataCollection }/${ activity.id }`);
+        const ref = doc(
+          this.firestore,
+          `${this.USERS_COLLECTION}/${this.uid}/${this.APP_DATA_COLLECTION}/${activity.id}`
+        );
         batch.set(ref, activity, { merge: true });
       }
     });
-    await batch.commit();
-  }
-
-  private isNotEmpty(activity: Activity) {
-    return Boolean(activity.startTime || activity.endTime || activity.description || activity.task);
+    try {
+      await batch.commit();
+    } catch (err: unknown) {
+      this.handlePermissionError(err);
+      throw err;
+    }
   }
 
   deleteActivity(id: string): Promise<void> {
-    const ref = doc(this.firestore, this.dataCollection, id);
-    return deleteDoc(ref);
+    const ref = doc(
+      this.firestore,
+      `${this.USERS_COLLECTION}/${this.uid}/${this.APP_DATA_COLLECTION}/${id}`
+    );
+    return deleteDoc(ref).catch(err => {
+      this.handlePermissionError(err);
+      throw err;
+    });
+  }
+
+  private handlePermissionError(err: unknown) {
+    try {
+      const anyErr = err as { code?: string; message?: string };
+      const code = anyErr.code ?? '';
+      if (typeof code === 'string' && code.includes('permission-denied')) {
+        this.auth.setAccessDenied(true);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  private isNotEmpty(activity: Activity) {
+    return Boolean(
+      activity.startTime ||
+      activity.endTime ||
+      activity.description ||
+      activity.task
+    );
   }
 }

@@ -1,0 +1,22 @@
+<section class="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
+  <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-8 max-w-md text-center">
+    <h1 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Welcome to Time Tracker</h1>
+    <p class="text-gray-700 dark:text-gray-300 mb-6">Sign in with Google to view and manage your time entries.</p>
+
+    <button (click)="signInWithGoogle()"
+            [disabled]="loading()"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-60">
+      <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none">
+        <path d="M21.6 12.24c0-.72-.06-1.44-.18-2.12H12v4.02h5.52c-.24 1.28-.96 2.38-2.04 3.12v2.58h3.3c1.92-1.76 3-4.38 3-7.6z" fill="#4285F4"/>
+        <path d="M12 22c2.7 0 4.98-.9 6.64-2.44l-3.3-2.58c-.9.6-2.04.96-3.34.96-2.56 0-4.72-1.72-5.5-4.02H3.02v2.52C4.66 19.86 8.06 22 12 22z" fill="#34A853"/>
+        <path d="M6.5 13.92A7.99 7.99 0 0 1 6 12c0-.72.12-1.44.34-2.08V7.4H3.02A11.98 11.98 0 0 0 1 12c0 1.92.46 3.74 1.28 5.36l4.22-3.44z" fill="#FBBC05"/>
+        <path d="M12 6.18c1.48 0 2.8.5 3.84 1.46l2.88-2.88C16.96 2.9 14.68 2 12 2 8.06 2 4.66 4.14 3.02 7.4l4.82 3.52C7.28 7.9 9.44 6.18 12 6.18z" fill="#EA4335"/>
+      </svg>
+      @if (!loading()) {
+        <span>Sign in with Google</span>
+      } @else {
+        <span>Signing in…</span>
+      }
+    </button>
+  </div>
+</section>

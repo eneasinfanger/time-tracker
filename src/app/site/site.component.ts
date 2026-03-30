@@ -11,6 +11,7 @@ import { SettingsMenuComponent } from '../settings-menu/settings-menu.component'
 import { SettingsButtonComponent } from "../settings-button/settings-button.component";
 import { SettingsService } from "../services/settings.service";
 import { SyncService } from "../services/sync.service";
+import { AuthService } from "../services/auth.service";
 
 @Component({
   selector: 'app-site',
@@ -31,9 +32,14 @@ export class SiteComponent {
   private sync = inject(SyncService);
   private calculator = inject(TimeCalculatorService);
   private settings = inject(SettingsService);
+  private auth = inject(AuthService);
 
   constructor() {
     this.initialize();
+  }
+
+  logout() {
+    void this.auth.logout();
   }
 
   private initialize() {

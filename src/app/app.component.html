@@ -1,1 +1,21 @@
-<app-site/>
+@if (!isLoggedIn()) {
+	<div class="fade-container">
+		<app-start-page/>
+	</div>
+} @else {
+	@if (!isAuthorized()) {
+		<div class="fade-container px-4 py-20 text-center">
+			<div class="max-w-xl mx-auto bg-white dark:bg-slate-900 rounded-lg shadow-md p-8">
+				<h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Access restricted</h2>
+				<p class="text-gray-700 dark:text-gray-300 mb-6">
+          Your account doesn't have permission to use this app. If you think this is a mistake, contact the administrator.
+        </p>
+				<button (click)="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg">Sign out</button>
+			</div>
+		</div>
+	} @else {
+		<div class="fade-container">
+			<app-site/>
+		</div>
+	}
+}
