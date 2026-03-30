@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, WritableSignal, OnDestroy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TimeCalculatorService } from '../services/time-calculator.service';
 import { TimeSummaryComponent } from '../time-summary/time-summary.component';
@@ -12,6 +12,7 @@ import { SettingsButtonComponent } from "../settings-button/settings-button.comp
 import { SettingsService } from "../services/settings.service";
 import { SyncService } from "../services/sync.service";
 import { AuthService } from "../services/auth.service";
+import { Debouncer, SharedDebouncer } from "../utils/events";
 
 @Component({
   selector: 'app-site',
@@ -20,7 +21,9 @@ import { AuthService } from "../services/auth.service";
   styleUrls: ['./site.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SiteComponent {
+export class SiteComponent implements OnDestroy {
+  private readonly SAVE_DEBOUNCE_MS = 5000;
+
   readonly currentDate = signal(new Date());
   readonly currentDateISO = computed(() => formatDateISO(this.currentDate()));
   readonly activities = signal<WritableSignal<Activity>[]>([]);
@@ -32,10 +35,18 @@ export class SiteComponent {
   private sync = inject(SyncService);
   private calculator = inject(TimeCalculatorService);
   private settings = inject(SettingsService);
+  private beforeUnloadHandler: (() => void) | null = null;
+  private saveDebouncer: Debouncer = new SharedDebouncer(this.SAVE_DEBOUNCE_MS);
   private auth = inject(AuthService);
 
   constructor() {
     this.initialize();
+    this.beforeUnloadHandler = () => {
+      if (document.visibilityState === "hidden") {
+        void this.flushSave();
+      }
+    };
+    document.addEventListener("visibilitychange", this.beforeUnloadHandler);
   }
 
   logout() {
@@ -50,9 +61,17 @@ export class SiteComponent {
 
     effect(() => {
       this.activities();
-      this.saveCurrentActivities();
+      this.scheduleSave();
       this.calculateAndShowSummary();
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.beforeUnloadHandler) {
+      document.removeEventListener('beforeunload', this.beforeUnloadHandler);
+      this.beforeUnloadHandler = null;
+    }
+    void this.flushSave();
   }
 
   private applyTheme(theme: Theme) {
@@ -81,8 +100,24 @@ export class SiteComponent {
       .then(activities => this.activities.set(activities.map(wrapInSignal)));
   }
 
-  saveCurrentActivities() {
-    void this.sync.saveActivities(this.activities().map(unwrapSignal));
+  async saveCurrentActivities(): Promise<void> {
+    try {
+      await this.sync.saveActivities(this.activities().map(unwrapSignal));
+    } catch (err) {
+      console.error('Failed to save activities:', err);
+    }
+  }
+
+  private scheduleSave() {
+    this.saveDebouncer.run(() => {
+      void this.saveCurrentActivities();
+      alert("saving")
+    });
+  }
+
+  private async flushSave(): Promise<void> {
+    this.saveDebouncer.cancel();
+    await this.saveCurrentActivities();
   }
 
   addNewActivity(afterId: UUID | null = null) {

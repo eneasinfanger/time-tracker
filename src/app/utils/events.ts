@@ -9,19 +9,22 @@ export interface Debouncer {
 export class SharedDebouncer implements Debouncer {
   private timeout?: number;
 
-  public debounce(fn: (...args: any) => void, waitMs: number = 300): (...args: any) => void {
+  constructor(private readonly defaultDelayMs: number = 300) {}
+
+  public debounce(fn: (...args: any) => void, waitMs?: number): (...args: any) => void {
     return (...args) => {
       window.clearTimeout(this.timeout);
-      this.timeout = window.setTimeout(() => fn(...args), waitMs);
+      this.timeout = window.setTimeout(() => fn(...args), waitMs || this.defaultDelayMs);
     };
   }
 
-  public run(fn: (...args: any) => void, args: any[] = [], waitMs: number = 300): void {
-    this.debounce(fn, waitMs)(...args);
+  public run(fn: (...args: any) => void, args: any[] = [], waitMs?: number): void {
+    this.debounce(fn, waitMs || this.defaultDelayMs)(...args);
   }
 
   public cancel() {
     window.clearTimeout(this.timeout);
+    this.timeout = undefined;
   }
 }
 
