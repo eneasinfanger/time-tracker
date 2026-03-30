@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, effect, OnInit, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, OnInit, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivityDetails, Duration, Settings, Theme, JiraSource } from '../utils/models';
 import { generateUUID, UUID } from '../utils/crypto';
-import { SettingsHolder } from '../utils/settings';
 import { AutoFocusDirective } from '../directives/auto-focus.directive';
+import { SettingsService } from "../services/settings.service";
 
 @Component({
   selector: 'settings-menu',
@@ -36,6 +36,8 @@ export class SettingsMenuComponent implements OnInit {
   descriptionInput = signal('');
   taskInput = signal('');
 
+  settings = inject(SettingsService);
+
   newSourceName = '';
   newSourceUrl = '';
   newProjectMap: Record<string, string> = {};
@@ -51,7 +53,7 @@ export class SettingsMenuComponent implements OnInit {
   }
 
   ngOnInit() {
-    const settings = SettingsHolder.getSettings();
+    const settings = this.settings.getSettings();
     this.durationThreshold.set(settings.durationThreshold);
     this.alwaysShownActivities.set(settings.alwaysShownActivities);
     this.enableTasks.set(settings.enableTasks);
@@ -203,7 +205,11 @@ export class SettingsMenuComponent implements OnInit {
       theme: this.theme(),
       jiraSources: this.jiraSources(),
     };
-    SettingsHolder.setSettings(settings);
+    this.settings.setSettings(settings)
+      .catch(e => {
+        console.error("Failed to save settings:",e);
+        alert("Failed to save settings!");
+      });
     this.close();
   }
 

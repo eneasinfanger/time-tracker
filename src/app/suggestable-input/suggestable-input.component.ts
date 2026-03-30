@@ -8,8 +8,8 @@ import { Debouncer, dispatchEvents, SharedDebouncer } from '../utils/events';
   templateUrl: './suggestable-input.component.html',
   styleUrl: './suggestable-input.component.scss',
   host: {
-    '(input)': 'onChange()',
-    '(focus)': 'onChange()',
+    '(input)': 'displaySuggestions()',
+    '(focus)': 'displaySuggestions()',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -18,22 +18,23 @@ export class SuggestableInputComponent {
   readonly service = inject(SuggestionsService);
   readonly hostRef: ElementRef<HTMLInputElement> = inject(ElementRef);
 
-  readonly suggestionProvider = input.required<(value: string) => string[]>();
+  readonly suggestionProvider = input.required<(value: string) => string[] | Promise<string[]>>();
   readonly itemSelected = output<string>();
 
-  onChange() {
+  displaySuggestions() {
     this.debouncer.run(() => {
       this.service.closeDropdown();
       const hostElement = this.hostRef.nativeElement;
-      const suggestions = this.suggestionProvider()(hostElement.value)
-        .filter(value => value != hostElement.value);
-      if (suggestions?.length > 0) {
-        this.service.openDropdown(this.hostRef, suggestions, selection => {
-          hostElement.value = selection;
-          dispatchEvents(hostElement, 'input', 'change');
-          this.itemSelected.emit(selection);
+      Promise.resolve(this.suggestionProvider()(hostElement.value))
+        .then(suggestions => {
+          if (suggestions?.length > 0) {
+            this.service.openDropdown(this.hostRef, suggestions, selection => {
+              hostElement.value = selection;
+              dispatchEvents(hostElement, 'input', 'change');
+              this.itemSelected.emit(selection);
+            });
+          }
         });
-      }
     });
   }
 }

@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { StorageService } from '../services/storage.service';
 import { TimeCalculatorService } from '../services/time-calculator.service';
 import { TimeSummaryComponent } from '../time-summary/time-summary.component';
 import { ActivityRowComponent } from '../activity-row/activity-row.component';
@@ -9,8 +8,9 @@ import { unwrapSignal, wrapInSignal } from '../utils/signals';
 import { formatDateISO, formatDateToDisplay, parseISODate } from '../utils/dates';
 import { generateUUID, UUID } from '../utils/crypto';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
-import { SettingsHolder } from '../utils/settings';
 import { SettingsButtonComponent } from "../settings-button/settings-button.component";
+import { SettingsService } from "../services/settings.service";
+import { SyncService } from "../services/sync.service";
 
 @Component({
   selector: 'app-site',
@@ -28,17 +28,17 @@ export class SiteComponent {
 
   protected readonly formatDateToDisplay = formatDateToDisplay;
 
-  private storage = inject(StorageService);
+  private sync = inject(SyncService);
   private calculator = inject(TimeCalculatorService);
+  private settings = inject(SettingsService);
 
   constructor() {
     this.initialize();
   }
 
   private initialize() {
-    this.storage.initSettings();
-    this.applyTheme(SettingsHolder.getSettings().theme);
-    SettingsHolder.onSettingsChange(s => this.applyTheme(s.theme));
+    this.applyTheme(this.settings.getSettings().theme);
+    this.settings.onSettingsChange(s => this.applyTheme(s.theme));
 
     this.loadActivitiesForCurrentDay();
 
@@ -71,14 +71,12 @@ export class SiteComponent {
   }
 
   loadActivitiesForCurrentDay() {
-    const date = this.currentDateISO();
-    const activities = this.storage.getActivitiesForDate(date) || [];
-    this.activities.set(activities.map(wrapInSignal));
+    this.sync.getActivitiesForDay(this.currentDateISO())
+      .then(activities => this.activities.set(activities.map(wrapInSignal)));
   }
 
   saveCurrentActivities() {
-    const date = this.currentDateISO();
-    this.storage.saveActivitiesForDate(date, this.activities().map(unwrapSignal));
+    void this.sync.saveActivities(this.activities().map(unwrapSignal));
   }
 
   addNewActivity(afterId: UUID | null = null) {
@@ -86,6 +84,7 @@ export class SiteComponent {
       id: generateUUID(),
       startTime: '',
       endTime: '',
+      date: this.currentDateISO(),
       task: '',
       description: '',
       type: 'activity',
@@ -102,13 +101,17 @@ export class SiteComponent {
   }
 
   removeActivity(id: UUID) {
-    if (this.activities().length == 1) {
-      this.activities.set([]);
-    } else if (this.activities().length) {
-      const copy = [...this.activities()];
-      copy.splice(copy.findIndex(a => a().id == id), 1);
-      this.activities.set(copy);
-    }
+    const copy = [...this.activities()];
+    const idx = copy.findIndex(a => a().id == id);
+    const activity = copy[idx];
+    copy.splice(idx, 1);
+    this.activities.set(copy);
+    this.sync.deleteActivity(id)
+      .catch(err => {
+        console.error("Failed to delete activity:", err);
+        copy.splice(idx, 0, activity);
+        this.activities.set([...copy]);
+      });
   }
 
   calculateAndShowSummary() {

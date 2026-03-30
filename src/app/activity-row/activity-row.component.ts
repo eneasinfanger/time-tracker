@@ -4,8 +4,9 @@ import { Activity, ActivityDetails, ActivityType, ISODate, Time } from '../utils
 import { SuggestionsService } from '../services/suggestions.service';
 import { initUsing } from '../utils/signals';
 import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
-import { StorageService } from '../services/storage.service';
-import { SettingsHolder } from '../utils/settings';
+import { SettingsService } from "../services/settings.service";
+import { SyncService } from "../services/sync.service";
+import { subtractDuration } from "../utils/dates";
 
 @Component({
   selector: 'tr[activity-row]',
@@ -16,7 +17,8 @@ import { SettingsHolder } from '../utils/settings';
 })
 export class ActivityRowComponent implements OnInit {
   readonly suggestions = inject(SuggestionsService);
-  readonly storage = inject(StorageService);
+  readonly sync = inject(SyncService);
+  readonly settings = inject(SettingsService);
 
   readonly activity = input.required<WritableSignal<Activity>>();
   readonly currentDate = input.required<ISODate>();
@@ -42,17 +44,20 @@ export class ActivityRowComponent implements OnInit {
     return this.activity()().type === 'text';
   }
 
-  getStartSuggestions = () => {
+  getStartSuggestions = async () => {
     return this.suggestions.getStartSuggestions(this.currentDate(), this.compareIds);
   };
 
-  getEndSuggestions = () => {
+  getEndSuggestions = async () => {
     return this.suggestions.getEndSuggestions(this.currentDate(), this.compareIds);
   };
 
   private compareIds = (ac: Activity) => ac.id == this.activity()().id;
 
   getDescriptionSuggestions = (value: string) => {
+    if (!value && this.task()) {
+      return this.suggestions.getActivitySuggestionsForTask(this.task(), this.currentDate());
+    }
     return this.suggestions.getActivitySuggestions(value, this.currentDate(), this.type());
   };
 
@@ -65,19 +70,22 @@ export class ActivityRowComponent implements OnInit {
 
   setTaskFromDescription(description: string) {
     if (!this.task()) {
-      this.task.set(this.findMatchingActivity(a => a.description == description)?.task ?? '');
+      this.findMatchingActivity(a => a.description == description)
+        .then(ac => this.task.set(ac?.task ?? ''));
     }
   }
 
   setDescriptionFromTask(task: string) {
     if (!this.description()) {
-      this.description.set(this.findMatchingActivity(a => a.task == task)?.description ?? '');
+      this.findMatchingActivity(a => a.task == task)
+        .then(ac => this.description.set(ac?.description ?? ''))
     }
   }
 
-  private findMatchingActivity(comparison: (a: ActivityDetails) => boolean) {
-    return this.storage.getPastActivities(this.currentDate())
-      .concat(...SettingsHolder.getSettings().alwaysShownActivities as Activity[])
+  private async findMatchingActivity(comparison: (a: ActivityDetails) => boolean): Promise<Activity | undefined> {
+    const minDate = subtractDuration(this.currentDate(), this.settings.getSettings().durationThreshold);
+    return (await this.sync.getActivitiesBetween(minDate, this.currentDate()))
+      .concat(...this.settings.getSettings().alwaysShownActivities as Activity[])
       .filter(comparison)
       .pop();
   }

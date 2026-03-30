@@ -1,32 +1,40 @@
 import { ApplicationRef, createComponent, ElementRef, EnvironmentInjector, inject, Injectable, Injector } from '@angular/core';
-import { StorageService } from './storage.service';
 import { Activity, ActivityDetails, ActivityType, ISODate } from '../utils/models';
 import { HOST_ELEMENT, SuggestionDropdownComponent } from '../suggestion-dropdown/suggestion-dropdown.component';
-import { SettingsHolder } from '../utils/settings';
+import { SyncService } from "./sync.service";
+import { SettingsService } from "./settings.service";
+import { subtractDuration } from "../utils/dates";
 
 @Injectable({ providedIn: 'root' })
 export class SuggestionsService {
-  private storage = inject(StorageService);
+  private sync = inject(SyncService);
+  private settings = inject(SettingsService);
   private appRef = inject(ApplicationRef);
   private envInj = inject(EnvironmentInjector);
   private currentCompRef: any = null;
 
-  getActivitySuggestions(input: string, currentDateIso: ISODate, type: ActivityType): string[] {
+  getActivitySuggestions(input: string, currentDateIso: ISODate, type: ActivityType): Promise<string[]> {
     return this.processPastActivities(input, currentDateIso, a => a.type === type, a => a.description, type === 'activity');
   }
 
-  getTaskSuggestions(input: string, currentDateIso: ISODate): string[] {
+  getActivitySuggestionsForTask(task: string, currentDateIso: ISODate): Promise<string[]> {
+    const taskContains = this.textContainsOther(task);
+    return this.processPastActivities('', currentDateIso, a => a.type === 'activity' && taskContains(a.task), a => a.description, true);
+  }
+
+  getTaskSuggestions(input: string, currentDateIso: ISODate): Promise<string[]> {
     return this.processPastActivities(input, currentDateIso, a => a.type === 'activity', a => a.task, true);
   }
 
-  getTaskSuggestionsForDescription(desc: string, currentDateIso: ISODate): string[] {
+  getTaskSuggestionsForDescription(desc: string, currentDateIso: ISODate): Promise<string[]> {
     const descContains = this.textContainsOther(desc);
     return this.processPastActivities('', currentDateIso, a => a.type === 'activity' && descContains(a.description), a => a.task, true);
   }
 
-  private processPastActivities(input: string, currentDateIso: ISODate, filter: (a: ActivityDetails & Partial<Activity>) => boolean, getter: (a: ActivityDetails) => string, includeSettings: boolean): string[] {
-    const unique = [...new Set(this.storage.getPastActivities(currentDateIso)
-      .concat(...(!includeSettings ? [] : SettingsHolder.getSettings().alwaysShownActivities.filter(getter) as Activity[]))
+  private async processPastActivities(input: string, currentDateIso: ISODate, filter: (a: ActivityDetails & Partial<Activity>) => boolean, getter: (a: ActivityDetails) => string, includeSettings: boolean): Promise<string[]> {
+    const fromDateISO = subtractDuration(currentDateIso, this.settings.getSettings().durationThreshold);
+    const unique = [...new Set((await this.sync.getActivitiesBetween(fromDateISO, currentDateIso))
+      .concat(...(!includeSettings ? [] : this.settings.getSettings().alwaysShownActivities.filter(getter) as Activity[]))
       .filter(a => filter(a) && getter(a))
       .map(getter),
     )];
@@ -40,8 +48,8 @@ export class SuggestionsService {
     return (other: string) => other.toLowerCase().includes(textL);
   }
 
-  getStartSuggestions(currentDateIso: ISODate, compareFunction: (a: Activity) => boolean): string[] {
-    const activities = this.storage.getSortedActivitiesForDate(currentDateIso);
+  async getStartSuggestions(currentDateIso: ISODate, compareFunction: (a: Activity) => boolean): Promise<string[]> {
+    const activities = await this.sync.getActivitiesForDay(currentDateIso);
     const storageIndex = activities?.findIndex(compareFunction);
     const before = activities
       ?.slice(0, storageIndex)
@@ -50,8 +58,8 @@ export class SuggestionsService {
     return before ? [before.endTime] : [];
   }
 
-  getEndSuggestions(currentDateIso: ISODate, compareFunction: (a: Activity) => boolean): string[] {
-    const activities = this.storage.getSortedActivitiesForDate(currentDateIso);
+  async getEndSuggestions(currentDateIso: ISODate, compareFunction: (a: Activity) => boolean): Promise<string[]> {
+    const activities = await this.sync.getActivitiesForDay(currentDateIso);
     const storageIndex = activities?.findIndex(compareFunction);
     if (!storageIndex) {
       return [];

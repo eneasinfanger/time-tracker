@@ -15,12 +15,13 @@ export type Activity = {
   id: UUID;
   startTime: Time;
   endTime: Time;
+  date: ISODate
   description: string;
   task: string;
-  type: 'activity' | 'text';
+  type: ActivityType;
 };
 
-export type ActivityType = Activity['type'];
+export type ActivityType = 'activity' | 'text';
 
 export type ActivityDetails = {
   id: UUID;

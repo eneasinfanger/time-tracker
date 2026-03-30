@@ -1,7 +1,7 @@
-import { Component, effect, input, signal } from '@angular/core';
-import { SettingsHolder } from '../utils/settings';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { Settings } from '../utils/models';
 import { PossibleTaskLink, resolveTaskLinks } from "../utils/task-parser";
+import { SettingsService } from "../services/settings.service";
 
 @Component({
   selector: 'task-link',
@@ -10,6 +10,8 @@ import { PossibleTaskLink, resolveTaskLinks } from "../utils/task-parser";
   styleUrl: './task-link.component.scss',
 })
 export class TaskLinkComponent {
+  private readonly settingsService = inject(SettingsService);
+
   readonly taskText = input.required<string>();
   readonly taskTextComponents = signal<PossibleTaskLink[]>([]);
 
@@ -18,8 +20,8 @@ export class TaskLinkComponent {
       this.taskTextComponents.set(resolveTaskLinks(taskText, settings.jiraSources));
     }
     effect(() => {
-      resolveTask(this.taskText(), SettingsHolder.getSettings());
+      resolveTask(this.taskText(), this.settingsService.getSettings());
     });
-    SettingsHolder.onSettingsChange(s => resolveTask(this.taskText(), s));
+    this.settingsService.onSettingsChange(s => resolveTask(this.taskText(), s));
   }
 }
