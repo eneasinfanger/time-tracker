@@ -1,0 +1,17 @@
+<div class="save-indicator" [class.saving]="saveState()?.state === 'pending'" [class.pending]="saveState()?.state === 'pending'">
+  <div class="badge">
+    @if (saveState()?.state === 'pending') {
+      <span class="label">Saving…</span>
+    } @else if (saveState()?.state === 'error') {
+      <span class="label">Save error</span>
+    } @else {
+      <span class="label">All saved</span>
+    }
+  </div>
+
+  @if (saveState()?.lastSavedAt) {
+    <div class="last">Last saved: {{ saveState()?.lastSavedAt?.toLocaleString() }}</div>
+  }
+
+  <button class="save-btn" (click)="triggerSave()">Save now</button>
+</div>

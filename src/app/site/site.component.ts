@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, WritableSignal, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnDestroy, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TimeCalculatorService } from '../services/time-calculator.service';
 import { TimeSummaryComponent } from '../time-summary/time-summary.component';
@@ -8,15 +8,34 @@ import { unwrapSignal, wrapInSignal } from '../utils/signals';
 import { formatDateISO, formatDateToDisplay, parseISODate } from '../utils/dates';
 import { generateUUID, UUID } from '../utils/crypto';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
-import { SettingsButtonComponent } from "../settings-button/settings-button.component";
-import { SettingsService } from "../services/settings.service";
-import { SyncService } from "../services/sync.service";
-import { AuthService } from "../services/auth.service";
-import { Debouncer, SharedDebouncer } from "../utils/events";
+import { SettingsButtonComponent } from '../settings-button/settings-button.component';
+import { SaveIndicatorComponent } from '../save-indicator/save-indicator.component';
+import { SettingsService } from '../services/settings.service';
+import { SyncService } from '../services/sync.service';
+import { AuthService } from '../services/auth.service';
+import { Debouncer, SharedDebouncer } from '../utils/events';
+
+export class SaveState {
+  constructor(
+    public readonly state: 'saved' | 'pending' | 'error',
+    public readonly lastSavedAt: Date | null) {
+  }
+
+  static create(state: SaveState['state']): SaveState {
+    return new SaveState(state, state === 'saved' ? new Date() : null);
+  }
+
+  to(state: SaveState['state']): SaveState {
+    if (state === this.state && state !== 'saved') {
+      return this;
+    }
+    return new SaveState(state, state === 'saved' ? new Date() : this.lastSavedAt);
+  }
+}
 
 @Component({
   selector: 'app-site',
-  imports: [FormsModule, ReactiveFormsModule, TimeSummaryComponent, ActivityRowComponent, SettingsMenuComponent, SettingsButtonComponent],
+  imports: [FormsModule, ReactiveFormsModule, TimeSummaryComponent, ActivityRowComponent, SettingsMenuComponent, SettingsButtonComponent, SaveIndicatorComponent],
   templateUrl: './site.component.html',
   styleUrls: ['./site.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,6 +48,7 @@ export class SiteComponent implements OnDestroy {
   readonly activities = signal<WritableSignal<Activity>[]>([]);
   readonly summary = signal<ActivitySummary>({} as ActivitySummary);
   readonly settingsOpen = signal(false);
+  readonly saveState = signal<SaveState>(SaveState.create('pending'));
 
   protected readonly formatDateToDisplay = formatDateToDisplay;
 
@@ -42,11 +62,11 @@ export class SiteComponent implements OnDestroy {
   constructor() {
     this.initialize();
     this.beforeUnloadHandler = () => {
-      if (document.visibilityState === "hidden") {
+      if (document.visibilityState === 'hidden') {
         void this.flushSave();
       }
     };
-    document.addEventListener("visibilitychange", this.beforeUnloadHandler);
+    document.addEventListener('visibilitychange', this.beforeUnloadHandler);
   }
 
   logout() {
@@ -97,21 +117,28 @@ export class SiteComponent implements OnDestroy {
 
   loadActivitiesForCurrentDay() {
     this.sync.getActivitiesForDay(this.currentDateISO())
-      .then(activities => this.activities.set(activities.map(wrapInSignal)));
+      .then(activities => this.activities.set(activities.map(wrapInSignal)))
+      .catch(err => {
+        console.error('Failed to load activities for current date', err);
+        this.saveState.update(s => s.to('error'));
+      });
   }
 
   async saveCurrentActivities(): Promise<void> {
     try {
+      this.saveState.update(s => s.to('pending'));
       await this.sync.saveActivities(this.activities().map(unwrapSignal));
+      this.saveState.update(s => s.to('saved'));
     } catch (err) {
       console.error('Failed to save activities:', err);
+      this.saveState.update(s => s.to('error'));
     }
   }
 
   private scheduleSave() {
+    this.saveState.update(s => s.to('pending'));
     this.saveDebouncer.run(() => {
       void this.saveCurrentActivities();
-      alert("saving")
     });
   }
 
@@ -149,7 +176,7 @@ export class SiteComponent implements OnDestroy {
     this.activities.set(copy);
     this.sync.deleteActivity(id)
       .catch(err => {
-        console.error("Failed to delete activity:", err);
+        console.error('Failed to delete activity:', err);
         copy.splice(idx, 0, activity);
         this.activities.set([...copy]);
       });

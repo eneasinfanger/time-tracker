@@ -35,10 +35,17 @@
                 class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
           Sign out
         </button>
-        <settings-button (clicked)="settingsOpen.set(!settingsOpen())"/>
-        @if (settingsOpen()) {
-          <settings-menu (closed)="settingsOpen.set(false)" title="Edit settings"/>
-        }
+          <div class="flex items-center space-x-3">
+            <app-save-indicator
+              [saveState]="saveState()"
+              (saveNow)="saveCurrentActivities()"
+            />
+
+            <settings-button (clicked)="settingsOpen.set(!settingsOpen())"/>
+            @if (settingsOpen()) {
+              <settings-menu (closed)="settingsOpen.set(false)" title="Edit settings"/>
+            }
+          </div>
       </div>
     </div>
   </div>
