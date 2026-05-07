@@ -1,0 +1,90 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white dark:bg-slate-800 rounded-lg shadow-xl p-8">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
+      <p class="text-gray-600 dark:text-gray-400">Sign in to your account</p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      <!-- Username Field -->
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Username
+        </label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          placeholder="Enter your username"
+          [class.border-red-500]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+        />
+        @if (loginForm.get('username')?.invalid && loginForm.get('username')?.touched) {
+          <p class="text-red-500 text-sm mt-1">Username is required (min 3 characters)</p>
+        }
+      </div>
+
+      <!-- Password Field -->
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Password
+        </label>
+        <div class="relative">
+          <input
+            id="password"
+            [type]="getPasswordType()"
+            formControlName="password"
+            placeholder="Enter your password"
+            [class.border-red-500]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+          />
+          <button
+            type="button"
+            (click)="togglePasswordVisibility()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            aria-label="Toggle password visibility"
+          >
+            @if (showPassword()) {
+              <span>👁️</span>
+            } @else {
+              <span>👁️‍🗨️</span>
+            }
+          </button>
+        </div>
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <p class="text-red-500 text-sm mt-1">Password is required (min 6 characters)</p>
+        }
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        [disabled]="loginForm.invalid || isLoading()"
+        class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        @if (isLoading()) {
+          <span class="inline-block animate-spin mr-2">⏳</span>
+          Signing in...
+        } @else {
+          Sign In
+        }
+      </button>
+    </form>
+
+    <!-- Register Link -->
+    <div class="mt-6 text-center">
+      <p class="text-gray-600 dark:text-gray-400">
+        Don't have an account?
+        <a href="/register" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+          Sign up here
+        </a>
+      </p>
+    </div>
+  </div>
+</div>

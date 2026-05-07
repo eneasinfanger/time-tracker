@@ -1,0 +1,180 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white dark:bg-slate-800 rounded-lg shadow-xl p-8">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Account</h1>
+      <p class="text-gray-600 dark:text-gray-400">Sign up to get started</p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4">
+      <!-- Username Field -->
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Username
+        </label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          placeholder="Choose a username"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+        />
+        @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
+          <p class="text-red-500 text-xs mt-1">Username required (3-50 characters)</p>
+        }
+      </div>
+
+      <!-- Email Field -->
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Email
+        </label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="your@email.com"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+        />
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <p class="text-red-500 text-xs mt-1">Valid email required</p>
+        }
+      </div>
+
+      <!-- Full Name Field -->
+      <div>
+        <label for="fullName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Full Name
+        </label>
+        <input
+          id="fullName"
+          type="text"
+          formControlName="fullName"
+          placeholder="Your full name"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+        />
+        @if (registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched) {
+          <p class="text-red-500 text-xs mt-1">Full name required</p>
+        }
+      </div>
+
+      <!-- Password Field -->
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Password
+        </label>
+        <div class="relative">
+          <input
+            id="password"
+            [type]="getPasswordType()"
+            formControlName="password"
+            placeholder="Min 8 chars, upper, lower, number"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+          />
+          <button
+            type="button"
+            (click)="togglePasswordVisibility()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400"
+          >
+            @if (showPassword()) {
+              <span>👁️</span>
+            } @else {
+              <span>👁️‍🗨️</span>
+            }
+          </button>
+        </div>
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <p class="text-red-500 text-xs mt-1">Password must be 8+ chars with uppercase, lowercase, and number</p>
+        }
+        <!-- Password Strength Indicator -->
+        @let strength = getPasswordStrengthStatus();
+        @if (registerForm.get('password')?.value) {
+          <div class="mt-2">
+            <div class="flex items-center gap-2">
+              <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+                <div
+                  [ngClass]="{
+                    'bg-red-500': strength.color === 'red',
+                    'bg-yellow-500': strength.color === 'yellow',
+                    'bg-green-500': strength.color === 'green'
+                  }"
+                  [style.width]="strength.level === 'weak' ? '33%' : strength.level === 'medium' ? '66%' : '100%'"
+                  class="h-full rounded-full transition-all"
+                ></div>
+              </div>
+              <span class="text-xs font-medium" [ngClass]="{
+                'text-red-600 dark:text-red-400': strength.color === 'red',
+                'text-yellow-600 dark:text-yellow-400': strength.color === 'yellow',
+                'text-green-600 dark:text-green-400': strength.color === 'green'
+              }">
+                {{ strength.level }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Confirm Password Field -->
+      <div>
+        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Confirm Password
+        </label>
+        <div class="relative">
+          <input
+            id="confirmPassword"
+            [type]="getPasswordType(true)"
+            formControlName="confirmPassword"
+            placeholder="Confirm your password"
+            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+          />
+          <button
+            type="button"
+            (click)="toggleConfirmPasswordVisibility()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400"
+          >
+            @if (showConfirmPassword()) {
+              <span>👁️</span>
+            } @else {
+              <span>👁️‍🗨️</span>
+            }
+          </button>
+        </div>
+        @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
+          <p class="text-red-500 text-xs mt-1">Please confirm your password</p>
+        }
+        @if (registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched) {
+          <p class="text-red-500 text-xs mt-1">Passwords do not match</p>
+        }
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        [disabled]="registerForm.invalid || isLoading()"
+        class="w-full mt-6 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        @if (isLoading()) {
+          <span class="inline-block animate-spin mr-2">⏳</span>
+          Creating Account...
+        } @else {
+          Sign Up
+        }
+      </button>
+    </form>
+
+    <!-- Login Link -->
+    <div class="mt-6 text-center">
+      <p class="text-gray-600 dark:text-gray-400">
+        Already have an account?
+        <a href="/login" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+          Sign in here
+        </a>
+      </p>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,14 @@
 @use "./tailwind.css";
 
+/* Dark mode support for HTML element */
+html.dark {
+  color-scheme: dark;
+}
+
+html.light {
+  color-scheme: light;
+}
+
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /* Ensure interactive controls show pointer when appropriate (Tailwind also provides cursor-pointer). */
@@ -36,3 +45,28 @@ table td {
 
 @include theme-controls(dark);
 @include theme-controls(light);
+
+/* Responsive design improvements */
+@media (max-width: 640px) {
+  /* Mobile optimizations */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+  
+  button {
+    @apply py-3 px-4; /* Larger touch targets */
+  }
+}
+
+/* Tablet and below */
+@media (max-width: 1024px) {
+  body {
+    @apply text-base;
+  }
+}
+
+/* Smooth transitions for theme changes */
+html, body, * {
+  @apply transition-colors duration-200;
+}
+
