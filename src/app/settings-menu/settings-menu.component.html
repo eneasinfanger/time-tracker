@@ -1,7 +1,7 @@
-<div class="settings-overlay-backdrop fixed inset-0 z-50 bg-black/50 flex items-center justify-center"
+<div class="settings-overlay-backdrop fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center"
      (click)="close()">
   <div dynamicAutoFocus (keydown.escape)="close()"
-       class="settings-overlay-panel bg-white dark:bg-slate-900 rounded-lg w-full max-w-3xl mx-4 shadow-lg max-h-[90vh] flex flex-col outline-none"
+    class="settings-overlay-panel relative z-[10000] bg-white dark:bg-slate-900 rounded-lg w-full max-w-3xl mx-4 shadow-2xl max-h-[90vh] flex flex-col outline-none"
        role="dialog" aria-modal="true" tabindex="-1" (click)="$event.stopPropagation()">
     <button type="button" class="absolute right-3 top-3 text-gray-700 dark:text-gray-200" aria-label="Close settings"
             (click)="close()">✕

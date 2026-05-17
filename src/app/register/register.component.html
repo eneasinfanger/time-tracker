@@ -1,8 +1,8 @@
 <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
   <div class="w-full max-w-md bg-white dark:bg-slate-800 rounded-lg shadow-xl p-8">
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Account</h1>
-      <p class="text-gray-600 dark:text-gray-400">Sign up to get started</p>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create New User Account</h1>
+      <p class="text-gray-600 dark:text-gray-400">Admin only - Create user accounts</p>
     </div>
 
     @if (errorMessage()) {
@@ -160,19 +160,18 @@
       >
         @if (isLoading()) {
           <span class="inline-block animate-spin mr-2">⏳</span>
-          Creating Account...
+          Creating User...
         } @else {
-          Sign Up
+          Create User
         }
       </button>
     </form>
 
-    <!-- Login Link -->
+    <!-- Back Link -->
     <div class="mt-6 text-center">
       <p class="text-gray-600 dark:text-gray-400">
-        Already have an account?
-        <a href="/login" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
-          Sign in here
+        <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+          Back to application
         </a>
       </p>
     </div>

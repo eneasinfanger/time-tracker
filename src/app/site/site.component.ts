@@ -25,6 +25,9 @@ export class SiteComponent {
   readonly activities = signal<WritableSignal<Activity>[]>([]);
   readonly summary = signal<ActivitySummary>({} as ActivitySummary);
   readonly settingsOpen = signal(false);
+  readonly isHydrating = signal(false);
+
+  private saveTimer: number | null = null;
 
   protected readonly formatDateToDisplay = formatDateToDisplay;
 
@@ -44,8 +47,10 @@ export class SiteComponent {
 
     effect(() => {
       this.activities();
-      this.saveCurrentActivities();
       this.calculateAndShowSummary();
+      if (!this.isHydrating()) {
+        this.scheduleSaveCurrentActivities();
+      }
     });
   }
 
@@ -72,13 +77,32 @@ export class SiteComponent {
 
   loadActivitiesForCurrentDay() {
     const date = this.currentDateISO();
-    const activities = this.storage.getActivitiesForDate(date) || [];
-    this.activities.set(activities.map(wrapInSignal));
+    this.isHydrating.set(true);
+    this.storage.loadActivitiesForDate(date).subscribe({
+      next: activities => {
+        this.activities.set(activities.map(wrapInSignal));
+        this.calculateAndShowSummary();
+        window.setTimeout(() => this.isHydrating.set(false), 0);
+      },
+      error: () => {
+        this.activities.set([]);
+        this.calculateAndShowSummary();
+        window.setTimeout(() => this.isHydrating.set(false), 0);
+      },
+    });
   }
 
-  saveCurrentActivities() {
+  private scheduleSaveCurrentActivities() {
     const date = this.currentDateISO();
-    this.storage.saveActivitiesForDate(date, this.activities().map(unwrapSignal));
+    const activities = this.activities().map(unwrapSignal);
+
+    if (this.saveTimer !== null) {
+      window.clearTimeout(this.saveTimer);
+    }
+
+    this.saveTimer = window.setTimeout(() => {
+      this.storage.syncActivitiesForDate(date, activities).subscribe();
+    }, 300);
   }
 
   addNewActivity(afterId: UUID | null = null) {

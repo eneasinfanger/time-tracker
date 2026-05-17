@@ -4,20 +4,47 @@ import json
 class TestAuth:
     """Authentication tests"""
     
-    def test_register_success(self, client):
-        """Test successful user registration"""
-        response = client.post('/api/auth/register', json={
-            'username': 'newuser',
-            'email': 'new@example.com',
-            'password': 'password123',
-            'full_name': 'New User'
-        })
+    def test_register_success(self, client, admin_token):
+        """Test successful user registration by admin"""
+        headers = {'Authorization': f'Bearer {admin_token}'}
+        response = client.post('/api/auth/register', 
+            headers=headers,
+            json={
+                'username': 'newuser',
+                'email': 'new@example.com',
+                'password': 'password123',
+                'full_name': 'New User'
+            }
+        )
         
         assert response.status_code == 201
         data = response.get_json()
-        assert 'token' in data
         assert data['user']['username'] == 'newuser'
         assert data['user']['email'] == 'new@example.com'
+    
+    def test_register_non_admin_denied(self, client, auth_token):
+        """Test that non-admin cannot register users"""
+        headers = {'Authorization': f'Bearer {auth_token}'}
+        response = client.post('/api/auth/register',
+            headers=headers,
+            json={
+                'username': 'newuser',
+                'email': 'new@example.com',
+                'password': 'password123'
+            }
+        )
+        
+        assert response.status_code == 403
+    
+    def test_register_without_token_denied(self, client):
+        """Test that non-authenticated user cannot register"""
+        response = client.post('/api/auth/register', json={
+            'username': 'newuser',
+            'email': 'new@example.com',
+            'password': 'password123'
+        })
+        
+        assert response.status_code == 401
     
     def test_register_missing_fields(self, client):
         """Test registration with missing fields"""

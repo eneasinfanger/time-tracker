@@ -1,0 +1,207 @@
+<div class="min-h-screen bg-gray-50 dark:bg-slate-900 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">Admin Dashboard</h1>
+      <p class="text-gray-600 dark:text-gray-400">Overview and management of all user activities</p>
+    </div>
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="text-center py-12">
+        <div class="inline-block animate-spin text-4xl mb-4">⏳</div>
+        <p class="text-gray-600 dark:text-gray-400">Loading statistics...</p>
+      </div>
+    } @else if (error()) {
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-400 mb-6">
+        {{ error() }}
+      </div>
+    } @else if (stats()) {
+      <!-- Tabs -->
+      <div class="flex gap-4 mb-8 border-b border-gray-200 dark:border-slate-700">
+        <button
+          (click)="selectTab('overview')"
+          [class.border-b-2]="selectedTab() === 'overview'"
+          [class.border-blue-600]="selectedTab() === 'overview'"
+          class="px-4 py-2 font-medium transition text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+        >
+          📊 Overview
+        </button>
+        <button
+          (click)="selectTab('users')"
+          [class.border-b-2]="selectedTab() === 'users'"
+          [class.border-blue-600]="selectedTab() === 'users'"
+          class="px-4 py-2 font-medium transition text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+        >
+          👥 Users Activity
+        </button>
+        <button
+          (click)="selectTab('activities')"
+          [class.border-b-2]="selectedTab() === 'activities'"
+          [class.border-blue-600]="selectedTab() === 'activities'"
+          class="px-4 py-2 font-medium transition text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+        >
+          ⏱️ All Activities
+        </button>
+      </div>
+
+      <!-- Overview Tab -->
+      @if (selectedTab() === 'overview') {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <!-- Total Activities -->
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Activities</p>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ stats()?.total_activities }}</p>
+              </div>
+              <div class="text-4xl">⏱️</div>
+            </div>
+          </div>
+
+          <!-- Total Users Active -->
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Active Users Today</p>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ stats()?.total_users_active }}</p>
+              </div>
+              <div class="text-4xl">👥</div>
+            </div>
+          </div>
+
+          <!-- Total Time -->
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Time Tracked</p>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ totalMinutesFormatted() }}</p>
+              </div>
+              <div class="text-4xl">⏲️</div>
+            </div>
+          </div>
+
+          <!-- Date -->
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border-l-4 border-orange-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Today's Date</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ stats()?.date }}</p>
+              </div>
+              <div class="text-4xl">📅</div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Users Activity Tab -->
+      @if (selectedTab() === 'users') {
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-slate-700">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-600">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Username</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Activities</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Completed</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Time Tracked</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-slate-600">
+                @for (user of stats()?.user_stats; track user.user_id) {
+                  <tr class="hover:bg-gray-50 dark:hover:bg-slate-700 transition">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{{ user.username }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ user.total_activities }}</td>
+                    <td class="px-6 py-4 text-sm">
+                      <span class="bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 px-3 py-1 rounded-full text-xs font-semibold">
+                        {{ user.completed_activities }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                      @let hours = user.total_minutes / 60;
+                      @let mins = user.total_minutes % 60;
+                      {{ hours | number:'1.0-0' }}h {{ mins }}m
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-600 dark:text-gray-400">
+                      No user activities today
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      <!-- Activities Tab -->
+      @if (selectedTab() === 'activities') {
+        @if (activitiesLoading()) {
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border border-gray-200 dark:border-slate-700 text-center text-gray-600 dark:text-gray-400">
+            Loading activities...
+          </div>
+        } @else if (activities().length > 0) {
+          <div class="grid gap-4">
+            @for (activity of activities(); track activity.id) {
+              <article class="rounded-2xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div class="min-w-0 space-y-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h3 class="text-lg font-semibold text-gray-900 dark:text-white break-words">{{ activity.task_name }}</h3>
+                      <span class="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                        {{ activity.username }}
+                      </span>
+                      @if (activity.full_name) {
+                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ activity.full_name }}</span>
+                      }
+                    </div>
+                    @if (activity.description) {
+                      <p class="text-sm text-gray-600 dark:text-gray-400 break-words">{{ activity.description }}</p>
+                    }
+                    <div class="flex flex-wrap gap-3 text-sm text-gray-500 dark:text-gray-400">
+                      <span>{{ formatDateTime(activity.start_time) }}</span>
+                      @if (activity.end_time) {
+                        <span>Ende: {{ formatDateTime(activity.end_time) }}</span>
+                      }
+                      @if (activity.category) {
+                        <span>{{ activity.category }}</span>
+                      }
+                      <span [class]="activity.is_completed ? 'text-green-600 dark:text-green-400' : ''">
+                        {{ activity.is_completed ? 'Completed' : 'In progress' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="flex shrink-0 items-center gap-3 rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-700/60">
+                    <div class="text-right">
+                      <div class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Duration</div>
+                      <div class="text-lg font-bold text-gray-900 dark:text-white">{{ formatDuration(activity.duration_minutes) }}</div>
+                    </div>
+                    <div class="text-3xl">⏱️</div>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border border-gray-200 dark:border-slate-700 text-center text-gray-600 dark:text-gray-400">
+            No activities found.
+          </div>
+        }
+      }
+
+      <!-- Refresh Button -->
+      <div class="mt-8 text-center">
+        <button
+          (click)="loadStats()"
+          [disabled]="loading()"
+          class="px-6 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg font-medium transition disabled:opacity-50"
+        >
+          🔄 Refresh
+        </button>
+      </div>
+    }
+  </div>
+</div>

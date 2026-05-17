@@ -14,11 +14,11 @@ source venv/bin/activate  # Linux/macOS
 # or: venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 
-# Create admin user
+# Create admin user (run once)
 flask create-admin
 
 # Start backend (localhost:5000)
-python run.py
+python app.py
 
 # In another terminal - Setup frontend
 npm install
@@ -43,7 +43,7 @@ flask create-admin
 flask shell
 
 # Run specific config
-export FLASK_ENV=development && python run.py
+export FLASK_ENV=development && python app.py
 ```
 
 ### Frontend Development
@@ -86,6 +86,7 @@ docker-compose logs -f frontend
 - **Username**: (created via `flask create-admin`)
 - **API Base**: `http://localhost:5000`
 - **Frontend**: `http://localhost:4200`
+- **Note**: Only admins can create new users
 
 ### Default Admin Creation
 When running `flask create-admin`:
@@ -101,7 +102,7 @@ When running `flask create-admin`:
 ## 📁 Key Files
 
 ### Backend
-- `backend/run.py` - Entry point
+- `backend/app.py` - Entry point (formerly run.py)
 - `backend/config.py` - Configuration
 - `backend/app/models/` - Database models
 - `backend/app/routes/` - API endpoints
@@ -111,6 +112,7 @@ When running `flask create-admin`:
 ### Frontend
 - `src/app/app.component.ts` - Root component
 - `src/app/app.routes.ts` - Routes
+- `src/app/guards/auth.guard.ts` - Auth guards
 - `src/app/services/` - Services
 - `src/app/login/` - Login component
 - `src/app/register/` - Registration component
@@ -133,7 +135,7 @@ Edit services to change backend URL from `http://localhost:5000`
 ## 📊 API Endpoints Summary
 
 ### Auth
-- `POST /api/auth/register` - Register user
+- `POST /api/auth/register` - Register user (admin only)
 - `POST /api/auth/login` - Login
 - `POST /api/auth/verify-token` - Verify JWT
 - `POST /api/auth/refresh-token` - Refresh JWT
@@ -162,7 +164,7 @@ Edit services to change backend URL from `http://localhost:5000`
 import pdb; pdb.set_trace()
 
 # Run with debugging
-python -m pdb run.py
+python -m pdb app.py
 ```
 
 ### Frontend
@@ -180,6 +182,11 @@ python -m pdb run.py
 **JWT Token Error**:
 - Token may be expired, refresh at /api/auth/refresh-token
 - Check token stored in localStorage
+
+**Authentication Error**:
+- You must log in first
+- Admins only can access /admin
+- Admins only can create users
 
 **Database Error**:
 - Delete `backend/time_tracker.db`
@@ -222,7 +229,7 @@ pytest -v --cov=app
 ```
 Flask==3.0.0
 Flask-SQLAlchemy==3.1.1
-PyJWT==2.8.1
+PyJWT==2.9.0
 python-dotenv==1.0.0
 ```
 
@@ -243,6 +250,7 @@ rxjs
 - [ ] Hash passwords (done via Werkzeug)
 - [ ] Check user authorization
 - [ ] Use CORS properly
+- [ ] Only admins can create users
 
 ## 📚 Documentation
 
@@ -266,10 +274,11 @@ rxjs
 
 1. Generate: `ng generate component feature`
 2. Add route to `app.routes.ts`
-3. Inject service in component
-4. Create template with signals
-5. Add tests
-6. Run: `npm test`
+3. Add guards if needed
+4. Inject service in component
+5. Create template with signals
+6. Add tests
+7. Run: `npm test`
 
 ## 💡 Tips & Tricks
 
@@ -279,6 +288,7 @@ rxjs
 - Set `FLASK_DEBUG=True` for auto-reload
 - Use `npm run build` to create production build
 - Test on mobile using `http://<your-ip>:4200`
+- Only admins can access /admin and create users
 
 ## 📞 Need Help?
 
@@ -287,3 +297,5 @@ rxjs
 3. Run tests: `pytest -v`
 4. Review [TESTING.md](./TESTING.md)
 5. Check [IMPLEMENTATION.md](./IMPLEMENTATION.md)
+6. Verify authentication status
+

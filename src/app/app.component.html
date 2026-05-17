@@ -1,18 +1,10 @@
-<div class="relative">
-  <!-- Theme Toggle Button -->
-  <button
-    (click)="themeService.toggleTheme()"
-    class="fixed top-4 right-4 z-50 p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 transition-colors"
-    [title]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
-  >
-    @if (themeService.isDarkMode()) {
-      <span class="text-xl">☀️</span>
-    } @else {
-      <span class="text-xl">🌙</span>
-    }
-  </button>
+<div class="min-h-screen bg-white dark:bg-slate-900">
+  <!-- Navbar -->
+  <app-navbar></app-navbar>
 
-  <!-- Router Outlet -->
-  <router-outlet></router-outlet>
+  <!-- Page Content -->
+  <main class="w-full">
+    <router-outlet></router-outlet>
+  </main>
 </div>
 

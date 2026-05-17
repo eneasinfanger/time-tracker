@@ -1,6 +1,16 @@
 .settings-menu { }
 
-.settings-overlay-backdrop { }
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: block;
+}
+
+.settings-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+}
 
 .settings-overlay-panel {
   /* Fallback accessibility styles in case Tailwind utilities are not available */

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { UserService, UserProfile } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
@@ -7,7 +8,7 @@ import { AuthService } from '../services/auth.service';
 @Component({
   selector: 'app-admin-panel',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './admin-panel.component.html',
   styleUrls: ['./admin-panel.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,7 +62,7 @@ export class AdminPanelComponent implements OnInit {
     }
 
     this.isLoading.set(true);
-    this.userService.updateUser(this.selectedUser()!.id, this.editForm.value).subscribe({
+    this.userService.updateUser(this.selectedUser()!.id, this.editForm.value as Partial<UserProfile>).subscribe({
       next: (response) => {
         this.isLoading.set(false);
         this.successMessage.set('User updated successfully');

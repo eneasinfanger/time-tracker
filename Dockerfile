@@ -18,8 +18,8 @@ COPY backend/ .
 EXPOSE 5000
 
 # Set environment variables
-ENV FLASK_APP=run.py
+ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
 
 # Run the application
-CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:5000", "run:app"]
+CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:5000", "app:app"]

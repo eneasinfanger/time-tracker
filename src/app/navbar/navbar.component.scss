@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+nav {
+  transition: all 0.3s ease;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  nav {
+    padding: 0 1rem;
+  }
+}

@@ -1,13 +1,15 @@
 from flask import Blueprint, request, jsonify
 from app import db
 from app.models.user import User
-from app.utils.auth import generate_jwt_token, verify_jwt_token
+from app.utils.auth import generate_jwt_token, verify_jwt_token, token_required, admin_required
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
 @auth_bp.route('/register', methods=['POST'])
+@token_required
+@admin_required
 def register():
-    """Register a new user"""
+    """Register a new user (admin only)"""
     data = request.get_json()
     
     # Validation
@@ -44,10 +46,8 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        token = generate_jwt_token(user.id)
         return jsonify({
             'message': 'User registered successfully',
-            'token': token,
             'user': user.to_dict(include_email=True)
         }), 201
     except Exception as e:

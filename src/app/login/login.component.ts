@@ -25,6 +25,7 @@ export class LoginComponent {
   protected readonly isLoading = this.authService.isLoading;
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly showPassword = signal(false);
+  protected readonly isTransitioning = signal(false);
 
   protected onSubmit(): void {
     if (this.loginForm.invalid) {
@@ -34,7 +35,10 @@ export class LoginComponent {
     const { username, password } = this.loginForm.value;
     this.authService.login(username, password).subscribe({
       next: () => {
-        this.router.navigate(['/']);
+        this.isTransitioning.set(true);
+        window.setTimeout(() => {
+          this.router.navigate(['/']);
+        }, 700);
       },
       error: (error) => {
         this.errorMessage.set(

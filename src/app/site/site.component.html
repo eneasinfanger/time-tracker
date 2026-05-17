@@ -1,79 +1,121 @@
-<div class="container mx-auto px-4 py-8 max-w-6xl">
-  <!-- Header -->
-  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border dark:border-gray-800 p-6 mb-6">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Time Tracker</h1>
-
-    <!-- Day Navigation -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-4">
-        <button (click)="navigateDay(-1)"
-                class="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-          </svg>
-          Previous Day
-        </button>
-
-        <div class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ formatDateToDisplay(currentDate()) }}
+<div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.10),_transparent_35%),linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.10),_transparent_35%),linear-gradient(180deg,_#020617_0%,_#0f172a_100%)] px-4 py-6 sm:px-6 lg:px-8">
+  <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+    <!-- Header -->
+    <section class="overflow-hidden rounded-3xl border border-white/60 bg-white/90 shadow-[0_18px_60px_-28px_rgba(15,23,42,0.45)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/85">
+      <div class="flex flex-col gap-6 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
+        <div class="space-y-4">
+          <div class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
+            Daily workspace
+          </div>
+          <div>
+            <h1 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
+              Time Tracker
+            </h1>
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400 sm:text-base">
+              Track your day, organize tasks, and review time summaries with a clean dashboard that scales from mobile to desktop.
+            </p>
+          </div>
         </div>
 
-        <button (click)="navigateDay(1)"
-                class="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">
-          Next Day
-          <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
-        </button>
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
+          <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">
+            <button
+              (click)="navigateDay(-1)"
+              class="inline-flex items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-white hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+            >
+              <span class="mr-2">←</span>
+              <span class="hidden sm:inline">Previous</span>
+            </button>
 
-        <!-- Date picker -->
-        <input type="date" class="ml-4 p-2 border rounded dark:bg-transparent dark:border-gray-700 dark:text-gray-100"
-               [value]="currentDateISO()" (change)="navigateToInput($any($event.target).value)"/>
-      </div>
+            <div class="min-w-[11rem] px-2 text-center text-sm font-semibold text-slate-900 dark:text-white sm:text-base">
+              {{ formatDateToDisplay(currentDate()) }}
+            </div>
 
-      <div class="relative">
-        <settings-button (clicked)="settingsOpen.set(!settingsOpen())"/>
-        @if (settingsOpen()) {
-          <settings-menu (closed)="settingsOpen.set(false)" title="Edit settings"/>
-        }
-      </div>
-    </div>
-  </div>
+            <button
+              (click)="navigateDay(1)"
+              class="inline-flex items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-white hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+            >
+              <span class="hidden sm:inline">Next</span>
+              <span class="ml-2">→</span>
+            </button>
+          </div>
 
-  <!-- Activities Table -->
-  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border dark:border-gray-800">
-    <div class="p-6">
-      <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Activities</h2>
+          <label class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <span class="text-slate-500 dark:text-slate-400">Date</span>
+            <input
+              type="date"
+              class="bg-transparent text-slate-900 outline-none dark:text-white"
+              [value]="currentDateISO()"
+              (change)="navigateToInput($any($event.target).value)"
+            />
+          </label>
 
-      <div>
-        <table class="w-full">
-          <thead>
-          <tr class="border-b border-gray-200 dark:border-gray-700">
-            <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Start Time</th>
-            <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">End Time</th>
-            <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Activity / Description</th>
-            <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300 w-36">Task</th>
-            <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300">Type</th>
-            <th class="text-left py-3 px-4 font-medium text-gray-700 dark:text-gray-300 w-32">Actions</th>
-          </tr>
-          </thead>
-          <tbody id="activitiesTable">
-            @for (activity of activities(); track activity().id) {
-              <tr activity-row
-                  class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-white/5"
-                  [activity]="activity"
-                  [currentDate]="currentDateISO()" (addRow)="addNewActivity(activity().id)"
-                  (removeRow)="removeActivity(activity().id)"></tr>
+          <div class="relative self-start sm:self-auto">
+            <settings-button (clicked)="settingsOpen.set(!settingsOpen())"/>
+            @if (settingsOpen()) {
+              <settings-menu (closed)="settingsOpen.set(false)" title="Edit settings"/>
             }
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <button (click)="addNewActivity()"
-              class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
-        + Add Activity
-      </button>
+    <!-- Main Content -->
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <section class="overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-[0_18px_60px_-28px_rgba(15,23,42,0.35)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/85">
+        <div class="border-b border-slate-200 px-5 py-4 dark:border-slate-700 sm:px-6">
+          <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div>
+              <h2 class="text-xl font-bold text-slate-900 dark:text-white">Activities</h2>
+              <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Create, edit, and review entries for the selected day.</p>
+            </div>
+
+            <button
+              (click)="addNewActivity()"
+              class="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:translate-y-[-1px] hover:from-blue-500 hover:to-indigo-500"
+            >
+              <span class="mr-2 text-lg leading-none">+</span>
+              Add Activity
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-hidden">
+          <table class="w-full table-fixed">
+            <colgroup>
+              <col class="w-[10%]" />
+              <col class="w-[10%]" />
+              <col class="w-[38%]" />
+              <col class="w-[18%]" />
+              <col class="w-[14%]" />
+              <col class="w-[10%]" />
+            </colgroup>
+            <thead class="bg-slate-50/80 dark:bg-slate-800/80">
+            <tr class="border-b border-slate-200 dark:border-slate-700">
+              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Start</th>
+              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">End</th>
+              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Activity / Description</th>
+              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Task</th>
+              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Type</th>
+              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Actions</th>
+            </tr>
+            </thead>
+            <tbody id="activitiesTable" class="divide-y divide-slate-100 dark:divide-slate-800">
+              @for (activity of activities(); track activity().id) {
+                <tr activity-row
+                    class="border-b border-slate-100/80 bg-white/70 hover:bg-blue-50/60 dark:border-slate-800 dark:bg-transparent dark:hover:bg-slate-800/70"
+                    [activity]="activity"
+                    [currentDate]="currentDateISO()" (addRow)="addNewActivity(activity().id)"
+                    (removeRow)="removeActivity(activity().id)"></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="space-y-6 xl:sticky xl:top-24 xl:self-start">
+        <time-summary [summary]="summary()" [dateDisplay]="formatDateToDisplay(currentDate())"/>
+      </aside>
     </div>
   </div>
-
-  <time-summary [summary]="summary()" [dateDisplay]="formatDateToDisplay(currentDate())"/>
 </div>

@@ -70,3 +70,94 @@ html, body, * {
   @apply transition-colors duration-200;
 }
 
+/* Route transition animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+main {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Loading animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Fade in animation */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Fade out animation */
+.animate-fadeOut {
+  animation: fadeOut 0.3s ease-out;
+}
+
+/* Smooth button transitions */
+button {
+  @apply transition-all duration-200 ease-out;
+  
+  &:active {
+    @apply transform scale-95;
+  }
+}
+
+/* Input focus states */
+input:focus, textarea:focus, select:focus {
+  @apply outline-none;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-slate-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 dark:bg-slate-600 rounded-full hover:bg-gray-500 dark:hover:bg-slate-500;
+}
+
+

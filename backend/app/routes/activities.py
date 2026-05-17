@@ -1,10 +1,46 @@
 from flask import Blueprint, request, jsonify
-from datetime import datetime
+from datetime import datetime, date, timedelta, time as time_obj
 from app import db
 from app.models.activity import Activity
-from app.utils.auth import token_required
+from app.utils.auth import token_required, admin_required
 
 activities_bp = Blueprint('activities', __name__, url_prefix='/api/activities')
+
+
+def _parse_activity_date(activity_date: str) -> date | None:
+    try:
+        return datetime.strptime(activity_date, '%Y-%m-%d').date()
+    except ValueError:
+        return None
+
+
+def _get_date_bounds(activity_date: date) -> tuple[datetime, datetime]:
+    start = datetime.combine(activity_date, time_obj.min)
+    return start, start + timedelta(days=1)
+
+
+def _parse_activity_time(activity_date: date, time_value: str) -> datetime | None:
+    if not time_value:
+        return None
+
+    try:
+        hours, minutes = [int(part) for part in time_value.split(':', 1)]
+        return datetime.combine(activity_date, time_obj(hour=hours, minute=minutes))
+    except (ValueError, TypeError):
+        return None
+
+
+def _serialize_client_activity(activity: Activity) -> dict:
+    data = activity.to_dict()
+    data['user_id'] = activity.user_id
+    data['username'] = activity.user.username if activity.user else 'Unknown'
+    data['full_name'] = activity.user.full_name if activity.user and activity.user.full_name else ''
+    data['type'] = 'text' if activity.category == 'text' else 'activity'
+    data['task'] = '' if activity.category == 'text' else activity.task_name
+    data['startTime'] = activity.start_time.strftime('%H:%M') if activity.start_time else ''
+    data['endTime'] = activity.end_time.strftime('%H:%M') if activity.end_time else ''
+    return data
+
 
 @activities_bp.route('', methods=['GET'])
 @token_required
@@ -23,6 +59,108 @@ def get_activities():
         'pages': paginated.pages,
         'current_page': page
     }), 200
+
+@activities_bp.route('/day/<string:activity_date>', methods=['GET'])
+@token_required
+def get_activities_for_day(activity_date):
+    parsed_date = _parse_activity_date(activity_date)
+    if not parsed_date:
+        return jsonify({'error': 'Invalid date format'}), 400
+
+    start_time, end_time = _get_date_bounds(parsed_date)
+    activities = Activity.query.filter(
+        Activity.user_id == request.current_user.id,
+        Activity.start_time >= start_time,
+        Activity.start_time < end_time,
+    ).order_by(Activity.start_time.asc()).all()
+
+    return jsonify({
+        'date': activity_date,
+        'activities': [_serialize_client_activity(activity) for activity in activities],
+    }), 200
+
+
+@activities_bp.route('/day/<string:activity_date>', methods=['PUT'])
+@token_required
+def replace_activities_for_day(activity_date):
+    parsed_date = _parse_activity_date(activity_date)
+    if not parsed_date:
+        return jsonify({'error': 'Invalid date format'}), 400
+
+    data = request.get_json(silent=True) or {}
+    incoming_activities = data.get('activities', [])
+    if not isinstance(incoming_activities, list):
+        return jsonify({'error': 'activities must be an array'}), 400
+
+    start_time, end_time = _get_date_bounds(parsed_date)
+    existing_activities = Activity.query.filter(
+        Activity.user_id == request.current_user.id,
+        Activity.start_time >= start_time,
+        Activity.start_time < end_time,
+    ).all()
+
+    normalized_activities = []
+    for item in incoming_activities:
+        if not isinstance(item, dict):
+            continue
+
+        start_value = str(item.get('startTime', '')).strip()
+        end_value = str(item.get('endTime', '')).strip()
+        description = str(item.get('description', '')).strip()
+        task = str(item.get('task', '')).strip()
+        activity_type = str(item.get('type', 'activity')).strip() or 'activity'
+
+        if not any([start_value, end_value, description, task]):
+            continue
+
+        parsed_start_time = _parse_activity_time(parsed_date, start_value)
+        if not parsed_start_time:
+            continue
+
+        parsed_end_time = _parse_activity_time(parsed_date, end_value) if end_value else None
+        duration_minutes = 0
+        if parsed_end_time:
+            duration_minutes = max(0, int((parsed_end_time - parsed_start_time).total_seconds() / 60))
+
+        normalized_activities.append({
+            'task_name': task or description or 'Activity',
+            'description': description,
+            'category': activity_type if activity_type in ('activity', 'text') else None,
+            'start_time': parsed_start_time,
+            'end_time': parsed_end_time,
+            'duration_minutes': duration_minutes,
+            'is_completed': bool(parsed_end_time),
+        })
+
+    try:
+        for activity in existing_activities:
+            db.session.delete(activity)
+
+        created_activities = []
+        for item in normalized_activities:
+            activity = Activity(
+                user_id=request.current_user.id,
+                task_name=item['task_name'],
+                description=item['description'],
+                category=item['category'],
+                start_time=item['start_time'],
+                end_time=item['end_time'],
+                duration_minutes=item['duration_minutes'],
+                is_completed=item['is_completed'],
+            )
+            db.session.add(activity)
+            created_activities.append(activity)
+
+        db.session.commit()
+        return jsonify({
+            'message': 'Activities updated successfully',
+            'date': activity_date,
+            'activities': [_serialize_client_activity(activity) for activity in created_activities],
+        }), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({'error': 'Activity update failed'}), 500
+
 
 @activities_bp.route('', methods=['POST'])
 @token_required
@@ -166,3 +304,74 @@ def get_today_stats():
         'total_minutes': total_minutes,
         'activities': [a.to_dict() for a in activities]
     }), 200
+
+
+@activities_bp.route('/admin/all-activities', methods=['GET'])
+@token_required
+@admin_required
+def get_all_activities_admin():
+    """Get all activities for all users (admin only)"""
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 50, type=int)
+    user_id_filter = request.args.get('user_id', type=int)
+    
+    query = Activity.query.order_by(Activity.created_at.desc())
+    
+    if user_id_filter:
+        query = query.filter_by(user_id=user_id_filter)
+    
+    paginated = query.paginate(page=page, per_page=per_page)
+
+    def serialize(activity: Activity) -> dict:
+        data = activity.to_dict()
+        data['user_id'] = activity.user_id
+        data['username'] = activity.user.username if activity.user else 'Unknown'
+        data['full_name'] = activity.user.full_name if activity.user and activity.user.full_name else ''
+        return data
+    
+    return jsonify({
+        'activities': [serialize(activity) for activity in paginated.items],
+        'total': paginated.total,
+        'pages': paginated.pages,
+        'current_page': page
+    }), 200
+
+
+@activities_bp.route('/admin/stats', methods=['GET'])
+@token_required
+@admin_required
+def get_all_stats_admin():
+    """Get activity statistics for all users (admin only)"""
+    today = date.today()
+    
+    # Get all activities today
+    today_activities = Activity.query.filter(
+        db.func.date(Activity.created_at) == today
+    ).all()
+    
+    # Group by user
+    user_stats = {}
+    for activity in today_activities:
+        if activity.user_id not in user_stats:
+            user_stats[activity.user_id] = {
+                'user_id': activity.user_id,
+                'username': activity.user.username if activity.user else 'Unknown',
+                'total_activities': 0,
+                'completed_activities': 0,
+                'total_minutes': 0
+            }
+        
+        user_stats[activity.user_id]['total_activities'] += 1
+        if activity.is_completed:
+            user_stats[activity.user_id]['completed_activities'] += 1
+        if activity.duration_minutes:
+            user_stats[activity.user_id]['total_minutes'] += activity.duration_minutes
+    
+    return jsonify({
+        'date': today.isoformat(),
+        'user_stats': list(user_stats.values()),
+        'total_users_active': len(user_stats),
+        'total_activities': len(today_activities),
+        'total_minutes': sum(a.duration_minutes for a in today_activities if a.duration_minutes)
+    }), 200
+
