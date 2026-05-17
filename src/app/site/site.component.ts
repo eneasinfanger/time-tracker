@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { StorageService } from '../services/storage.service';
+import { StorageService, BackendSummaryResponse } from '../services/storage.service';
 import { TimeCalculatorService } from '../services/time-calculator.service';
 import { TimeSummaryComponent } from '../time-summary/time-summary.component';
 import { ActivityRowComponent } from '../activity-row/activity-row.component';
@@ -25,9 +25,12 @@ export class SiteComponent {
   readonly activities = signal<WritableSignal<Activity>[]>([]);
   readonly summary = signal<ActivitySummary>({} as ActivitySummary);
   readonly settingsOpen = signal(false);
-  readonly isHydrating = signal(false);
+  readonly activitiesLoading = signal(false);
 
   private saveTimer: number | null = null;
+  private summaryTimer: number | null = null;
+  private summaryRequestId = 0;
+  private autoSyncEnabled = false;
 
   protected readonly formatDateToDisplay = formatDateToDisplay;
 
@@ -47,10 +50,13 @@ export class SiteComponent {
 
     effect(() => {
       this.activities();
-      this.calculateAndShowSummary();
-      if (!this.isHydrating()) {
-        this.scheduleSaveCurrentActivities();
+
+      if (!this.autoSyncEnabled) {
+        return;
       }
+
+      this.scheduleSummaryRefresh();
+      this.scheduleSaveCurrentActivities();
     });
   }
 
@@ -77,17 +83,24 @@ export class SiteComponent {
 
   loadActivitiesForCurrentDay() {
     const date = this.currentDateISO();
-    this.isHydrating.set(true);
+    this.activitiesLoading.set(true);
+    this.autoSyncEnabled = false;
     this.storage.loadActivitiesForDate(date).subscribe({
-      next: activities => {
-        this.activities.set(activities.map(wrapInSignal));
-        this.calculateAndShowSummary();
-        window.setTimeout(() => this.isHydrating.set(false), 0);
+      next: result => {
+        this.activities.set(result.activities.map(wrapInSignal));
+        this.applyBackendSummary(result.summary, result.activities);
+        window.setTimeout(() => {
+          this.activitiesLoading.set(false);
+          this.autoSyncEnabled = true;
+        }, 0);
       },
       error: () => {
         this.activities.set([]);
-        this.calculateAndShowSummary();
-        window.setTimeout(() => this.isHydrating.set(false), 0);
+        this.applyBackendSummary(this.emptySummary(), []);
+        window.setTimeout(() => {
+          this.activitiesLoading.set(false);
+          this.autoSyncEnabled = true;
+        }, 0);
       },
     });
   }
@@ -103,6 +116,26 @@ export class SiteComponent {
     this.saveTimer = window.setTimeout(() => {
       this.storage.syncActivitiesForDate(date, activities).subscribe();
     }, 300);
+  }
+
+  private scheduleSummaryRefresh() {
+    const activities = this.activities().map(unwrapSignal);
+
+    if (this.summaryTimer !== null) {
+      window.clearTimeout(this.summaryTimer);
+    }
+
+    const requestId = ++this.summaryRequestId;
+    this.summaryTimer = window.setTimeout(() => {
+      this.storage.calculateSummary(activities).subscribe({
+        next: summary => {
+          if (requestId !== this.summaryRequestId) {
+            return;
+          }
+          this.applyBackendSummary(summary, activities);
+        },
+      });
+    }, 150);
   }
 
   addNewActivity(afterId: UUID | null = null) {
@@ -135,7 +168,11 @@ export class SiteComponent {
     }
   }
 
-  calculateAndShowSummary() {
-    this.summary.set(this.calculator.calculateTimePerActivity(this.activities().map(unwrapSignal)));
+  private applyBackendSummary(summary: BackendSummaryResponse, activities: Activity[]) {
+    this.summary.set(this.calculator.fromBackendSummary(summary, activities));
+  }
+
+  private emptySummary(): BackendSummaryResponse {
+    return { byDescription: [], byTask: [] };
   }
 }

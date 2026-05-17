@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, model, OnInit, output, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Activity, ActivityDetails, ActivityType, ISODate, Time } from '../utils/models';
-import { SuggestionsService } from '../services/suggestions.service';
-import { initUsing } from '../utils/signals';
+import { initUsing, unwrapSignal } from '../utils/signals';
 import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
 import { StorageService } from '../services/storage.service';
 import { SettingsHolder } from '../utils/settings';
@@ -15,10 +14,10 @@ import { SettingsHolder } from '../utils/settings';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ActivityRowComponent implements OnInit {
-  readonly suggestions = inject(SuggestionsService);
   readonly storage = inject(StorageService);
 
   readonly activity = input.required<WritableSignal<Activity>>();
+  readonly activities = input.required<WritableSignal<Activity>[]>();
   readonly currentDate = input.required<ISODate>();
   readonly addRow = output<void>();
   readonly removeRow = output<void>();
@@ -43,24 +42,34 @@ export class ActivityRowComponent implements OnInit {
   }
 
   getStartSuggestions = () => {
-    return this.suggestions.getStartSuggestions(this.currentDate(), this.compareIds);
+    return this.storage.getStartSuggestions(this.currentDate(), this.activity()().id, this.currentActivities());
   };
 
   getEndSuggestions = () => {
-    return this.suggestions.getEndSuggestions(this.currentDate(), this.compareIds);
+    return this.storage.getEndSuggestions(this.currentDate(), this.activity()().id, this.currentActivities());
   };
 
-  private compareIds = (ac: Activity) => ac.id == this.activity()().id;
-
   getDescriptionSuggestions = (value: string) => {
-    return this.suggestions.getActivitySuggestions(value, this.currentDate(), this.type());
+    return this.storage.getDescriptionSuggestions(
+      value,
+      this.currentDate(),
+      this.type(),
+      this.activity()().id,
+      this.currentActivities(),
+      SettingsHolder.getSettings().durationThreshold,
+      SettingsHolder.getSettings().alwaysShownActivities,
+    );
   };
 
   getTaskSuggestions = (value: string) => {
-    if (!value && this.description()) {
-      return this.suggestions.getTaskSuggestionsForDescription(this.description(), this.currentDate());
-    }
-    return this.suggestions.getTaskSuggestions(value, this.currentDate());
+    return this.storage.getTaskSuggestions(
+      value,
+      this.currentDate(),
+      this.activity()().id,
+      this.currentActivities(),
+      SettingsHolder.getSettings().durationThreshold,
+      SettingsHolder.getSettings().alwaysShownActivities,
+    );
   };
 
   setTaskFromDescription(description: string) {
@@ -75,9 +84,15 @@ export class ActivityRowComponent implements OnInit {
     }
   }
 
+  private currentActivities() {
+    return this.activities().map(unwrapSignal);
+  }
+
   private findMatchingActivity(comparison: (a: ActivityDetails) => boolean) {
-    return this.storage.getPastActivities(this.currentDate())
+    const currentId = this.activity()().id;
+    return this.currentActivities()
       .concat(...SettingsHolder.getSettings().alwaysShownActivities as Activity[])
+      .filter(activity => activity.id !== currentId)
       .filter(comparison)
       .pop();
   }

@@ -72,15 +72,43 @@
 
             <button
               (click)="addNewActivity()"
-              class="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:translate-y-[-1px] hover:from-blue-500 hover:to-indigo-500"
+              [disabled]="activitiesLoading()"
+              class="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:translate-y-[-1px] hover:from-blue-500 hover:to-indigo-500 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:from-blue-600 disabled:hover:to-indigo-600"
             >
               <span class="mr-2 text-lg leading-none">+</span>
-              Add Activity
+              @if (activitiesLoading()) {
+                Loading...
+              } @else {
+                Add Activity
+              }
             </button>
           </div>
         </div>
 
         <div class="overflow-hidden">
+          @if (activitiesLoading()) {
+            <div class="border-b border-slate-200 bg-white/75 px-5 py-10 text-center dark:border-slate-700 dark:bg-slate-900/70 sm:px-6">
+              <div class="mx-auto flex w-fit items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600 dark:border-slate-600 dark:border-t-blue-400"></span>
+                Loading activities
+              </div>
+              <div class="mt-6 grid gap-3 px-1 sm:px-6">
+                @for (_ of [1, 2, 3, 4]; track _) {
+                  <div class="animate-pulse rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 dark:border-slate-700 dark:bg-slate-800/70">
+                    <div class="grid grid-cols-12 gap-3">
+                      <div class="col-span-1 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
+                      <div class="col-span-1 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
+                      <div class="col-span-5 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
+                      <div class="col-span-2 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
+                      <div class="col-span-2 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
+                      <div class="col-span-1 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
           <table class="w-full table-fixed">
             <colgroup>
               <col class="w-[10%]" />
@@ -105,6 +133,7 @@
                 <tr activity-row
                     class="border-b border-slate-100/80 bg-white/70 hover:bg-blue-50/60 dark:border-slate-800 dark:bg-transparent dark:hover:bg-slate-800/70"
                     [activity]="activity"
+                    [activities]="activities()"
                     [currentDate]="currentDateISO()" (addRow)="addNewActivity(activity().id)"
                     (removeRow)="removeActivity(activity().id)"></tr>
               }

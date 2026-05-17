@@ -42,6 +42,236 @@ def _serialize_client_activity(activity: Activity) -> dict:
     return data
 
 
+def _parse_duration_threshold(value) -> timedelta:
+    if not isinstance(value, dict):
+        return timedelta(weeks=1)
+
+    def to_int(key: str) -> int:
+        try:
+            return int(value.get(key, 0) or 0)
+        except (TypeError, ValueError):
+            return 0
+
+    return timedelta(
+        weeks=to_int('weeks'),
+        days=to_int('days'),
+        hours=to_int('hours'),
+        minutes=to_int('minutes'),
+    )
+
+
+def _normalize_client_activity(item) -> dict | None:
+    if not isinstance(item, dict):
+        return None
+
+    activity_type = str(item.get('type', 'activity')).strip() or 'activity'
+    if activity_type not in ('activity', 'text'):
+        activity_type = 'activity'
+
+    return {
+        'id': str(item.get('id', '')).strip(),
+        'startTime': str(item.get('startTime', '')).strip(),
+        'endTime': str(item.get('endTime', '')).strip(),
+        'description': str(item.get('description', '')).strip(),
+        'task': str(item.get('task', '')).strip(),
+        'type': activity_type,
+    }
+
+
+def _parse_client_activities(items) -> list[dict]:
+    if not isinstance(items, list):
+        return []
+    return [activity for activity in (_normalize_client_activity(item) for item in items) if activity]
+
+
+def _time_to_minutes(time_value: str) -> int:
+    if not time_value:
+        return 0
+
+    try:
+        hours, minutes = [int(part) for part in time_value.split(':', 1)]
+        return hours * 60 + minutes
+    except (ValueError, TypeError):
+        return 0
+
+
+def _calculate_duration(start_time: str, end_time: str) -> int:
+    if not start_time or not end_time:
+        return 0
+
+    start_minutes = _time_to_minutes(start_time)
+    end_minutes = _time_to_minutes(end_time)
+
+    if end_minutes < start_minutes:
+        return (24 * 60 - start_minutes) + end_minutes
+
+    return end_minutes - start_minutes
+
+
+def _build_summary(activities: list[dict]) -> dict:
+    def build_entries(key: str) -> list[dict]:
+        totals: dict[str, dict] = {}
+
+        for activity in activities:
+            if activity.get('type') != 'activity':
+                continue
+
+            duration = _calculate_duration(activity.get('startTime', ''), activity.get('endTime', ''))
+            if duration <= 0:
+                continue
+
+            entry_key = activity.get(key, '')
+            entry = totals.setdefault(entry_key, {
+                'key': entry_key,
+                'totalMinutes': 0,
+                'activityIds': [],
+            })
+            entry['totalMinutes'] += duration
+            if activity.get('id') not in entry['activityIds']:
+                entry['activityIds'].append(activity.get('id'))
+
+        return list(totals.values())
+
+    return {
+        'byDescription': build_entries('description'),
+        'byTask': build_entries('task'),
+    }
+
+
+def _sort_client_activities(activities: list[dict]) -> list[dict]:
+    return sorted(
+        activities,
+        key=lambda activity: (
+            activity.get('startTime') or activity.get('endTime') or '',
+            activity.get('endTime') or activity.get('startTime') or '',
+            str(activity.get('id', '')),
+        ),
+    )
+
+
+def _contains_other(source: str, target: str) -> bool:
+    return source.lower() in target.lower()
+
+
+def _collect_suggestions(source_items: list[dict], field: str, input_value: str, include_exact_match: bool = False) -> list[str]:
+    suggestions: list[str] = []
+    seen: set[str] = set()
+    input_value_lower = input_value.lower().strip()
+
+    for item in source_items:
+        candidate = str(item.get(field, '')).strip()
+        if not candidate:
+            continue
+        candidate_lower = candidate.lower()
+        if candidate_lower in seen:
+            continue
+        if input_value_lower:
+            if candidate_lower == input_value_lower and not include_exact_match:
+                continue
+            if not _contains_other(input_value_lower, candidate_lower):
+                continue
+        seen.add(candidate_lower)
+        suggestions.append(candidate)
+
+    return suggestions
+
+
+def _collect_history_activities(user_id: int, current_date: date, duration_threshold: timedelta, include_current_date: bool) -> list[dict]:
+    start_bound = datetime.combine(current_date, time_obj.min) - duration_threshold
+    end_bound = datetime.combine(current_date + timedelta(days=1), time_obj.min) if include_current_date else datetime.combine(current_date, time_obj.min)
+
+    activities = Activity.query.filter(
+        Activity.user_id == user_id,
+        Activity.start_time >= start_bound,
+        Activity.start_time < end_bound,
+    ).order_by(Activity.start_time.asc()).all()
+
+    return [_serialize_client_activity(activity) for activity in activities]
+
+
+def _find_current_activity_index(activities: list[dict], current_activity_id: str) -> int:
+    for index, activity in enumerate(activities):
+        if str(activity.get('id', '')) == current_activity_id:
+            return index
+    return -1
+
+
+def _build_suggestion_source(data: dict, current_date: date, duration_threshold: timedelta) -> list[dict]:
+    current_activities = _parse_client_activities(data.get('currentActivities', []))
+    include_current_date = not current_activities
+
+    history = _collect_history_activities(request.current_user.id, current_date, duration_threshold, include_current_date)
+    if current_activities:
+        history.extend(current_activities)
+
+    return history
+
+
+@activities_bp.route('/suggestions', methods=['POST'])
+@token_required
+def get_activity_suggestions():
+    data = request.get_json(silent=True) or {}
+    current_date = _parse_activity_date(str(data.get('date', '')).strip())
+    field = str(data.get('field', '')).strip()
+    if not current_date or field not in ('description', 'task', 'start', 'end'):
+        return jsonify({'error': 'Invalid suggestion request'}), 400
+
+    current_activity_id = str(data.get('currentActivityId', '')).strip()
+    current_activities = _parse_client_activities(data.get('currentActivities', []))
+    duration_threshold = _parse_duration_threshold(data.get('durationThreshold'))
+    input_value = str(data.get('value', '')).strip()
+
+    if field in ('start', 'end'):
+        activities = _sort_client_activities(current_activities)
+        current_index = _find_current_activity_index(activities, current_activity_id)
+        if current_index < 0:
+            return jsonify({'suggestions': []}), 200
+
+        if field == 'start':
+            before = next(
+                (activity for activity in reversed(activities[:current_index])
+                 if activity.get('type') == 'activity' and activity.get('endTime')),
+                None,
+            )
+            return jsonify({'suggestions': [before['endTime']] if before else []}), 200
+
+        after = next(
+            (activity for activity in activities[current_index + 1:]
+             if activity.get('type') == 'activity' and activity.get('startTime')),
+            None,
+        )
+        return jsonify({'suggestions': [after['startTime']] if after else []}), 200
+
+    history = _build_suggestion_source(data, current_date, duration_threshold)
+    activity_type = str(data.get('activityType', 'activity')).strip() or 'activity'
+    if activity_type not in ('activity', 'text'):
+        activity_type = 'activity'
+
+    include_settings = field == 'task' or activity_type == 'activity'
+    if include_settings:
+        for item in data.get('alwaysShownActivities', []):
+            normalized = _normalize_client_activity(item)
+            if normalized:
+                history.append(normalized)
+
+    if field == 'description':
+        history = [activity for activity in history if activity.get('type') == activity_type]
+        suggestions = _collect_suggestions(history, 'description', input_value)
+    else:
+        history = [activity for activity in history if activity.get('type') == 'activity']
+        suggestions = _collect_suggestions(history, 'task', input_value)
+
+    return jsonify({'suggestions': suggestions}), 200
+
+
+@activities_bp.route('/summary', methods=['POST'])
+@token_required
+def calculate_activity_summary():
+    data = request.get_json(silent=True) or {}
+    activities = _parse_client_activities(data.get('activities', []))
+    return jsonify({'summary': _build_summary(activities)}), 200
+
+
 @activities_bp.route('', methods=['GET'])
 @token_required
 def get_activities():
@@ -74,9 +304,12 @@ def get_activities_for_day(activity_date):
         Activity.start_time < end_time,
     ).order_by(Activity.start_time.asc()).all()
 
+    client_activities = [_serialize_client_activity(activity) for activity in activities]
+
     return jsonify({
         'date': activity_date,
-        'activities': [_serialize_client_activity(activity) for activity in activities],
+        'activities': client_activities,
+        'summary': _build_summary(client_activities),
     }), 200
 
 
@@ -152,10 +385,12 @@ def replace_activities_for_day(activity_date):
             created_activities.append(activity)
 
         db.session.commit()
+        client_activities = [_serialize_client_activity(activity) for activity in created_activities]
         return jsonify({
             'message': 'Activities updated successfully',
             'date': activity_date,
-            'activities': [_serialize_client_activity(activity) for activity in created_activities],
+            'activities': client_activities,
+            'summary': _build_summary(client_activities),
         }), 200
     except Exception:
         db.session.rollback()

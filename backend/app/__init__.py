@@ -16,7 +16,11 @@ def create_app(config_name=None):
     
     # Initialize extensions
     db.init_app(app)
-    CORS(app, origins=app.config['CORS_ORIGINS'])
+    CORS(app, 
+         origins=app.config['CORS_ORIGINS'],
+         allow_headers=['Content-Type', 'Authorization'],
+         expose_headers=['Content-Type'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
     
     # Register blueprints
     from app.routes.auth import auth_bp

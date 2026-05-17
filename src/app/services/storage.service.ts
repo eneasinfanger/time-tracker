@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { Activity, ISODate, Settings, Time } from '../utils/models';
-import { formatDateISO, parseISODate, subtractDuration } from '../utils/dates';
 import { SettingsHolder } from '../utils/settings';
 import { settingsMigrations } from './storage.migrations';
 import { UUID } from '../utils/crypto';
@@ -10,6 +9,34 @@ import { UUID } from '../utils/crypto';
 interface BackendDayActivitiesResponse {
   date: string;
   activities: BackendActivity[];
+  summary: BackendSummaryResponse;
+}
+
+interface BackendSummaryEntry {
+  key: string;
+  totalMinutes: number;
+  activityIds: Array<string | number>;
+}
+
+export interface BackendSummaryResponse {
+  byDescription: BackendSummaryEntry[];
+  byTask: BackendSummaryEntry[];
+}
+
+interface DayActivitiesResult {
+  activities: Activity[];
+  summary: BackendSummaryResponse;
+}
+
+interface SuggestionRequest {
+  date: ISODate;
+  field: 'description' | 'task' | 'start' | 'end';
+  value?: string;
+  currentActivityId?: string;
+  currentActivities?: Activity[];
+  activityType?: 'activity' | 'text';
+  durationThreshold?: Settings['durationThreshold'];
+  alwaysShownActivities?: Array<{ id?: string; description: string; task: string }>;
 }
 
 interface BackendActivity {
@@ -31,6 +58,10 @@ export class StorageService {
   private readonly settingsKey = 'timetracker_settings';
   private readonly activitiesApiUrl = 'http://localhost:5000/api/activities';
   private readonly activitiesCache = new Map<ISODate, Activity[]>();
+  private readonly emptySummary: BackendSummaryResponse = {
+    byDescription: [],
+    byTask: [],
+  };
 
   initSettings() {
     let settings = this.getSettings();
@@ -57,53 +88,99 @@ export class StorageService {
     SettingsHolder.onSettingsChange(s => this.saveSettings(s));
   }
 
-  loadActivitiesForDate(date: ISODate): Observable<Activity[]> {
+  loadActivitiesForDate(date: ISODate): Observable<DayActivitiesResult> {
     return this.http.get<BackendDayActivitiesResponse>(`${this.activitiesApiUrl}/day/${date}`).pipe(
-      map(response => response.activities.map(activity => this.mapBackendActivity(activity))),
-      tap(activities => this.activitiesCache.set(date, activities)),
-      catchError(() => of(this.activitiesCache.get(date) ?? [])),
+      map(response => ({
+        activities: response.activities.map(activity => this.mapBackendActivity(activity)),
+        summary: response.summary ?? this.emptySummary,
+      })),
+      tap(result => this.activitiesCache.set(date, result.activities)),
+      catchError(() => of({
+        activities: this.activitiesCache.get(date) ?? [],
+        summary: this.emptySummary,
+      })),
     );
   }
 
-  syncActivitiesForDate(date: ISODate, activities: Activity[]): Observable<void> {
+  syncActivitiesForDate(date: ISODate, activities: Activity[]): Observable<DayActivitiesResult> {
     const normalized = activities.filter(activity => this.isNotEmpty(activity) && activity.startTime);
     return this.http.put<BackendDayActivitiesResponse>(`${this.activitiesApiUrl}/day/${date}`, {
       activities: normalized,
     }).pipe(
-      tap(response => this.activitiesCache.set(
-        date,
-        response.activities.map(activity => this.mapBackendActivity(activity)),
-      )),
-      map(() => void 0),
-      catchError(() => of(void 0)),
+      map(response => ({
+        activities: response.activities.map(activity => this.mapBackendActivity(activity)),
+        summary: response.summary ?? this.emptySummary,
+      })),
+      tap(result => this.activitiesCache.set(date, result.activities)),
+      catchError(() => of({
+        activities: this.activitiesCache.get(date) ?? [],
+        summary: this.emptySummary,
+      })),
     );
+  }
+
+  calculateSummary(activities: Activity[]): Observable<BackendSummaryResponse> {
+    return this.http.post<{ summary: BackendSummaryResponse }>(`${this.activitiesApiUrl}/summary`, {
+      activities,
+    }).pipe(
+      map(response => response.summary ?? this.emptySummary),
+      catchError(() => of(this.emptySummary)),
+    );
+  }
+
+  getDescriptionSuggestions(value: string, currentDate: ISODate, activityType: 'activity' | 'text', currentActivityId: string, currentActivities: Activity[], durationThreshold: Settings['durationThreshold'], alwaysShownActivities: Array<{ id?: string; description: string; task: string }>): Observable<string[]> {
+    return this.getSuggestions({
+      date: currentDate,
+      field: 'description',
+      value,
+      currentActivityId,
+      currentActivities,
+      activityType,
+      durationThreshold,
+      alwaysShownActivities,
+    });
+  }
+
+  getTaskSuggestions(value: string, currentDate: ISODate, currentActivityId: string, currentActivities: Activity[], durationThreshold: Settings['durationThreshold'], alwaysShownActivities: Array<{ id?: string; description: string; task: string }>): Observable<string[]> {
+    return this.getSuggestions({
+      date: currentDate,
+      field: 'task',
+      value,
+      currentActivityId,
+      currentActivities,
+      activityType: 'activity',
+      durationThreshold,
+      alwaysShownActivities,
+    });
+  }
+
+  getStartSuggestions(currentDate: ISODate, currentActivityId: string, currentActivities: Activity[]): Observable<string[]> {
+    return this.getSuggestions({
+      date: currentDate,
+      field: 'start',
+      currentActivityId,
+      currentActivities,
+    });
+  }
+
+  getEndSuggestions(currentDate: ISODate, currentActivityId: string, currentActivities: Activity[]): Observable<string[]> {
+    return this.getSuggestions({
+      date: currentDate,
+      field: 'end',
+      currentActivityId,
+      currentActivities,
+    });
   }
 
   private isNotEmpty(activity?: Activity) {
     return !!(activity?.startTime || activity?.endTime || activity?.description || activity?.task);
   }
 
-  getActivitiesForDate(date: ISODate): Activity[] | null {
-    return this.activitiesCache.get(date) ?? null;
-  }
-
-  getSortedActivitiesForDate(date: ISODate): Activity[] | null {
-    return [...(this.getActivitiesForDate(date) ?? [])].sort((a, b) => {
-      if (a.startTime && b.startTime) {
-        return a.startTime.localeCompare(b.startTime);
-      } else if (a.endTime && b.endTime) {
-        return a.endTime.localeCompare(b.endTime);
-      }
-      return 0;
-    });
-  }
-
-  getPastActivities(currentDate: ISODate): Activity[] {
-    const parsed = parseISODate(currentDate);
-    const from = formatDateISO(subtractDuration(parsed, SettingsHolder.getSettings().durationThreshold));
-    return [...this.activitiesCache.entries()]
-      .filter(([date]) => date >= from && date <= currentDate)
-      .flatMap(([, activities]) => activities);
+  private getSuggestions(request: SuggestionRequest): Observable<string[]> {
+    return this.http.post<{ suggestions: string[] }>(`${this.activitiesApiUrl}/suggestions`, request).pipe(
+      map(response => response.suggestions ?? []),
+      catchError(() => of([])),
+    );
   }
 
   saveSettings(settings: Settings) {

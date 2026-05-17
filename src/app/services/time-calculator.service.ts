@@ -1,15 +1,17 @@
-import {Injectable} from '@angular/core';
-import {Activity, ActivitySummary, ActivityTotal, Time} from '../utils/models';
+import { Injectable } from '@angular/core';
+import { Activity, ActivitySummary, ActivityTotal } from '../utils/models';
+import { BackendSummaryResponse } from './storage.service';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class TimeCalculatorService {
-  calculateTimePerActivity(activities: Activity[]): ActivitySummary {
-    const getTotalMapByKey = this.getTotalMapByKey.bind(this, activities);
+  fromBackendSummary(summary: BackendSummaryResponse, activities: Activity[]): ActivitySummary {
+    const getTotalMapByKey = this.getTotalMapByKey.bind(this, summary, activities);
     const hasActivities = activities.length > 0;
     const cache: Partial<{
       totalByDescription: ActivityTotal,
       totalByTask: ActivityTotal,
     }> = {};
+
     return {
       getTotalByDescription(): ActivityTotal {
         return cache.totalByDescription ?? (cache.totalByDescription = getTotalMapByKey('description'));
@@ -23,42 +25,20 @@ export class TimeCalculatorService {
     };
   }
 
-  private getTotalMapByKey(activities: Activity[], key: 'description' | 'task'): ActivityTotal {
+  private getTotalMapByKey(summary: BackendSummaryResponse, activities: Activity[], key: 'description' | 'task'): ActivityTotal {
+    const entries = key === 'description' ? summary.byDescription : summary.byTask;
+    const activityById = new Map<string, Activity>(activities.map(activity => [activity.id, activity]));
     const activityTimes: ActivityTotal = new Map();
 
-    activities.forEach(activity => {
-      if (activity.type === 'activity' && activity.startTime && activity.endTime) {
-        const duration = this.calculateDuration(activity.startTime, activity.endTime);
-
-        if (duration > 0) {
-          const entry = activityTimes.get(activity[key]) ?? {activities: [], totalMinutes: 0};
-          entry.activities.push(activity);
-          entry.totalMinutes += duration;
-          activityTimes.set(activity[key], entry);
-        }
-      }
+    entries.forEach(entry => {
+      activityTimes.set(entry.key, {
+        activities: entry.activityIds
+          .map(activityId => activityById.get(String(activityId)))
+          .filter((activity): activity is Activity => !!activity),
+        totalMinutes: entry.totalMinutes,
+      });
     });
 
     return activityTimes;
-  }
-
-  private calculateDuration(startTime: Time, endTime: Time) {
-    if (!startTime || !endTime) return 0;
-
-    const startMinutes = this.timeToMinutes(startTime);
-    const endMinutes = this.timeToMinutes(endTime);
-
-    if (endMinutes < startMinutes) {
-      return (24 * 60 - startMinutes) + endMinutes;
-    }
-
-    return endMinutes - startMinutes;
-  }
-
-  private timeToMinutes(timeString: Time) {
-    if (!timeString) return 0;
-
-    const [hours, minutes] = (timeString as string).split(':').map(Number);
-    return hours * 60 + minutes;
   }
 }
