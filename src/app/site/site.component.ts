@@ -58,6 +58,25 @@ export class SiteComponent {
       this.scheduleSummaryRefresh();
       this.scheduleSaveCurrentActivities();
     });
+
+    // Ensure activities are flushed when the page is hidden or unloaded
+    window.addEventListener('beforeunload', () => {
+      try {
+        this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
+      } catch (e) {}
+    });
+    window.addEventListener('pagehide', () => {
+      try {
+        this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
+      } catch (e) {}
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        try {
+          this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
+        } catch (e) {}
+      }
+    });
   }
 
   private applyTheme(theme: Theme) {
@@ -113,9 +132,20 @@ export class SiteComponent {
       window.clearTimeout(this.saveTimer);
     }
 
+    // Short debounce for fast saves; still batch rapid changes
     this.saveTimer = window.setTimeout(() => {
       this.storage.syncActivitiesForDate(date, activities).subscribe();
-    }, 300);
+    }, 120);
+  }
+
+  saveNow() {
+    const date = this.currentDateISO();
+    const activities = this.activities().map(unwrapSignal);
+    if (this.saveTimer !== null) {
+      window.clearTimeout(this.saveTimer);
+      this.saveTimer = null;
+    }
+    this.storage.syncActivitiesForDate(date, activities).subscribe();
   }
 
   private scheduleSummaryRefresh() {
@@ -138,14 +168,14 @@ export class SiteComponent {
     }, 150);
   }
 
-  addNewActivity(afterId: UUID | null = null) {
+  addNewActivity(afterId: UUID | null = null, typeParam: Activity['type'] = 'activity') {
     const newActivity: WritableSignal<Activity> = signal({
       id: generateUUID(),
       startTime: '',
       endTime: '',
       task: '',
       description: '',
-      type: 'activity',
+      type: typeParam,
     });
 
     const copy = [...this.activities()];
@@ -156,6 +186,8 @@ export class SiteComponent {
       copy.push(newActivity);
     }
     this.activities.set(copy);
+    // Persist immediately for reliability
+    this.saveNow();
   }
 
   removeActivity(id: UUID) {
@@ -165,6 +197,43 @@ export class SiteComponent {
       const copy = [...this.activities()];
       copy.splice(copy.findIndex(a => a().id == id), 1);
       this.activities.set(copy);
+      // Persist immediately for reliability
+      this.saveNow();
+    }
+  }
+
+  /**
+   * Export current date activities to CSV and download.
+   */
+  exportCsv() {
+    const date = this.currentDateISO();
+    const activities = this.activities().map(unwrapSignal);
+
+    const headers = ['date', 'start', 'end', 'description', 'task', 'type'];
+    const escape = (v: any) => {
+      if (v == null) return '';
+      const s = String(v);
+      return '"' + s.replace(/"/g, '""') + '"';
+    };
+
+    const rows = activities.map(a => [date, a.startTime || '', a.endTime || '', a.description || '', a.task || '', a.type || 'activity']);
+
+    const csv = [headers.map(escape).join(',')].concat(rows.map(r => r.map(escape).join(','))).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const filename = `time-tracker-${date}.csv`;
+    if (navigator && 'msSaveBlob' in navigator) {
+      // IE10+
+      (navigator as any).msSaveBlob(blob, filename);
+    } else {
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
   }
 

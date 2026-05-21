@@ -314,6 +314,7 @@ def get_activities_for_day(activity_date):
 
 
 @activities_bp.route('/day/<string:activity_date>', methods=['PUT'])
+@activities_bp.route('/day/<string:activity_date>', methods=['PUT', 'POST'])
 @token_required
 def replace_activities_for_day(activity_date):
     parsed_date = _parse_activity_date(activity_date)
@@ -347,8 +348,12 @@ def replace_activities_for_day(activity_date):
             continue
 
         parsed_start_time = _parse_activity_time(parsed_date, start_value)
+        # Allow text/comment activities without explicit start time: assign start of day
         if not parsed_start_time:
-            continue
+            if activity_type == 'text':
+                parsed_start_time = datetime.combine(parsed_date, time_obj.min)
+            else:
+                continue
 
         parsed_end_time = _parse_activity_time(parsed_date, end_value) if end_value else None
         duration_minutes = 0

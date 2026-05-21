@@ -11,3 +11,5 @@ input, select {
   box-sizing: border-box;
 }
 
+/* Note: width constraints moved to template with Tailwind `max-w-*` utilities to avoid overflow */
+

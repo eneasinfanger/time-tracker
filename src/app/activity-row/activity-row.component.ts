@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, model, OnInit, output, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { Activity, ActivityDetails, ActivityType, ISODate, Time } from '../utils/models';
 import { initUsing, unwrapSignal } from '../utils/signals';
 import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
@@ -8,7 +9,7 @@ import { SettingsHolder } from '../utils/settings';
 
 @Component({
   selector: 'tr[activity-row]',
-  imports: [FormsModule, SuggestableInputComponent],
+  imports: [CommonModule, FormsModule, SuggestableInputComponent],
   templateUrl: './activity-row.component.html',
   styleUrls: ['./activity-row.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,8 +20,9 @@ export class ActivityRowComponent implements OnInit {
   readonly activity = input.required<WritableSignal<Activity>>();
   readonly activities = input.required<WritableSignal<Activity>[]>();
   readonly currentDate = input.required<ISODate>();
-  readonly addRow = output<void>();
+  readonly addRow = output<import('../utils/models').ActivityType | undefined>();
   readonly removeRow = output<void>();
+  readonly changed = output<void>();
 
   readonly startTime = model<Time>('');
   readonly endTime = model<Time>('');
@@ -39,6 +41,17 @@ export class ActivityRowComponent implements OnInit {
 
   isText() {
     return this.activity()().type === 'text';
+  }
+
+  toggleComment() {
+    // Emit addRow with 'text' to request a new comment row below this one
+    this.addRow.emit('text');
+  }
+
+  emitChanged() {
+    try {
+      this.changed.emit();
+    } catch (e) {}
   }
 
   getStartSuggestions = () => {

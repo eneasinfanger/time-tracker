@@ -52,13 +52,23 @@
 
           <div class="relative self-start sm:self-auto">
             <settings-button (clicked)="settingsOpen.set(!settingsOpen())"/>
-            @if (settingsOpen()) {
-              <settings-menu (closed)="settingsOpen.set(false)" title="Edit settings"/>
-            }
+          </div>
+          <div class="relative self-start sm:self-auto">
+            <button
+              (click)="exportCsv()"
+              class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+              title="Export current day's activities as CSV"
+            >
+              Export CSV
+            </button>
           </div>
         </div>
       </div>
     </section>
+
+    @if (settingsOpen()) {
+      <settings-menu (closed)="settingsOpen.set(false)" title="Edit settings"/>
+    }
 
     <!-- Main Content -->
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
@@ -109,13 +119,12 @@
             </div>
           }
 
-          <table class="w-full table-fixed">
+          <table class="w-full table-auto">
             <colgroup>
               <col class="w-[10%]" />
               <col class="w-[10%]" />
-              <col class="w-[38%]" />
-              <col class="w-[18%]" />
-              <col class="w-[14%]" />
+              <col class="w-[50%]" />
+              <col class="w-[20%]" />
               <col class="w-[10%]" />
             </colgroup>
             <thead class="bg-slate-50/80 dark:bg-slate-800/80">
@@ -124,18 +133,17 @@
               <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">End</th>
               <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Activity / Description</th>
               <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Task</th>
-              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Type</th>
               <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Actions</th>
             </tr>
             </thead>
             <tbody id="activitiesTable" class="divide-y divide-slate-100 dark:divide-slate-800">
               @for (activity of activities(); track activity().id) {
                 <tr activity-row
-                    class="border-b border-slate-100/80 bg-white/70 hover:bg-blue-50/60 dark:border-slate-800 dark:bg-transparent dark:hover:bg-slate-800/70"
-                    [activity]="activity"
-                    [activities]="activities()"
-                    [currentDate]="currentDateISO()" (addRow)="addNewActivity(activity().id)"
-                    (removeRow)="removeActivity(activity().id)"></tr>
+                  class="border-b border-slate-100/80 bg-white/70 hover:bg-blue-50/60 dark:border-slate-800 dark:bg-transparent dark:hover:bg-slate-800/70"
+                  [activity]="activity"
+                  [activities]="activities()"
+                  [currentDate]="currentDateISO()" (addRow)="addNewActivity(activity().id, $event)"
+                  (removeRow)="removeActivity(activity().id)" (changed)="saveNow()"></tr>
               }
             </tbody>
           </table>

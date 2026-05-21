@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
+import { retry } from 'rxjs/operators';
 import { Activity, ISODate, Settings, Time } from '../utils/models';
 import { SettingsHolder } from '../utils/settings';
 import { settingsMigrations } from './storage.migrations';
@@ -103,10 +104,12 @@ export class StorageService {
   }
 
   syncActivitiesForDate(date: ISODate, activities: Activity[]): Observable<DayActivitiesResult> {
-    const normalized = activities.filter(activity => this.isNotEmpty(activity) && activity.startTime);
+    // Keep activities that have meaningful content. For text/comment activities allow missing startTime
+    const normalized = activities.filter(activity => this.isNotEmpty(activity) && (activity.type === 'text' || activity.startTime));
     return this.http.put<BackendDayActivitiesResponse>(`${this.activitiesApiUrl}/day/${date}`, {
       activities: normalized,
     }).pipe(
+      retry(2),
       map(response => ({
         activities: response.activities.map(activity => this.mapBackendActivity(activity)),
         summary: response.summary ?? this.emptySummary,
@@ -117,6 +120,30 @@ export class StorageService {
         summary: this.emptySummary,
       })),
     );
+  }
+
+  /**
+   * Send a best-effort keepalive sync for unload/visibilitychange.
+   */
+  sendKeepaliveSync(date: ISODate, activities: Activity[]) {
+    try {
+      const normalized = activities.filter(activity => this.isNotEmpty(activity) && (activity.type === 'text' || activity.startTime));
+      const payload = JSON.stringify({ activities: normalized });
+      if (typeof navigator !== 'undefined' && 'sendBeacon' in navigator) {
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon(`${this.activitiesApiUrl}/day/${date}`, blob as any);
+      } else if (typeof fetch !== 'undefined') {
+        // fetch keepalive as fallback
+        fetch(`${this.activitiesApiUrl}/day/${date}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true,
+        }).catch(() => {});
+      }
+    } catch (e) {
+      // swallow errors - best-effort only
+    }
   }
 
   calculateSummary(activities: Activity[]): Observable<BackendSummaryResponse> {

@@ -1,36 +1,60 @@
-<td class="py-2 px-3 align-top">
-  <input suggestable type="time" [disabled]="isText()" [(ngModel)]="startTime" [suggestionProvider]="getStartSuggestions"
-    class="w-full min-w-0 p-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg disabled:bg-gray-100 dark:disabled:bg-gray-800 dark:text-gray-100"
-    title="Enter the start time of the activity">
-</td>
-<td class="py-2 px-3 align-top">
-  <input suggestable type="time" [disabled]="isText()" [(ngModel)]="endTime" [suggestionProvider]="getEndSuggestions"
-    class="w-full min-w-0 p-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg disabled:bg-gray-100 dark:disabled:bg-gray-800 dark:text-gray-100"
-    title="Enter the end time of the activity">
-</td>
-<td class="py-2 px-3 relative align-top">
-  <input suggestable type="text" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:text-gray-100"
-    [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
-    (itemSelected)="setTaskFromDescription($event)" placeholder="Activity or description"
-    title="Enter an activity or a description">
-</td>
-<td class="py-2 px-3 relative align-top">
-  <input suggestable type="text" [disabled]="isText()" [(ngModel)]="task"
-    [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
-    class="w-full min-w-0 p-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg disabled:bg-gray-100 dark:disabled:bg-gray-800 dark:text-gray-100"
-    placeholder="ID" title="Enter the JIRA task identifier">
-</td>
-<td class="py-2 px-3 align-top">
-  <select class="w-full p-2 text-sm border border-gray-300 rounded-lg dark:border-gray-700 dark:text-gray-100" [(ngModel)]="type" title="Select a type">
-    <option class="dark:bg-slate-800 dark:text-gray-100" value="activity">Timed Activity</option>
-    <option class="dark:bg-slate-800 dark:text-gray-100" value="text">Text Only</option>
-  </select>
-</td>
-<td class="py-2 px-3 align-top">
-  <div class="flex gap-2">
-    <button type="button" class="table-action-button text-green-600 dark:text-green-400" (click)="addRow.emit()"
-      title="Add an activity after this one">＋</button>
-    <button type="button" class="table-action-button text-red-600 dark:text-red-400" (click)="removeRow.emit()"
-      title="Delete this activity">✕</button>
-  </div>
-</td>
+@if (isText()) {
+  <td class="py-2 px-3 relative align-top" colspan="4">
+    <input suggestable type="text" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:text-gray-100"
+      [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
+      (itemSelected)="setTaskFromDescription($event)" placeholder="Comment"
+      title="Enter a comment or description" (blur)="emitChanged()">
+  </td>
+  <td class="py-2 px-3 align-top">
+    <div class="flex gap-2 items-center">
+      <button type="button" class="table-action-button text-green-600 dark:text-green-400" (click)="addRow.emit('activity')"
+        title="Add an activity after this one">＋</button>
+      <button type="button" class="table-action-button text-red-600 dark:text-red-400" (click)="removeRow.emit()"
+        title="Delete this activity">✕</button>
+      <!-- Comment feature temporarily disabled (incomplete) -->
+      <!--
+      <!-- Comment toggle temporarily disabled (incomplete feature) -->
+      <!--
+      <button type="button" (click)="toggleComment()" [class.text-sky-600]="type() === 'text'" class="table-action-button"
+        title="Toggle comment mode">💬</button>
+      -->
+      -->
+    </div>
+  </td>
+} @else {
+  <td class="py-2 px-3 align-top">
+    <input suggestable type="time" [(ngModel)]="startTime" [suggestionProvider]="getStartSuggestions"
+      class="w-full max-w-[4.5rem] sm:max-w-[6rem] md:max-w-[8rem] p-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg disabled:bg-gray-100 dark:disabled:bg-gray-800 dark:text-gray-100"
+      title="Enter the start time of the activity">
+  </td>
+  <td class="py-2 px-3 align-top">
+    <input suggestable type="time" [(ngModel)]="endTime" [suggestionProvider]="getEndSuggestions"
+      class="w-full max-w-[4.5rem] sm:max-w-[6rem] md:max-w-[8rem] p-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg disabled:bg-gray-100 dark:disabled:bg-gray-800 dark:text-gray-100"
+      title="Enter the end time of the activity">
+  </td>
+  <td class="py-2 px-3 relative align-top">
+    <input suggestable type="text" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:text-gray-100"
+      [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
+      (itemSelected)="setTaskFromDescription($event)" placeholder="Activity or description"
+      title="Enter an activity or a description" (blur)="emitChanged()">
+  </td>
+  <td class="py-2 px-3 relative align-top">
+    <input suggestable type="text" [(ngModel)]="task"
+      [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
+      class="w-full min-w-0 p-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg disabled:bg-gray-100 dark:disabled:bg-gray-800 dark:text-gray-100"
+      placeholder="ID" title="Enter the JIRA task identifier" (blur)="emitChanged()">
+  </td>
+  <td class="py-2 px-3 align-top">
+    <div class="flex gap-2 items-center">
+      <button type="button" class="table-action-button text-green-600 dark:text-green-400" (click)="addRow.emit('activity')"
+        title="Add an activity after this one">＋</button>
+      <button type="button" class="table-action-button text-red-600 dark:text-red-400" (click)="removeRow.emit()"
+        title="Delete this activity">✕</button>
+      <!-- Comment toggle temporarily disabled (incomplete feature) -->
+      <!--
+      <button type="button" (click)="toggleComment()" [class.text-sky-600]="type() === 'text'" class="table-action-button"
+        title="Toggle comment mode">💬</button>
+      -->
+    </div>
+  </td>
+}
