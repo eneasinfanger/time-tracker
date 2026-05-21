@@ -57,4 +57,12 @@ export class AdminService {
   getAdminStats(): Observable<AdminStats> {
     return this.http.get<AdminStats>(`${this.apiUrl}/admin/stats`);
   }
+
+  getAggregated(period: 'day' | 'week' | 'month', date?: string) {
+    let url = `${this.apiUrl}/admin/aggregate?period=${period}`;
+    if (date) {
+      url += `&date=${date}`;
+    }
+    return this.http.get<{ period: string; anchor: string; data: Array<{ label: string; total_minutes: number }> }>(url);
+  }
 }

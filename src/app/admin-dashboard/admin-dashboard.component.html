@@ -94,6 +94,37 @@
         </div>
       }
 
+      <!-- Aggregate time view -->
+      <div class="mt-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Worked Hours — Day / Week / Month</h3>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex gap-2">
+            <button (click)="setAggregatePeriod('day')" [class.font-bold]="aggregatePeriod() === 'day'" class="px-3 py-1 rounded border">Day</button>
+            <button (click)="setAggregatePeriod('week')" [class.font-bold]="aggregatePeriod() === 'week'" class="px-3 py-1 rounded border">Week</button>
+            <button (click)="setAggregatePeriod('month')" [class.font-bold]="aggregatePeriod() === 'month'" class="px-3 py-1 rounded border">Month</button>
+          </div>
+
+          <div>
+            <input type="date" class="px-2 py-1 border rounded" (change)="setAggregateDate($any($event.target).value)" />
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-4 border border-gray-200 dark:border-slate-700">
+          @if (aggregateData().length === 0) {
+            <div class="text-gray-600 dark:text-gray-400">No data available for selected period.</div>
+          } @else {
+            <div class="grid gap-2">
+              @for (row of aggregateData(); track row.label) {
+                <div class="flex items-center justify-between p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <div class="text-sm text-gray-700 dark:text-gray-300">{{ row.label }}</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ formatDuration(row.total_minutes) }}</div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
       <!-- Users Activity Tab -->
       @if (selectedTab() === 'users') {
         <div class="bg-white dark:bg-slate-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-slate-700">

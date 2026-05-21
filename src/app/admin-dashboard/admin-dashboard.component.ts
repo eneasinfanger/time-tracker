@@ -24,6 +24,15 @@ export class AdminDashboardComponent implements OnInit {
   readonly selectedTab = signal<'overview' | 'users' | 'activities'>('overview');
   readonly page = signal(1);
   readonly perPage = signal(50);
+  readonly aggregatePeriod = signal<'day' | 'week' | 'month'>('day');
+  readonly aggregateDate = signal<string | null>(null);
+  readonly aggregateData = signal<Array<{ label: string; total_minutes: number }>>([]);
+
+  ngOnInit(): void {
+    this.loadStats();
+    this.loadActivities();
+    this.loadAggregate();
+  }
 
   readonly totalMinutesFormatted = computed(() => {
     const mins = this.stats()?.total_minutes ?? 0;
@@ -32,10 +41,7 @@ export class AdminDashboardComponent implements OnInit {
     return `${hours}h ${remaining}m`;
   });
 
-  ngOnInit(): void {
-    this.loadStats();
-    this.loadActivities();
-  }
+  // ngOnInit already defined above (initializes stats, activities and aggregate)
 
   loadStats(): void {
     this.loading.set(true);
@@ -64,6 +70,29 @@ export class AdminDashboardComponent implements OnInit {
         this.error.set('Failed to load activities');
       }
     });
+  }
+
+  loadAggregate(): void {
+    const period = this.aggregatePeriod();
+    const date = this.aggregateDate() ?? undefined;
+    this.adminService.getAggregated(period, date).subscribe({
+      next: (res) => {
+        this.aggregateData.set(res.data || []);
+      },
+      error: () => {
+        this.error.set('Failed to load aggregated data');
+      }
+    });
+  }
+
+  setAggregatePeriod(p: 'day' | 'week' | 'month') {
+    this.aggregatePeriod.set(p);
+    this.loadAggregate();
+  }
+
+  setAggregateDate(value: string | null) {
+    this.aggregateDate.set(value);
+    this.loadAggregate();
   }
 
   selectTab(tab: 'overview' | 'users' | 'activities'): void {
