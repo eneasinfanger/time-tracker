@@ -615,3 +615,53 @@ def get_all_stats_admin():
         'total_minutes': sum(a.duration_minutes for a in today_activities if a.duration_minutes)
     }), 200
 
+
+@activities_bp.route('/admin/aggregate', methods=['GET'])
+@token_required
+@admin_required
+def admin_aggregate():
+    """Aggregate tracked minutes by period: day, week, or month.
+    Query params:
+      - period: 'day' | 'week' | 'month'
+      - date: ISO date (YYYY-MM-DD) to anchor the range (optional, defaults to today)
+    Returns JSON list of { 'label': str, 'total_minutes': int }
+    """
+    from datetime import datetime, timedelta, date
+
+    period = request.args.get('period', 'day')
+    date_str = request.args.get('date')
+    try:
+        anchor = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else date.today()
+    except Exception:
+        anchor = date.today()
+
+    results = []
+    if period == 'day':
+        # return single day total
+        activities = Activity.query.filter(db.func.date(Activity.created_at) == anchor).all()
+        total = sum(a.duration_minutes for a in activities if a.duration_minutes)
+        results = [{'label': anchor.isoformat(), 'total_minutes': total}]
+    elif period == 'week':
+        # week starting Monday
+        start = anchor - timedelta(days=anchor.weekday())
+        for i in range(7):
+            d = start + timedelta(days=i)
+            activities = Activity.query.filter(db.func.date(Activity.created_at) == d).all()
+            total = sum(a.duration_minutes for a in activities if a.duration_minutes)
+            results.append({'label': d.isoformat(), 'total_minutes': total})
+    elif period == 'month':
+        # month days
+        start = anchor.replace(day=1)
+        # compute number of days in month
+        next_month = (start.replace(day=28) + timedelta(days=4)).replace(day=1)
+        current = start
+        while current < next_month:
+            activities = Activity.query.filter(db.func.date(Activity.created_at) == current).all()
+            total = sum(a.duration_minutes for a in activities if a.duration_minutes)
+            results.append({'label': current.isoformat(), 'total_minutes': total})
+            current = current + timedelta(days=1)
+    else:
+        return jsonify({'error': 'Invalid period'}), 400
+
+    return jsonify({'period': period, 'anchor': anchor.isoformat(), 'data': results}), 200
+
