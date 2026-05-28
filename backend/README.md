@@ -249,28 +249,6 @@ HTTP Status Codes:
 - JWT tokens reduce database queries for authentication
 - Efficient filtering and sorting capabilities
 
-## Deployment
-
-### Docker
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-EXPOSE 5000
-
-CMD ["python", "run.py"]
-```
-
-### Cloud Platforms
-- **Heroku**: Use Procfile with gunicorn
-- **AWS**: Deploy with ElasticBeanstalk or EC2
-- **Google Cloud**: Cloud Run or App Engine
-- **Azure**: App Service
-
 ## License
 
 MIT License - See LICENSE file for details

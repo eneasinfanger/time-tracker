@@ -37,7 +37,7 @@ A complete time-tracking application built with **Angular 20+** frontend and **P
 | **Database** | SQLite with optimized indexes |
 | **Authentication** | JWT (HS256), Werkzeug password hashing |
 | **Testing** | pytest, Karma, Jasmine |
-| **Deployment** | Docker, Docker Compose |
+| **Build** | Angular CLI, Flask CLI |
 
 ## 🚀 Quick Start
 
@@ -108,9 +108,6 @@ time-tracker/
 │   │   └── app.routes.ts       # Application routes
 │   └── styles.scss             # Global styles
 │
-├── Dockerfile                  # Backend containerization
-├── Dockerfile.frontend         # Frontend containerization
-├── docker-compose.yml          # Multi-container orchestration
 ├── QUICK_REF.md               # Developer quick reference
 ├── SETUP.md                   # Setup instructions
 ├── TESTING.md                 # Testing guide
@@ -183,33 +180,6 @@ npm test -- --code-coverage # Coverage report
 
 **Test Coverage**: 30+ backend tests, >80% code coverage goal
 
-## 🐳 Docker Deployment
-
-### Docker Compose (Recommended)
-```bash
-# Build and start all services
-docker-compose up --build
-
-# Services available at:
-# - Frontend: http://localhost:4200
-# - Backend: http://localhost:5000
-```
-
-### Build Individual Images
-```bash
-# Backend
-docker build -t time-tracker-backend -f Dockerfile .
-
-# Frontend
-docker build -t time-tracker-frontend -f Dockerfile.frontend .
-
-# Run backend
-docker run -p 5000:5000 time-tracker-backend
-
-# Run frontend
-docker run -p 4200:4200 time-tracker-frontend
-```
-
 ## 🔌 API Endpoints
 
 ### Authentication
@@ -280,23 +250,6 @@ Update in services (default: `http://localhost:5000`)
 - **Routes**: Modular blueprint routes (auth, users, activities)
 - **Services**: Authentication and authorization utilities
 - **Tests**: Comprehensive pytest fixtures and test suites
-
-## 🚀 Production Deployment
-
-### Prerequisites
-- Gunicorn for Python
-- Nginx for frontend serving
-- PostgreSQL (recommended over SQLite)
-
-### Deployment Steps
-1. Build Docker images
-2. Push to registry
-3. Deploy with Docker Compose or Kubernetes
-4. Configure environment variables
-5. Run migrations
-6. Create admin user
-
-See [backend/README.md](./backend/README.md) for detailed deployment options.
 
 ## 🐛 Troubleshooting
 
