@@ -240,7 +240,8 @@ HTTP Status Codes:
 2. **JWT Tokens**: Signed with a secret key and include expiration
 3. **CORS**: Configured to accept requests only from specified origins
 4. **Admin Access**: Protected endpoints require admin privileges
-5. **Token Validation**: All protected routes validate token before access
+5. **Rate Limiting**: Auth, user-management, and activity mutation endpoints are throttled
+6. **Token Validation**: All protected routes validate token before access
 
 ## Performance Optimization
 

@@ -3,12 +3,14 @@ from datetime import datetime, timedelta
 from functools import wraps
 from flask import request, jsonify, current_app
 from app.models.user import User
+from uuid import uuid4
 
 def generate_jwt_token(user_id: int) -> str:
     """Generate JWT token for user"""
     payload = {
         'user_id': user_id,
         'iat': datetime.utcnow(),
+        'jti': uuid4().hex,
         'exp': datetime.utcnow() + current_app.config['JWT_EXPIRATION']
     }
     return jwt.encode(

@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
 from datetime import datetime, date, timedelta, time as time_obj
-from app import db
+from app import db, limiter
 from app.models.activity import Activity
 from app.utils.auth import token_required, admin_required
+from app.utils.rate_limit import authenticated_user_key
 
 activities_bp = Blueprint('activities', __name__, url_prefix='/api/activities')
 
@@ -209,6 +210,7 @@ def _build_suggestion_source(data: dict, current_date: date, duration_threshold:
 
 @activities_bp.route('/suggestions', methods=['POST'])
 @token_required
+@limiter.limit('120 per minute', key_func=authenticated_user_key)
 def get_activity_suggestions():
     data = request.get_json(silent=True) or {}
     current_date = _parse_activity_date(str(data.get('date', '')).strip())
@@ -266,6 +268,7 @@ def get_activity_suggestions():
 
 @activities_bp.route('/summary', methods=['POST'])
 @token_required
+@limiter.limit('120 per minute', key_func=authenticated_user_key)
 def calculate_activity_summary():
     data = request.get_json(silent=True) or {}
     activities = _parse_client_activities(data.get('activities', []))
@@ -316,6 +319,7 @@ def get_activities_for_day(activity_date):
 @activities_bp.route('/day/<string:activity_date>', methods=['PUT'])
 @activities_bp.route('/day/<string:activity_date>', methods=['PUT', 'POST'])
 @token_required
+@limiter.limit('60 per minute', key_func=authenticated_user_key)
 def replace_activities_for_day(activity_date):
     parsed_date = _parse_activity_date(activity_date)
     if not parsed_date:
@@ -404,6 +408,7 @@ def replace_activities_for_day(activity_date):
 
 @activities_bp.route('', methods=['POST'])
 @token_required
+@limiter.limit('60 per minute', key_func=authenticated_user_key)
 def create_activity():
     """Create new activity"""
     data = request.get_json()
@@ -456,6 +461,7 @@ def get_activity(activity_id):
 
 @activities_bp.route('/<int:activity_id>', methods=['PUT'])
 @token_required
+@limiter.limit('60 per minute', key_func=authenticated_user_key)
 def update_activity(activity_id):
     """Update activity"""
     activity = Activity.query.get(activity_id)
@@ -504,6 +510,7 @@ def update_activity(activity_id):
 
 @activities_bp.route('/<int:activity_id>', methods=['DELETE'])
 @token_required
+@limiter.limit('60 per minute', key_func=authenticated_user_key)
 def delete_activity(activity_id):
     """Delete activity"""
     activity = Activity.query.get(activity_id)
@@ -549,6 +556,7 @@ def get_today_stats():
 @activities_bp.route('/admin/all-activities', methods=['GET'])
 @token_required
 @admin_required
+@limiter.limit('60 per minute', key_func=authenticated_user_key)
 def get_all_activities_admin():
     """Get all activities for all users (admin only)"""
     page = request.args.get('page', 1, type=int)
@@ -580,6 +588,7 @@ def get_all_activities_admin():
 @activities_bp.route('/admin/stats', methods=['GET'])
 @token_required
 @admin_required
+@limiter.limit('60 per minute', key_func=authenticated_user_key)
 def get_all_stats_admin():
     """Get activity statistics for all users (admin only)"""
     today = date.today()
@@ -619,6 +628,7 @@ def get_all_stats_admin():
 @activities_bp.route('/admin/aggregate', methods=['GET'])
 @token_required
 @admin_required
+@limiter.limit('60 per minute', key_func=authenticated_user_key)
 def admin_aggregate():
     """Aggregate tracked minutes by period: day, week, or month.
     Query params:

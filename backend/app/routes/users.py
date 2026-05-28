@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
-from app import db
+from app import db, limiter
 from app.models.user import User
 from app.utils.auth import token_required, admin_required
+from app.utils.rate_limit import authenticated_user_key
 
 users_bp = Blueprint('users', __name__, url_prefix='/api/users')
 
@@ -21,6 +22,7 @@ def get_user(user_id):
 
 @users_bp.route('/<int:user_id>', methods=['PUT'])
 @token_required
+@limiter.limit('30 per minute', key_func=authenticated_user_key)
 def update_user(user_id):
     """Update user profile"""
     # Users can only update their own profile unless admin
@@ -62,6 +64,7 @@ def update_user(user_id):
 
 @users_bp.route('/<int:user_id>/change-password', methods=['POST'])
 @token_required
+@limiter.limit('30 per minute', key_func=authenticated_user_key)
 def change_password(user_id):
     """Change user password"""
     if request.current_user.id != user_id and not request.current_user.is_admin:
@@ -112,6 +115,7 @@ def list_users():
 @users_bp.route('/<int:user_id>/disable', methods=['POST'])
 @token_required
 @admin_required
+@limiter.limit('30 per minute', key_func=authenticated_user_key)
 def disable_user(user_id):
     """Disable user (admin only)"""
     user = User.query.get(user_id)
@@ -130,6 +134,7 @@ def disable_user(user_id):
 @users_bp.route('/<int:user_id>/enable', methods=['POST'])
 @token_required
 @admin_required
+@limiter.limit('30 per minute', key_func=authenticated_user_key)
 def enable_user(user_id):
     """Enable user (admin only)"""
     user = User.query.get(user_id)
@@ -148,6 +153,7 @@ def enable_user(user_id):
 @users_bp.route('/<int:user_id>/promote', methods=['POST'])
 @token_required
 @admin_required
+@limiter.limit('30 per minute', key_func=authenticated_user_key)
 def promote_user(user_id):
     """Promote user to admin (admin only)"""
     user = User.query.get(user_id)
@@ -166,6 +172,7 @@ def promote_user(user_id):
 @users_bp.route('/<int:user_id>/demote', methods=['POST'])
 @token_required
 @admin_required
+@limiter.limit('30 per minute', key_func=authenticated_user_key)
 def demote_user(user_id):
     """Demote user from admin (admin only)"""
     user = User.query.get(user_id)
