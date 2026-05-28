@@ -83,7 +83,10 @@ backend/
 
 5. **Create Admin User**
    ```bash
-   flask create-admin
+   python run.py create-admin
+
+   # Alternative Flask CLI invocation (no global `flask` executable required)
+   python -m flask --app run.py create-admin
    ```
 
 ## Running the Application

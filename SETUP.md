@@ -53,7 +53,9 @@ The application requires authentication to access most features:
 1. **Create Admin User** (Run once):
    ```bash
    cd backend
-   flask create-admin
+   python run.py create-admin
+   # or
+   python -m flask --app run.py create-admin
    ```
    Follow the prompts to set username, email, and password.
 
@@ -93,7 +95,7 @@ After setting up the backend, create an admin user:
 
 ```bash
 cd backend
-flask create-admin
+python run.py create-admin
 ```
 
 Then log in with those credentials in the frontend.

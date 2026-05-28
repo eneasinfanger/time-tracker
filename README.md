@@ -62,8 +62,10 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Create admin user
-flask create-admin
+# Create admin user (works even if `flask` isn't on PATH)
+python run.py create-admin
+# or
+python -m flask --app run.py create-admin
 
 # Start backend server
 python run.py
@@ -79,7 +81,7 @@ npm start
 
 ### Default Access
 1. Open http://localhost:4200 in your browser
-2. Log in with credentials created via `flask create-admin`
+2. Log in with credentials created via `python run.py create-admin`
 3. Click the 🌙/☀️ button to toggle dark mode
 4. Visit `/admin` for admin panel (if user is admin)
 
