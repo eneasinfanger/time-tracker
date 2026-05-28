@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 import { getApiBaseUrl } from './api-base-url';
 
 export interface User {
@@ -73,9 +73,8 @@ export class AuthService {
     }).pipe(
       tap(response => {
         this.saveToStorage(response.token, response.user);
-        this.isLoadingSignal.set(false);
       }),
-      tap(() => this.isLoadingSignal.set(false))
+      finalize(() => this.isLoadingSignal.set(false))
     );
   }
 
@@ -87,9 +86,8 @@ export class AuthService {
     }).pipe(
       tap(response => {
         this.saveToStorage(response.token, response.user);
-        this.isLoadingSignal.set(false);
       }),
-      tap(() => this.isLoadingSignal.set(false))
+      finalize(() => this.isLoadingSignal.set(false))
     );
   }
 
