@@ -70,7 +70,7 @@
 
         <div class="grid gap-4">
           <div>
-            <div class="font-medium mb-1 text-gray-800 dark:text-gray-200">JIRA Projects</div>
+            <div class="font-medium mb-1 text-gray-800 dark:text-gray-200">Issue tracker sources</div>
 
             <!-- Inputs to add a new source (kept above the grid) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
@@ -83,7 +83,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              @for (source of jiraSources(); track source.name) {
+              @for (source of issueTrackerSources(); track source.name) {
                 <div class="border rounded-lg p-3 bg-gray-50 dark:bg-white/5">
                   <div class="flex items-start justify-between mb-2">
                     <div class="flex-1">
@@ -104,7 +104,7 @@
                                 (click)="startEditSource(source.name)">Edit
                         </button>
                         <button type="button" class="text-red-500 dark:text-red-400"
-                                (click)="removeJiraSource(source.name)">Remove
+                                (click)="removeSource(source.name)">Remove
                         </button>
                       } @else {
                         <button type="button" class="text-sm px-2 py-1 rounded border"
@@ -149,7 +149,7 @@
         <!-- Add source button centered at the bottom of the sources area -->
         <div class="flex justify-center mt-4">
           <button type="button" class="text-sm px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
-                  (click)="addJiraSource()">Add JIRA Source
+                  (click)="addSource()">Add source
           </button>
         </div>
 

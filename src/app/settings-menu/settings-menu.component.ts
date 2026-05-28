@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, effect, OnInit, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivityDetails, Duration, Settings, Theme, JiraSource } from '../utils/models';
+import { ActivityDetails, Duration, Settings, Theme, IssueTrackerSource } from '../utils/models';
 import { generateUUID, UUID } from '../utils/crypto';
 import { SettingsHolder } from '../utils/settings';
 import { AutoFocusDirective } from '../directives/auto-focus.directive';
@@ -19,11 +19,11 @@ import { IconComponent } from '../icon/icon.component';
 })
 export class SettingsMenuComponent implements OnInit {
   readonly ERROR_INVALID_DURATION = 'Invalid duration format! (Allowed are numbers followed by \'w\' = weeks, \'d\' = days, \'h\' = hours and \'m\' = minutes.)';
-  readonly ERROR_INVALID_PROJECT = 'Invalid JIRA Project! (Allowed are uppercase letters only.)';
+  readonly ERROR_INVALID_PROJECT = 'Invalid issue tracker project! (Allowed are uppercase letters only.)';
   readonly ERROR_DUPLICATE_ACTIVITY = 'Duplicate activity entry!';
   readonly ERROR_DUPLICATE_PROJECT = 'Duplicate project entry!';
-  readonly ERROR_DUPLICATE_SOURCE_NAME = 'Duplicate JIRA source name!';
-  readonly ERROR_DUPLICATE_SOURCE_URL = 'Duplicate JIRA source URL!';
+  readonly ERROR_DUPLICATE_SOURCE_NAME = 'Duplicate issue tracker source name!';
+  readonly ERROR_DUPLICATE_SOURCE_URL = 'Duplicate issue tracker source URL!';
 
   closed = output<void>();
   errors = signal<Set<string>>(new Set());
@@ -32,7 +32,7 @@ export class SettingsMenuComponent implements OnInit {
   theme = signal<Theme>('system');
   durationThreshold = signal<Duration>({} as Duration);
   alwaysShownActivities = signal<ActivityDetails[]>([]);
-  jiraSources = signal<JiraSource[]>([]);
+  issueTrackerSources = signal<IssueTrackerSource[]>([]);
 
   durationThresholdInput = signal('');
   descriptionInput = signal('');
@@ -58,7 +58,7 @@ export class SettingsMenuComponent implements OnInit {
     this.alwaysShownActivities.set(settings.alwaysShownActivities);
     this.enableTasks.set(settings.enableTasks);
     this.theme.set(settings.theme);
-    this.jiraSources.set(settings.jiraSources);
+    this.issueTrackerSources.set(settings.issueTrackerSources);
   }
 
   close() {
@@ -85,29 +85,29 @@ export class SettingsMenuComponent implements OnInit {
     this.alwaysShownActivities.update(arr => arr.filter(a => a.id !== id));
   }
 
-  addJiraSource() {
+  addSource() {
     const name = this.newSourceName.trim();
     const url = this.newSourceUrl.trim().replace(/\/+$/, '');
     if (!name || !url) {
       return;
     }
-    if (this.jiraSources().some(s => s.name === name)) {
+    if (this.issueTrackerSources().some(s => s.name === name)) {
       this.addError(this.ERROR_DUPLICATE_SOURCE_NAME);
       return;
     }
-    if (this.jiraSources().some(s => s.url === url)) {
+    if (this.issueTrackerSources().some(s => s.url === url)) {
       this.addError(this.ERROR_DUPLICATE_SOURCE_URL);
       return;
     }
     this.removeError(this.ERROR_DUPLICATE_SOURCE_NAME);
     this.removeError(this.ERROR_DUPLICATE_SOURCE_URL);
-    this.jiraSources.update(arr => [...arr, { name, url, projects: [] }]);
+    this.issueTrackerSources.update(arr => [...arr, { name, url, projects: [] }]);
     this.newSourceName = '';
     this.newSourceUrl = '';
   }
 
-  removeJiraSource(name: string) {
-    this.jiraSources.update(arr => arr.filter(s => s.name !== name));
+  removeSource(name: string) {
+    this.issueTrackerSources.update(arr => arr.filter(s => s.name !== name));
     delete this.newProjectMap[name];
     delete this.editNameMap[name];
     delete this.editUrlMap[name];
@@ -117,7 +117,7 @@ export class SettingsMenuComponent implements OnInit {
   }
 
   startEditSource(name: string) {
-    const src = this.jiraSources().find(s => s.name === name);
+    const src = this.issueTrackerSources().find(s => s.name === name);
     if (!src) {
       return;
     }
@@ -133,17 +133,17 @@ export class SettingsMenuComponent implements OnInit {
       return;
     }
     // check duplicates except the current source
-    if (this.jiraSources().some(s => s.name === newName && s.name !== oldName)) {
+    if (this.issueTrackerSources().some(s => s.name === newName && s.name !== oldName)) {
       this.addError(this.ERROR_DUPLICATE_SOURCE_NAME);
       return;
     }
-    if (this.jiraSources().some(s => s.url === newUrl && s.name !== oldName)) {
+    if (this.issueTrackerSources().some(s => s.url === newUrl && s.name !== oldName)) {
       this.addError(this.ERROR_DUPLICATE_SOURCE_URL);
       return;
     }
     this.removeError(this.ERROR_DUPLICATE_SOURCE_NAME);
     this.removeError(this.ERROR_DUPLICATE_SOURCE_URL);
-    const updated = this.jiraSources().map(s => s.name === oldName ? { ...s, name: newName, url: newUrl } : s);
+    const updated = this.issueTrackerSources().map(s => s.name === oldName ? { ...s, name: newName, url: newUrl } : s);
     // move temp maps to new key if name changed
     if (newName !== oldName) {
       // TODO reduce duplication
@@ -160,7 +160,7 @@ export class SettingsMenuComponent implements OnInit {
         delete this.editUrlMap[oldName];
       }
     }
-    this.jiraSources.set(updated);
+    this.issueTrackerSources.set(updated);
     this.editingSource.set(null);
   }
 
@@ -177,18 +177,18 @@ export class SettingsMenuComponent implements OnInit {
       return;
     }
     this.removeError(this.ERROR_INVALID_PROJECT);
-    const sources = this.jiraSources();
+    const sources = this.issueTrackerSources();
     if (sources.some(s => s.projects.includes(project))) {
       this.addError(this.ERROR_DUPLICATE_PROJECT);
       return;
     }
     this.removeError(this.ERROR_DUPLICATE_PROJECT);
-    this.jiraSources.set(sources.map(s => s.name === sourceName ? { ...s, projects: [...s.projects, project] } : s));
+    this.issueTrackerSources.set(sources.map(s => s.name === sourceName ? { ...s, projects: [...s.projects, project] } : s));
     this.newProjectMap[sourceName] = '';
   }
 
   removeProjectFromSource(sourceName: string, project: string) {
-    this.jiraSources.set(this.jiraSources().map(s => s.name === sourceName ? {
+    this.issueTrackerSources.set(this.issueTrackerSources().map(s => s.name === sourceName ? {
       ...s,
       projects: s.projects.filter(p => p !== project),
     } : s));
@@ -203,7 +203,7 @@ export class SettingsMenuComponent implements OnInit {
       durationThreshold: this.durationThreshold(),
       enableTasks: this.enableTasks(),
       theme: this.theme(),
-      jiraSources: this.jiraSources(),
+      issueTrackerSources: this.issueTrackerSources(),
     };
     SettingsHolder.setSettings(settings);
     this.close();

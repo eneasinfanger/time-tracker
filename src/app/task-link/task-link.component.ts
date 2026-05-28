@@ -15,7 +15,7 @@ export class TaskLinkComponent {
 
   constructor() {
     const resolveTask = (taskText: string, settings: Settings) => {
-      this.taskTextComponents.set(resolveTaskLinks(taskText, settings.jiraSources));
+      this.taskTextComponents.set(resolveTaskLinks(taskText, settings.issueTrackerSources));
     }
     effect(() => {
       resolveTask(this.taskText(), SettingsHolder.getSettings());

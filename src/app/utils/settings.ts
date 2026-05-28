@@ -18,6 +18,6 @@ export const SettingsHolder = {
     durationThreshold: { weeks: 1, days: 0, hours: 0, minutes: 0 },
     enableTasks: true,
     theme: 'system',
-    jiraSources: [],
+    issueTrackerSources: [],
   } as Settings),
 };

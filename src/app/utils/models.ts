@@ -33,7 +33,7 @@ export type Time = '' | `${ number }${ number }:${ number }${ number }`;
 export type Duration = { weeks: number; days: number; hours: number; minutes: number };
 export type Theme = 'light' | 'dark' | 'system';
 
-export type JiraSource = {
+export type IssueTrackerSource = {
   name: string;
   url: string;
   projects: string[];
@@ -44,5 +44,5 @@ export type Settings = {
   durationThreshold: Duration;
   enableTasks: boolean;
   theme: Theme;
-  jiraSources: JiraSource[];
+  issueTrackerSources: IssueTrackerSource[];
 }
