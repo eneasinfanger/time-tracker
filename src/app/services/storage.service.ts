@@ -4,7 +4,6 @@ import { catchError, map, Observable, of, tap } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { Activity, ISODate, Settings, Time } from '../utils/models';
 import { SettingsHolder } from '../utils/settings';
-import { settingsMigrations } from './storage.migrations';
 import { UUID } from '../utils/crypto';
 import { getApiBaseUrl } from './api-base-url';
 
@@ -75,9 +74,6 @@ export class StorageService {
         Object.entries(settings).filter(([, v]) => v !== undefined)
       ) as Partial<Settings>;
       settings = { ...fullSettings, ...filtered };
-    }
-    for (const migration of settingsMigrations) {
-      migration.run(settings);
     }
 
     const themeFromStorage = localStorage.getItem('theme') as Settings['theme'] | null;
