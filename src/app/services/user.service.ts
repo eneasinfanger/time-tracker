@@ -2,6 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { getApiBaseUrl } from './api-base-url';
 
 export interface UserProfile {
   id: number;
@@ -17,7 +18,7 @@ export interface UserProfile {
   providedIn: 'root'
 })
 export class UserService {
-  private readonly apiUrl = 'http://localhost:5000/api/users';
+  private readonly apiUrl = `${getApiBaseUrl()}/users`;
   private readonly http = inject(HttpClient);
   
   private usersSignal = signal<UserProfile[]>([]);

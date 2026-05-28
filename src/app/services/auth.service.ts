@@ -2,6 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { getApiBaseUrl } from './api-base-url';
 
 export interface User {
   id: number;
@@ -21,7 +22,7 @@ export interface AuthResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = 'http://localhost:5000/api/auth';
+  private readonly apiUrl = `${getApiBaseUrl()}/auth`;
   
   // Signals
   private currentUserSignal = signal<User | null>(null);

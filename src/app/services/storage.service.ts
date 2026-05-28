@@ -6,6 +6,7 @@ import { Activity, ISODate, Settings, Time } from '../utils/models';
 import { SettingsHolder } from '../utils/settings';
 import { settingsMigrations } from './storage.migrations';
 import { UUID } from '../utils/crypto';
+import { getApiBaseUrl } from './api-base-url';
 
 interface BackendDayActivitiesResponse {
   date: string;
@@ -57,7 +58,7 @@ interface BackendActivity {
 export class StorageService {
   private readonly http = inject(HttpClient);
   private readonly settingsKey = 'timetracker_settings';
-  private readonly activitiesApiUrl = 'http://localhost:5000/api/activities';
+  private readonly activitiesApiUrl = `${getApiBaseUrl()}/activities`;
   private readonly activitiesCache = new Map<ISODate, Activity[]>();
   private readonly emptySummary: BackendSummaryResponse = {
     byDescription: [],

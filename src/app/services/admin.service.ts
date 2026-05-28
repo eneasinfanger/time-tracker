@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { getApiBaseUrl } from './api-base-url';
 
 export interface AdminStats {
   date: string;
@@ -44,7 +45,7 @@ export interface AdminActivity {
 })
 export class AdminService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:5000/api/activities';
+  private readonly apiUrl = `${getApiBaseUrl()}/activities`;
 
   getAllActivities(page: number = 1, perPage: number = 50, userId?: number): Observable<AllActivitiesResponse> {
     let url = `${this.apiUrl}/admin/all-activities?page=${page}&per_page=${perPage}`;
