@@ -6,10 +6,11 @@ import { initUsing, unwrapSignal } from '../utils/signals';
 import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
 import { StorageService } from '../services/storage.service';
 import { SettingsHolder } from '../utils/settings';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'tr[activity-row]',
-  imports: [CommonModule, FormsModule, SuggestableInputComponent],
+  imports: [CommonModule, FormsModule, SuggestableInputComponent, IconComponent],
   templateUrl: './activity-row.component.html',
   styleUrls: ['./activity-row.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

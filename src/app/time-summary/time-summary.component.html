@@ -14,7 +14,7 @@
         }
         <button type="button" (click)="toggleReverse()"
           class="text-xs sm:text-sm px-3 py-1.5 rounded-full border dark:border-gray-700 dark:text-gray-300 whitespace-nowrap hover:bg-gray-100 dark:hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-blue-200" title="Reverse sorting">
-          {{ sortReverse() ? '⯅' : '⯆' }}
+          <app-icon [name]="sortReverse() ? 'chevron-up' : 'chevron-down'" class="text-sm"></app-icon>
         </button>
 
         <div class="h-6 w-px bg-gray-200 dark:bg-white/6 mx-1 hidden sm:block"></div>

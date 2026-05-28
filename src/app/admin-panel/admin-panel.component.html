@@ -39,7 +39,7 @@
     <div class="bg-white dark:bg-slate-800 rounded-lg shadow overflow-x-auto">
       @if (isLoading()) {
         <div class="p-8 text-center">
-          <span class="inline-block animate-spin mr-2">⏳</span>
+          <app-icon name="spinner" class="inline-block animate-spin mr-2 text-lg"></app-icon>
           Loading users...
         </div>
       } @else if (users().length > 0) {

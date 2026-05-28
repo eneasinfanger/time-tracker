@@ -4,6 +4,7 @@ import { ActivityDetails, Duration, Settings, Theme, JiraSource } from '../utils
 import { generateUUID, UUID } from '../utils/crypto';
 import { SettingsHolder } from '../utils/settings';
 import { AutoFocusDirective } from '../directives/auto-focus.directive';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'settings-menu',
@@ -13,6 +14,7 @@ import { AutoFocusDirective } from '../directives/auto-focus.directive';
   imports: [
     FormsModule,
     AutoFocusDirective,
+    IconComponent,
   ],
 })
 export class SettingsMenuComponent implements OnInit {

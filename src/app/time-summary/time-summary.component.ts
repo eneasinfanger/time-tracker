@@ -2,11 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, input, signal, Signal } f
 import { Activity, ActivitySummary, ActivitySummaryEntry, ActivityTotal } from '../utils/models';
 import { TaskLinkComponent } from '../task-link/task-link.component';
 import { TASK_REGEX } from "../utils/task-parser";
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'time-summary',
   imports: [
-    TaskLinkComponent
+    TaskLinkComponent,
+    IconComponent,
   ],
   templateUrl: './time-summary.component.html',
   styleUrls: ['./time-summary.component.scss'],

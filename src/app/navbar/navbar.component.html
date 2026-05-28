@@ -3,8 +3,9 @@
     <div class="flex justify-between items-center h-16">
       <!-- Logo/Branding -->
       <div class="flex items-center">
-        <a routerLink="/" class="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
-          ⏱️ Time Tracker
+        <a routerLink="/" class="flex items-center gap-2 text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
+          <app-icon name="clock" class="text-2xl -translate-y-px"></app-icon>
+          <span>Time Tracker</span>
         </a>
       </div>
 
@@ -48,9 +49,9 @@
               [title]="isDarkMode() ? 'Zu Licht-Modus wechseln' : 'Zu Dunkel-Modus wechseln'"
             >
               @if (isDarkMode()) {
-                <span>☀️</span>
+                <app-icon name="sun" class="text-lg -translate-y-px"></app-icon>
               } @else {
-                <span>🌙</span>
+                <app-icon name="moon" class="text-lg -translate-y-px"></app-icon>
               }
             </button>
 
@@ -71,9 +72,9 @@
               [title]="isDarkMode() ? 'Zu Licht-Modus wechseln' : 'Zu Dunkel-Modus wechseln'"
             >
               @if (isDarkMode()) {
-                <span>☀️</span>
+                <app-icon name="sun" class="text-lg -translate-y-px"></app-icon>
               } @else {
-                <span>🌙</span>
+                <app-icon name="moon" class="text-lg -translate-y-px"></app-icon>
               }
             </button>
           </div>
@@ -89,9 +90,9 @@
           [title]="isDarkMode() ? 'Zu Licht-Modus wechseln' : 'Zu Dunkel-Modus wechseln'"
         >
           @if (isDarkMode()) {
-            <span>☀️</span>
+            <app-icon name="sun" class="text-lg -translate-y-px"></app-icon>
           } @else {
-            <span>🌙</span>
+            <app-icon name="moon" class="text-lg -translate-y-px"></app-icon>
           }
         </button>
 
@@ -102,9 +103,9 @@
           [attr.aria-label]="mobileMenuOpen() ? 'Menü schließen' : 'Menü öffnen'"
         >
           @if (mobileMenuOpen()) {
-            <span class="text-2xl">✕</span>
+            <app-icon name="close" class="text-2xl"></app-icon>
           } @else {
-            <span class="text-2xl">☰</span>
+            <app-icon name="menu" class="text-2xl"></app-icon>
           }
         </button>
       </div>
@@ -135,16 +136,18 @@
               <a
                 routerLink="/admin"
                 (click)="closeMobileMenu()"
-                class="block text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium mb-2"
+                class="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium mb-2"
               >
-                👥 Manage Users
+                <app-icon name="users" class="text-lg"></app-icon>
+                <span>Manage Users</span>
               </a>
               <a
                 routerLink="/dashboard"
                 (click)="closeMobileMenu()"
-                class="block text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium"
+                class="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium"
               >
-                📊 Activity Dashboard
+                <app-icon name="chart" class="text-lg"></app-icon>
+                <span>Activity Dashboard</span>
               </a>
             </div>
           }

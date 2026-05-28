@@ -7,7 +7,7 @@
     @if (isTransitioning()) {
       <div class="text-center text-white transition-all duration-700 ease-out" [class.scale-95]="isTransitioning()" [class.translate-y-2]="isTransitioning()">
         <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-3xl animate-pulse">
-          ⏱️
+          <app-icon name="clock" class="text-3xl"></app-icon>
         </div>
         <p class="text-lg font-semibold">Welcome back</p>
         <p class="text-sm text-white/70">Loading your workspace...</p>
@@ -25,7 +25,7 @@
     <!-- Header -->
     <div class="text-center mb-8">
       <div class="flex justify-center mb-4">
-        <div class="text-4xl">⏱️</div>
+        <app-icon name="clock" class="text-4xl text-blue-600 dark:text-blue-400"></app-icon>
       </div>
       <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
       <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">Sign in to your account</p>
@@ -80,9 +80,9 @@
             tabindex="-1"
           >
             @if (showPassword()) {
-              <span>👁️</span>
+              <app-icon name="eye" class="text-lg"></app-icon>
             } @else {
-              <span>👁️‍🗨️</span>
+              <app-icon name="eye-off" class="text-lg"></app-icon>
             }
           </button>
         </div>
@@ -98,7 +98,7 @@
         class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-blue-700 dark:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600 text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
       >
         @if (isLoading()) {
-          <span class="inline-block animate-spin mr-2">⏳</span>
+          <app-icon name="spinner" class="inline-block animate-spin mr-2 text-lg"></app-icon>
           <span class="hidden sm:inline">Signing in...</span>
           <span class="sm:hidden">Signing in</span>
         } @else {

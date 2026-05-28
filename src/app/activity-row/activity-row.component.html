@@ -8,15 +8,15 @@
   <td class="py-2 px-3 align-top">
     <div class="flex gap-2 items-center">
       <button type="button" class="table-action-button text-green-600 dark:text-green-400" (click)="addRow.emit('activity')"
-        title="Add an activity after this one">＋</button>
+        title="Add an activity after this one"><app-icon name="plus" class="text-sm"></app-icon></button>
       <button type="button" class="table-action-button text-red-600 dark:text-red-400" (click)="removeRow.emit()"
-        title="Delete this activity">✕</button>
+        title="Delete this activity"><app-icon name="close" class="text-sm"></app-icon></button>
       <!-- Comment feature temporarily disabled (incomplete) -->
       <!--
       <!-- Comment toggle temporarily disabled (incomplete feature) -->
       <!--
       <button type="button" (click)="toggleComment()" [class.text-sky-600]="type() === 'text'" class="table-action-button"
-        title="Toggle comment mode">💬</button>
+        title="Toggle comment mode"><app-icon name="comment" class="text-sm"></app-icon></button>
       -->
       -->
     </div>
@@ -47,13 +47,13 @@
   <td class="py-2 px-3 align-top">
     <div class="flex gap-2 items-center">
       <button type="button" class="table-action-button text-green-600 dark:text-green-400" (click)="addRow.emit('activity')"
-        title="Add an activity after this one">＋</button>
+        title="Add an activity after this one"><app-icon name="plus" class="text-sm"></app-icon></button>
       <button type="button" class="table-action-button text-red-600 dark:text-red-400" (click)="removeRow.emit()"
-        title="Delete this activity">✕</button>
+        title="Delete this activity"><app-icon name="close" class="text-sm"></app-icon></button>
       <!-- Comment toggle temporarily disabled (incomplete feature) -->
       <!--
       <button type="button" (click)="toggleComment()" [class.text-sky-600]="type() === 'text'" class="table-action-button"
-        title="Toggle comment mode">💬</button>
+        title="Toggle comment mode"><app-icon name="comment" class="text-sm"></app-icon></button>
       -->
     </div>
   </td>

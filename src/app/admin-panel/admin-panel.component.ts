@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { UserService, UserProfile } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-admin-panel',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, IconComponent],
   templateUrl: './admin-panel.component.html',
   styleUrls: ['./admin-panel.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

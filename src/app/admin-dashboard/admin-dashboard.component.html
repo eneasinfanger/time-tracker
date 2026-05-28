@@ -9,7 +9,7 @@
     <!-- Loading State -->
     @if (loading()) {
       <div class="text-center py-12">
-        <div class="inline-block animate-spin text-4xl mb-4">⏳</div>
+        <app-icon name="spinner" class="inline-block animate-spin text-4xl mb-4"></app-icon>
         <p class="text-gray-600 dark:text-gray-400">Loading statistics...</p>
       </div>
     } @else if (error()) {
@@ -25,7 +25,7 @@
           [class.border-blue-600]="selectedTab() === 'overview'"
           class="px-4 py-2 font-medium transition text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
         >
-          📊 Overview
+          <span class="inline-flex items-center gap-2"><app-icon name="chart" class="text-base"></app-icon><span>Overview</span></span>
         </button>
         <button
           (click)="selectTab('users')"
@@ -33,7 +33,7 @@
           [class.border-blue-600]="selectedTab() === 'users'"
           class="px-4 py-2 font-medium transition text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
         >
-          👥 Users Activity
+          <span class="inline-flex items-center gap-2"><app-icon name="users" class="text-base"></app-icon><span>Users Activity</span></span>
         </button>
         <button
           (click)="selectTab('activities')"
@@ -41,7 +41,7 @@
           [class.border-blue-600]="selectedTab() === 'activities'"
           class="px-4 py-2 font-medium transition text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
         >
-          ⏱️ All Activities
+          <span class="inline-flex items-center gap-2"><app-icon name="clock" class="text-base"></app-icon><span>All Activities</span></span>
         </button>
       </div>
 
@@ -55,7 +55,7 @@
                 <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Activities</p>
                 <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ stats()?.total_activities }}</p>
               </div>
-              <div class="text-4xl">⏱️</div>
+              <app-icon name="clock" class="text-4xl text-blue-600 dark:text-blue-400"></app-icon>
             </div>
           </div>
 
@@ -66,7 +66,7 @@
                 <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Active Users Today</p>
                 <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ stats()?.total_users_active }}</p>
               </div>
-              <div class="text-4xl">👥</div>
+              <app-icon name="users" class="text-4xl text-green-600 dark:text-green-400"></app-icon>
             </div>
           </div>
 
@@ -77,7 +77,7 @@
                 <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Time Tracked</p>
                 <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ totalMinutesFormatted() }}</p>
               </div>
-              <div class="text-4xl">⏲️</div>
+              <app-icon name="timer" class="text-4xl text-purple-600 dark:text-purple-400"></app-icon>
             </div>
           </div>
 
@@ -88,7 +88,7 @@
                 <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Today's Date</p>
                 <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ stats()?.date }}</p>
               </div>
-              <div class="text-4xl">📅</div>
+              <app-icon name="calendar" class="text-4xl text-orange-600 dark:text-orange-400"></app-icon>
             </div>
           </div>
         </div>
@@ -210,7 +210,7 @@
                       <div class="text-xs uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Duration</div>
                       <div class="text-lg font-bold text-gray-900 dark:text-white">{{ formatDuration(activity.duration_minutes) }}</div>
                     </div>
-                    <div class="text-3xl">⏱️</div>
+                    <app-icon name="clock" class="text-3xl text-slate-500 dark:text-slate-300"></app-icon>
                   </div>
                 </div>
               </article>
@@ -230,7 +230,7 @@
           [disabled]="loading()"
           class="px-6 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg font-medium transition disabled:opacity-50"
         >
-          🔄 Refresh
+          <span class="inline-flex items-center gap-2"><app-icon name="refresh" class="text-base"></app-icon><span>Refresh</span></span>
         </button>
       </div>
     }

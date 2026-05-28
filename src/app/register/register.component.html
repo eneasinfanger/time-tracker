@@ -82,9 +82,9 @@
             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400"
           >
             @if (showPassword()) {
-              <span>👁️</span>
+              <app-icon name="eye" class="text-lg"></app-icon>
             } @else {
-              <span>👁️‍🗨️</span>
+              <app-icon name="eye-off" class="text-lg"></app-icon>
             }
           </button>
         </div>
@@ -138,9 +138,9 @@
             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400"
           >
             @if (showConfirmPassword()) {
-              <span>👁️</span>
+              <app-icon name="eye" class="text-lg"></app-icon>
             } @else {
-              <span>👁️‍🗨️</span>
+              <app-icon name="eye-off" class="text-lg"></app-icon>
             }
           </button>
         </div>
@@ -159,7 +159,7 @@
         class="w-full mt-6 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
         @if (isLoading()) {
-          <span class="inline-block animate-spin mr-2">⏳</span>
+          <app-icon name="spinner" class="inline-block animate-spin mr-2 text-lg"></app-icon>
           Creating User...
         } @else {
           Create User
