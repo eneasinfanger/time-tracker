@@ -9,7 +9,7 @@ class TestActivities:
     def test_create_activity(self, client, test_user, auth_token):
         """Test creating new activity"""
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.post('/api/activities', headers=headers, json={
+        response = client.post('/activities', headers=headers, json={
             'task_name': 'Test Task',
             'description': 'Test Description',
             'category': 'Work'
@@ -23,7 +23,7 @@ class TestActivities:
     def test_create_activity_missing_task_name(self, client, auth_token):
         """Test creating activity without task name"""
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.post('/api/activities', headers=headers, json={
+        response = client.post('/activities', headers=headers, json={
             'description': 'Test Description'
         })
         
@@ -41,7 +41,7 @@ class TestActivities:
         db.session.commit()
         
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.get('/api/activities', headers=headers)
+        response = client.get('/activities', headers=headers)
         
         assert response.status_code == 200
         data = response.get_json()
@@ -59,7 +59,7 @@ class TestActivities:
         db.session.commit()
         
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.get(f'/api/activities/{activity.id}', headers=headers)
+        response = client.get(f'/activities/{activity.id}', headers=headers)
         
         assert response.status_code == 200
         data = response.get_json()
@@ -86,7 +86,7 @@ class TestActivities:
         db.session.commit()
         
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.get(f'/api/activities/{activity.id}', headers=headers)
+        response = client.get(f'/activities/{activity.id}', headers=headers)
         
         assert response.status_code == 403
     
@@ -102,7 +102,7 @@ class TestActivities:
         
         headers = {'Authorization': f'Bearer {auth_token}'}
         end_time = datetime.utcnow() + timedelta(hours=1)
-        response = client.put(f'/api/activities/{activity.id}',
+        response = client.put(f'/activities/{activity.id}',
             headers=headers,
             json={
                 'task_name': 'Updated Task',
@@ -127,12 +127,12 @@ class TestActivities:
         db.session.commit()
         
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.delete(f'/api/activities/{activity.id}', headers=headers)
+        response = client.delete(f'/activities/{activity.id}', headers=headers)
         
         assert response.status_code == 200
         
         # Verify it's deleted
-        check_response = client.get(f'/api/activities/{activity.id}', headers=headers)
+        check_response = client.get(f'/activities/{activity.id}', headers=headers)
         assert check_response.status_code == 404
     
     def test_get_today_stats(self, client, test_user, auth_token, app):
@@ -148,7 +148,7 @@ class TestActivities:
         db.session.commit()
         
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.get('/api/activities/stats/today', headers=headers)
+        response = client.get('/activities/stats/today', headers=headers)
         
         assert response.status_code == 200
         data = response.get_json()
@@ -184,7 +184,7 @@ class TestActivities:
         db.session.commit()
 
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.get(f'/api/activities/day/{today.isoformat()}', headers=headers)
+        response = client.get(f'/activities/day/{today.isoformat()}', headers=headers)
 
         assert response.status_code == 200
         data = response.get_json()
@@ -207,7 +207,7 @@ class TestActivities:
         db.session.commit()
 
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.post('/api/activities/suggestions', headers=headers, json={
+        response = client.post('/activities/suggestions', headers=headers, json={
             'date': today.isoformat(),
             'field': 'description',
             'value': 'Build backend',
@@ -250,13 +250,13 @@ class TestActivities:
         ]
         headers = {'Authorization': f'Bearer {auth_token}'}
 
-        start_response = client.post('/api/activities/suggestions', headers=headers, json={
+        start_response = client.post('/activities/suggestions', headers=headers, json={
             'date': today,
             'field': 'start',
             'currentActivityId': '2',
             'currentActivities': current_activities,
         })
-        end_response = client.post('/api/activities/suggestions', headers=headers, json={
+        end_response = client.post('/activities/suggestions', headers=headers, json={
             'date': today,
             'field': 'end',
             'currentActivityId': '2',

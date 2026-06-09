@@ -4,7 +4,7 @@ from app.models.user import User
 from app.utils.auth import generate_jwt_token, verify_jwt_token, get_token_from_request
 from app.utils.rate_limit import remote_address_key
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/register', methods=['POST'])
 @limiter.limit('20 per hour', key_func=remote_address_key)

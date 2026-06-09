@@ -5,7 +5,7 @@ from app.models.activity import Activity
 from app.utils.auth import token_required, admin_required
 from app.utils.rate_limit import authenticated_user_key
 
-activities_bp = Blueprint('activities', __name__, url_prefix='/api/activities')
+activities_bp = Blueprint('activities', __name__, url_prefix='/activities')
 
 
 def _parse_activity_date(activity_date: str) -> date | None:

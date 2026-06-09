@@ -4,7 +4,7 @@ from app.models.user import User
 from app.utils.auth import token_required, admin_required
 from app.utils.rate_limit import authenticated_user_key
 
-users_bp = Blueprint('users', __name__, url_prefix='/api/users')
+users_bp = Blueprint('users', __name__, url_prefix='/users')
 
 @users_bp.route('/<int:user_id>', methods=['GET'])
 @token_required

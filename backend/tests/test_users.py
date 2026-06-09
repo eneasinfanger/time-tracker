@@ -8,7 +8,7 @@ class TestUsers:
     def test_get_user_own_profile(self, client, test_user, auth_token):
         """Test getting own user profile"""
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.get(f'/api/users/{test_user.id}', headers=headers)
+        response = client.get(f'/users/{test_user.id}', headers=headers)
         
         assert response.status_code == 200
         data = response.get_json()
@@ -26,14 +26,14 @@ class TestUsers:
         db.session.commit()
         
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.get(f'/api/users/{other_user.id}', headers=headers)
+        response = client.get(f'/users/{other_user.id}', headers=headers)
         
         assert response.status_code == 403
     
     def test_update_user_profile(self, client, test_user, auth_token):
         """Test updating user profile"""
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.put(f'/api/users/{test_user.id}', 
+        response = client.put(f'/users/{test_user.id}', 
             headers=headers,
             json={
                 'full_name': 'Updated Name',
@@ -49,7 +49,7 @@ class TestUsers:
     def test_change_password(self, client, test_user, auth_token):
         """Test changing password"""
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.post(f'/api/users/{test_user.id}/change-password',
+        response = client.post(f'/users/{test_user.id}/change-password',
             headers=headers,
             json={
                 'old_password': 'password123',
@@ -60,7 +60,7 @@ class TestUsers:
         assert response.status_code == 200
         
         # Try logging in with new password
-        login_response = client.post('/api/auth/login', json={
+        login_response = client.post('/auth/login', json={
             'username': 'testuser',
             'password': 'newpassword123'
         })
@@ -70,7 +70,7 @@ class TestUsers:
     def test_change_password_invalid_old(self, client, test_user, auth_token):
         """Test changing password with invalid old password"""
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.post(f'/api/users/{test_user.id}/change-password',
+        response = client.post(f'/users/{test_user.id}/change-password',
             headers=headers,
             json={
                 'old_password': 'wrongpassword',
@@ -83,7 +83,7 @@ class TestUsers:
     def test_list_users_admin_only(self, client, admin_token):
         """Test listing users (admin only)"""
         headers = {'Authorization': f'Bearer {admin_token}'}
-        response = client.get('/api/users', headers=headers)
+        response = client.get('/users', headers=headers)
         
         assert response.status_code == 200
         data = response.get_json()
@@ -93,19 +93,19 @@ class TestUsers:
     def test_list_users_non_admin(self, client, auth_token):
         """Test listing users without admin access"""
         headers = {'Authorization': f'Bearer {auth_token}'}
-        response = client.get('/api/users', headers=headers)
+        response = client.get('/users', headers=headers)
         
         assert response.status_code == 403
     
     def test_disable_user(self, client, test_user, app, admin_token):
         """Test disabling user (admin)"""
         headers = {'Authorization': f'Bearer {admin_token}'}
-        response = client.post(f'/api/users/{test_user.id}/disable', headers=headers)
+        response = client.post(f'/users/{test_user.id}/disable', headers=headers)
         
         assert response.status_code == 200
         
         # Try logging in with disabled user
-        login_response = client.post('/api/auth/login', json={
+        login_response = client.post('/auth/login', json={
             'username': 'testuser',
             'password': 'password123'
         })
@@ -115,13 +115,13 @@ class TestUsers:
     def test_promote_user(self, client, test_user, admin_token):
         """Test promoting user to admin"""
         headers = {'Authorization': f'Bearer {admin_token}'}
-        response = client.post(f'/api/users/{test_user.id}/promote', headers=headers)
+        response = client.post(f'/users/{test_user.id}/promote', headers=headers)
         
         assert response.status_code == 200
     
     def test_demote_user(self, client, test_user, admin_token):
         """Test demoting user from admin"""
         headers = {'Authorization': f'Bearer {admin_token}'}
-        response = client.post(f'/api/users/{test_user.id}/demote', headers=headers)
+        response = client.post(f'/users/{test_user.id}/demote', headers=headers)
         
         assert response.status_code == 200

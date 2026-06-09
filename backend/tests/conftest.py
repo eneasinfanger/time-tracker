@@ -54,7 +54,7 @@ def test_admin(app):
 @pytest.fixture
 def auth_token(client, test_user):
     """Get auth token for test user"""
-    response = client.post('/api/auth/login', json={
+    response = client.post('/auth/login', json={
         'username': 'testuser',
         'password': 'password123'
     })
@@ -63,7 +63,7 @@ def auth_token(client, test_user):
 @pytest.fixture
 def admin_token(client, test_admin):
     """Get auth token for admin user"""
-    response = client.post('/api/auth/login', json={
+    response = client.post('/auth/login', json={
         'username': 'admin',
         'password': 'admin123'
     })
