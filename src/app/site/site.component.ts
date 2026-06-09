@@ -23,7 +23,11 @@ export class SiteComponent {
   readonly currentDate = signal(new Date());
   readonly currentDateISO = computed(() => formatDateISO(this.currentDate()));
   readonly activities = signal<WritableSignal<Activity>[]>([]);
-  readonly summary = signal<ActivitySummary>({} as ActivitySummary);
+  readonly summary = signal<ActivitySummary>({
+    getTotalByDescription: () => new Map(),
+    getTotalByTask: () => new Map(),
+    hasActivities: () => false,
+  });
   readonly settingsOpen = signal(false);
   readonly activitiesLoading = signal(false);
 
