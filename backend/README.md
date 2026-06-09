@@ -32,7 +32,7 @@ backend/
 │   ├── test_users.py          # User management tests
 │   └── test_activities.py     # Activity tests
 ├── config.py                   # Configuration management
-├── run.py                      # Application entry point
+├── main.py                     # Application entry point
 ├── requirements.txt            # Python dependencies
 ├── .env                        # Environment variables (dev)
 └── .env.example                # Environment template
@@ -83,17 +83,17 @@ backend/
 
 5. **Create Admin User**
    ```bash
-   python run.py create-admin
+   python main.py create-admin
 
    # Alternative Flask CLI invocation (no global `flask` executable required)
-   python -m flask --app run.py create-admin
+   python -m flask --app main.py create-admin
    ```
 
 ## Running the Application
 
 ### Development Mode
 ```bash
-python run.py
+python main.py
 ```
 
 The API will be available at `http://localhost:5000`
@@ -101,7 +101,7 @@ The API will be available at `http://localhost:5000`
 ### Production Mode
 ```bash
 export FLASK_ENV=production
-gunicorn --workers 4 --bind 0.0.0.0:5000 run:app
+gunicorn --workers 4 --bind 0.0.0.0:5000 main:app
 ```
 
 ## API Endpoints

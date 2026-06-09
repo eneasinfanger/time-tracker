@@ -207,7 +207,7 @@ Test the complete flow from frontend to backend:
 ```bash
 # Terminal 1: Start backend
 cd backend
-python run.py
+python main.py
 
 # Terminal 2: Start frontend
 npm start

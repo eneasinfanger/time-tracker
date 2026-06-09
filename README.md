@@ -63,12 +63,12 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Create admin user (works even if `flask` isn't on PATH)
-python run.py create-admin
+python main.py create-admin
 # or
-python -m flask --app run.py create-admin
+python -m flask --app main.py create-admin
 
 # Start backend server
-python run.py
+python main.py
 # Backend runs on: http://localhost:5000
 ```
 
@@ -81,7 +81,7 @@ npm start
 
 ### Default Access
 1. Open http://localhost:4200 in your browser
-2. Log in with credentials created via `python run.py create-admin`
+2. Log in with credentials created via `python main.py create-admin`
 3. Click the 🌙/☀️ button to toggle dark mode
 4. Visit `/admin` for admin panel (if user is admin)
 
@@ -96,7 +96,7 @@ time-tracker/
 │   │   └── utils/               # Authentication utilities
 │   ├── tests/                   # 30+ pytest unit tests
 │   ├── config.py               # Configuration management
-│   ├── run.py                  # Application entry point
+│   ├── main.py                 # Application entry point
 │   └── requirements.txt        # Python dependencies
 │
 ├── src/                         # Angular source
@@ -270,7 +270,7 @@ Solution: Delete backend/time_tracker.db and restart to recreate
 
 ### Port Already in Use
 ```
-Solution: Change port in run.py (backend) or angular.json (frontend)
+Solution: Change port in main.py (backend) or angular.json (frontend)
 ```
 
 For more help, see [QUICK_REF.md](./QUICK_REF.md)

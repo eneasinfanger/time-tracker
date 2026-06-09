@@ -27,7 +27,7 @@
 
 4. **Start the Backend Server**
    ```bash
-   python app.py
+   python main.py
    ```
    
    The API will run on `http://localhost:5000`
@@ -53,9 +53,9 @@ The application requires authentication to access most features:
 1. **Create Admin User** (Run once):
    ```bash
    cd backend
-   python run.py create-admin
+   python main.py create-admin
    # or
-   python -m flask --app run.py create-admin
+   python -m flask --app main.py create-admin
    ```
    Follow the prompts to set username, email, and password.
 
@@ -95,7 +95,7 @@ After setting up the backend, create an admin user:
 
 ```bash
 cd backend
-python run.py create-admin
+python main.py create-admin
 ```
 
 Then log in with those credentials in the frontend.
@@ -124,9 +124,9 @@ If you see database errors:
 ```bash
 cd backend
 rm time_tracker.db  # Delete old database
-python app.py      # Recreate it
+python main.py      # Recreate it
 ```
 
 ### Port Already in Use
-Change the port in app.py (default 5000) or frontend (default 4200)
+Change the port in main.py (default 5000) or frontend (default 4200)
 

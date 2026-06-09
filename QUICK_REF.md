@@ -18,7 +18,7 @@ pip install -r requirements.txt
 flask create-admin
 
 # Start backend (localhost:5000)
-python app.py
+python main.py
 
 # In another terminal - Setup frontend
 npm install
@@ -43,7 +43,7 @@ flask create-admin
 flask shell
 
 # Run specific config
-export FLASK_ENV=development && python app.py
+export FLASK_ENV=development && python main.py
 ```
 
 ### Frontend Development
@@ -102,7 +102,7 @@ When running `flask create-admin`:
 ## 📁 Key Files
 
 ### Backend
-- `backend/app.py` - Entry point (formerly run.py)
+- `backend/main.py` - Entry point
 - `backend/config.py` - Configuration
 - `backend/app/models/` - Database models
 - `backend/app/routes/` - API endpoints
@@ -164,7 +164,7 @@ Edit services to change backend URL from `http://localhost:5000`
 import pdb; pdb.set_trace()
 
 # Run with debugging
-python -m pdb app.py
+python -m pdb main.py
 ```
 
 ### Frontend
