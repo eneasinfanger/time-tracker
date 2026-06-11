@@ -9,7 +9,8 @@
       <div class="flex flex-wrap items-center gap-2">
         @for (mode of getSortModes(); track mode.label) {
           <button type="button" (click)="setSortMode(mode)"
-            class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
+            class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
+            [class.text-clay-secondary]="sortMode() !== mode"
             [class.bg-clay-accent]="sortMode() === mode" [class.text-clay-on-accent]="sortMode() === mode" [class.hover:bg-clay-accent]="sortMode() === mode" [class.hover:text-clay-on-accent]="sortMode() === mode" [title]="mode.meta">{{ mode.label }}
           </button>
         }
@@ -21,12 +22,14 @@
         <div class="mx-1 hidden h-6 w-0.5 bg-clay-border sm:block"></div>
 
         <button type="button" (click)="setViewMode('description')"
-          class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
+          class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
+          [class.text-clay-secondary]="viewMode() !== 'description'"
           [class.bg-clay-accent]="viewMode() === 'description'" [class.text-clay-on-accent]="viewMode() === 'description'" [class.hover:bg-clay-accent]="viewMode() === 'description'" [class.hover:text-clay-on-accent]="viewMode() === 'description'" title="Group items by description">By description
         </button>
         @if (enableTasks()) {
           <button type="button" (click)="setViewMode('task')"
-            class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
+            class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
+            [class.text-clay-secondary]="viewMode() !== 'task'"
             [class.bg-clay-accent]="viewMode() === 'task'" [class.text-clay-on-accent]="viewMode() === 'task'" [class.hover:bg-clay-accent]="viewMode() === 'task'" [class.hover:text-clay-on-accent]="viewMode() === 'task'" title="Group items by task">By task
           </button>
         }

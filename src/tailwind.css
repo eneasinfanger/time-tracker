@@ -24,7 +24,7 @@
   --color-clay-border: #e5e7eb;          /* Gray 200 — sparse borders */
 
   /* Accents */
-  --color-clay-accent: #2e5ccb;          /* Less annoying cobalt blue */
+  --color-clay-accent: #4f73d6;          /* Softer, lower-contrast cobalt blue */
   --color-clay-on-accent: #ffffff;
   --color-clay-accent-soft: #eef2ff;     /* Soft indigo/blue tint */
   --color-clay-on-accent-soft: #1e293b;  /* Slate 800 */
@@ -35,8 +35,8 @@
 
   /* Semantic mappings (kept for templates) */
   --color-clay-pink: #f59e0b;            /* amber accent */
-  --color-clay-blue: #2e5ccb;            /* primary blue */
-  --color-clay-indigo: #2e5ccb;          /* primary blue */
+  --color-clay-blue: #4f73d6;            /* primary blue */
+  --color-clay-indigo: #4f73d6;          /* primary blue */
   --color-clay-green: #10b981;           /* emerald 500 */
   --color-clay-amber: #f59e0b;           /* amber 500 */
   --color-clay-red: #ef4444;             /* red 500 */
@@ -68,7 +68,7 @@
   --color-clay-muted: #9ca3af;           /* Gray 400 */
   --color-clay-border: #374151;          /* Gray 700 */
 
-  --color-clay-accent: #5c8cf3;          /* Modern softer blue for dark mode */
+  --color-clay-accent: #3d5e9d;          /* Softer lower-contrast blue for dark mode */
   --color-clay-on-accent: #ffffff;
   --color-clay-accent-soft: #1e2a44;     /* Darker soft blue tint */
   --color-clay-on-accent-soft: #cbd5e1;  /* Slate 300 */
@@ -78,8 +78,8 @@
   --color-clay-on-tertiary-soft: #fef3c7;
 
   --color-clay-pink: #f59e0b;
-  --color-clay-blue: #5c8cf3;
-  --color-clay-indigo: #5c8cf3;
+  --color-clay-blue: #3d5e9d;
+  --color-clay-indigo: #3d5e9d;
   --color-clay-green: #10b981;
   --color-clay-amber: #f59e0b;
   --color-clay-red: #f87171;
