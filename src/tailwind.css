@@ -24,10 +24,10 @@
   --color-clay-border: #e5e7eb;          /* Gray 200 — sparse borders */
 
   /* Accents */
-  --color-clay-accent: #3b82f6;          /* Blue 500 — action */
+  --color-clay-accent: #2e5ccb;          /* Less annoying cobalt blue */
   --color-clay-on-accent: #ffffff;
-  --color-clay-accent-soft: #dbeafe;     /* Blue 100 — soft tint */
-  --color-clay-on-accent-soft: #1e3a8a;  /* Blue 900 */
+  --color-clay-accent-soft: #eef2ff;     /* Soft indigo/blue tint */
+  --color-clay-on-accent-soft: #1e293b;  /* Slate 800 */
   --color-clay-tertiary: #f59e0b;        /* Amber 500 — accent */
   --color-clay-on-tertiary: #111827;
   --color-clay-tertiary-soft: #fef3c7;   /* Amber 100 */
@@ -35,8 +35,8 @@
 
   /* Semantic mappings (kept for templates) */
   --color-clay-pink: #f59e0b;            /* amber accent */
-  --color-clay-blue: #3b82f6;            /* primary blue */
-  --color-clay-indigo: #3b82f6;          /* primary blue */
+  --color-clay-blue: #2e5ccb;            /* primary blue */
+  --color-clay-indigo: #2e5ccb;          /* primary blue */
   --color-clay-green: #10b981;           /* emerald 500 */
   --color-clay-amber: #f59e0b;           /* amber 500 */
   --color-clay-red: #ef4444;             /* red 500 */
@@ -62,24 +62,24 @@
   --color-clay-canvas: #111827;          /* Gray 900 canvas */
   --color-clay-surface: #1f2937;         /* Gray 800 blocks */
   --color-clay-card: #1f2937;
-  --color-clay-muted-surface: #1f2937;   /* Gray 800 inputs */
+  --color-clay-muted-surface: #111827;   /* Recessed Gray 900 inputs to differ from Gray 800 card */
   --color-clay-foreground: #f9fafb;      /* Gray 50 text */
   --color-clay-secondary: #d1d5db;       /* Gray 300 */
   --color-clay-muted: #9ca3af;           /* Gray 400 */
   --color-clay-border: #374151;          /* Gray 700 */
 
-  --color-clay-accent: #3b82f6;          /* keep vibrant blue */
+  --color-clay-accent: #5c8cf3;          /* Modern softer blue for dark mode */
   --color-clay-on-accent: #ffffff;
-  --color-clay-accent-soft: #1e3a8a;     /* Blue 900 */
-  --color-clay-on-accent-soft: #dbeafe;
+  --color-clay-accent-soft: #1e2a44;     /* Darker soft blue tint */
+  --color-clay-on-accent-soft: #cbd5e1;  /* Slate 300 */
   --color-clay-tertiary: #f59e0b;
   --color-clay-on-tertiary: #111827;
   --color-clay-tertiary-soft: #78350f;
   --color-clay-on-tertiary-soft: #fef3c7;
 
   --color-clay-pink: #f59e0b;
-  --color-clay-blue: #3b82f6;
-  --color-clay-indigo: #3b82f6;
+  --color-clay-blue: #5c8cf3;
+  --color-clay-indigo: #5c8cf3;
   --color-clay-green: #10b981;
   --color-clay-amber: #f59e0b;
   --color-clay-red: #f87171;

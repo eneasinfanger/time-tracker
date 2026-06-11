@@ -29,16 +29,18 @@
             <span class="h-8 w-0.5 bg-clay-border"></span>
 
             <!-- User Info -->
-            <div class="flex flex-col items-end leading-tight">
+            <div class="flex items-center gap-2">
               <p class="text-sm font-semibold text-clay-foreground">
                 {{ currentUser()?.full_name || currentUser()?.username }}
               </p>
               @if (isAdmin()) {
-                <span class="mt-1 rounded-full bg-clay-accent-soft px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wider text-clay-on-accent-soft">
+                <span class="rounded-full bg-clay-accent-soft px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wider text-clay-on-accent-soft">
                   Admin
                 </span>
               } @else {
-                <span class="text-xs font-medium text-clay-muted">User</span>
+                <span class="rounded-full bg-clay-surface px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wider text-clay-muted">
+                  User
+                </span>
               }
             </div>
 
