@@ -139,17 +139,6 @@ def _build_summary(activities: list[dict]) -> dict:
     }
 
 
-def _sort_client_activities(activities: list[dict]) -> list[dict]:
-    return sorted(
-        activities,
-        key=lambda activity: (
-            activity.get('startTime') or activity.get('endTime') or '',
-            activity.get('endTime') or activity.get('startTime') or '',
-            str(activity.get('id', '')),
-        ),
-    )
-
-
 def _contains_other(source: str, target: str) -> bool:
     return source.lower() in target.lower()
 
@@ -197,6 +186,29 @@ def _find_current_activity_index(activities: list[dict], current_activity_id: st
     return -1
 
 
+def _find_adjacent_activity(activities: list[dict], current_index: int, *, before: bool) -> dict | None:
+    neighbors = reversed(activities[:current_index]) if before else activities[current_index + 1:]
+    for activity in neighbors:
+        if activity.get('type') == 'activity':
+            return activity
+    return None
+
+
+def _get_time_field_suggestions(activities: list[dict], current_activity_id: str, field: str) -> list[str]:
+    current_index = _find_current_activity_index(activities, current_activity_id)
+    if current_index < 0:
+        return []
+
+    if field == 'start':
+        previous = _find_adjacent_activity(activities, current_index, before=True)
+        end_time = previous.get('endTime') if previous else None
+        return [end_time] if end_time else []
+
+    next_activity = _find_adjacent_activity(activities, current_index, before=False)
+    start_time = next_activity.get('startTime') if next_activity else None
+    return [start_time] if start_time else []
+
+
 def _build_suggestion_source(data: dict, current_date: date, duration_threshold: timedelta) -> list[dict]:
     current_activities = _parse_client_activities(data.get('currentActivities', []))
     include_current_date = not current_activities
@@ -224,25 +236,8 @@ def get_activity_suggestions():
     input_value = str(data.get('value', '')).strip()
 
     if field in ('start', 'end'):
-        activities = _sort_client_activities(current_activities)
-        current_index = _find_current_activity_index(activities, current_activity_id)
-        if current_index < 0:
-            return jsonify({'suggestions': []}), 200
-
-        if field == 'start':
-            before = next(
-                (activity for activity in reversed(activities[:current_index])
-                 if activity.get('type') == 'activity' and activity.get('endTime')),
-                None,
-            )
-            return jsonify({'suggestions': [before['endTime']] if before else []}), 200
-
-        after = next(
-            (activity for activity in activities[current_index + 1:]
-             if activity.get('type') == 'activity' and activity.get('startTime')),
-            None,
-        )
-        return jsonify({'suggestions': [after['startTime']] if after else []}), 200
+        suggestions = _get_time_field_suggestions(current_activities, current_activity_id, field)
+        return jsonify({'suggestions': suggestions}), 200
 
     history = _build_suggestion_source(data, current_date, duration_threshold)
     activity_type = str(data.get('activityType', 'activity')).strip() or 'activity'

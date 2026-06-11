@@ -267,3 +267,103 @@ class TestActivities:
         assert end_response.status_code == 200
         assert start_response.get_json()['suggestions'] == ['09:00']
         assert end_response.get_json()['suggestions'] == ['10:30']
+
+    def test_get_start_and_end_suggestions_use_row_order(self, client, auth_token):
+        today = datetime.utcnow().date().isoformat()
+        # UI order differs from chronological order.
+        current_activities = [
+            {
+                'id': '3',
+                'startTime': '10:30',
+                'endTime': '11:00',
+                'description': 'Last chronologically',
+                'task': 'TASK-3',
+                'type': 'activity',
+            },
+            {
+                'id': '2',
+                'startTime': '09:30',
+                'endTime': '10:15',
+                'description': 'Current',
+                'task': 'TASK-2',
+                'type': 'activity',
+            },
+            {
+                'id': '1',
+                'startTime': '08:00',
+                'endTime': '09:00',
+                'description': 'First chronologically',
+                'task': 'TASK-1',
+                'type': 'activity',
+            },
+        ]
+        headers = {'Authorization': f'Bearer {auth_token}'}
+
+        start_response = client.post('/activities/suggestions', headers=headers, json={
+            'date': today,
+            'field': 'start',
+            'currentActivityId': '2',
+            'currentActivities': current_activities,
+        })
+        end_response = client.post('/activities/suggestions', headers=headers, json={
+            'date': today,
+            'field': 'end',
+            'currentActivityId': '2',
+            'currentActivities': current_activities,
+        })
+
+        assert start_response.status_code == 200
+        assert end_response.status_code == 200
+        assert start_response.get_json()['suggestions'] == ['11:00']
+        assert end_response.get_json()['suggestions'] == ['08:00']
+
+    def test_get_start_and_end_suggestions_skip_text_rows(self, client, auth_token):
+        today = datetime.utcnow().date().isoformat()
+        current_activities = [
+            {
+                'id': '1',
+                'startTime': '08:00',
+                'endTime': '09:00',
+                'description': 'First',
+                'task': 'TASK-1',
+                'type': 'activity',
+            },
+            {
+                'id': 'comment',
+                'description': 'Break note',
+                'type': 'text',
+            },
+            {
+                'id': '2',
+                'startTime': '09:30',
+                'endTime': '10:15',
+                'description': 'Current',
+                'task': 'TASK-2',
+                'type': 'activity',
+            },
+            {
+                'id': '3',
+                'startTime': '10:30',
+                'endTime': '11:00',
+                'description': 'Last',
+                'task': 'TASK-3',
+                'type': 'activity',
+            },
+        ]
+        headers = {'Authorization': f'Bearer {auth_token}'}
+
+        start_response = client.post('/activities/suggestions', headers=headers, json={
+            'date': today,
+            'field': 'start',
+            'currentActivityId': '2',
+            'currentActivities': current_activities,
+        })
+        end_response = client.post('/activities/suggestions', headers=headers, json={
+            'date': today,
+            'field': 'end',
+            'currentActivityId': '2',
+            'currentActivities': current_activities,
+        })
+
+        assert start_response.get_json()['suggestions'] == ['09:00']
+        assert end_response.get_json()['suggestions'] == ['10:30']
