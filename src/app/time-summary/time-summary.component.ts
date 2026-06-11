@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, signal, Signal } from '@angular/core';
 import { Activity, ActivitySummary, ActivitySummaryEntry, ActivityTotal } from '../utils/models';
 import { TaskLinkComponent } from '../task-link/task-link.component';
 import { TASK_REGEX } from "../utils/task-parser";
 import { IconComponent } from '../icon/icon.component';
+import { SettingsHolder } from '../utils/settings';
 
 @Component({
   selector: 'time-summary',
@@ -21,9 +22,22 @@ export class TimeSummaryComponent {
   readonly sortMode = signal<SortMode>(SortMode.START_TIME);
   readonly sortReverse = signal(false);
   readonly viewMode = signal<'description' | 'task'>('description');
+  readonly enableTasks = signal(true);
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    this.enableTasks.set(SettingsHolder.getSettings().enableTasks);
+    const sub = SettingsHolder.onSettingsChange(s => {
+      this.enableTasks.set(s.enableTasks);
+      if (!s.enableTasks && this.viewMode() === 'task') {
+        this.viewMode.set('description');
+      }
+    });
+    this.destroyRef.onDestroy(() => sub.unsubscribe());
+  }
 
   readonly totalByViewMode: Signal<ActivityTotal> = computed(() => {
-    return this.viewMode() == 'description'
+    return (this.viewMode() == 'description' || !this.enableTasks())
       ? this.summary().getTotalByDescription()
       : this.summary().getTotalByTask();
   });

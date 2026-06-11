@@ -42,8 +42,8 @@
           <div class="max-h-40 space-y-2 overflow-auto">
             @for (activity of alwaysShownActivities(); track activity.id) {
               <div class="clay-soft flex items-center justify-between rounded-clay-sm bg-clay-surface px-3 py-2">
-                <div class="truncate text-sm text-clay-foreground">{{ activity.description }}
-                  / {{ activity.task }}
+                <div class="truncate text-sm text-clay-foreground">
+                  {{ activity.description }}@if (enableTasks()) { / {{ activity.task }} }
                 </div>
                 <button type="button" class="px-2 text-clay-red" (click)="removeActivity(activity.id)">
                   <app-icon name="minus" class="text-sm"></app-icon>
@@ -52,13 +52,15 @@
             }
           </div>
 
-          <div class="mt-2 grid grid-cols-2 gap-2">
+          <div class="mt-2 grid gap-2" [class.grid-cols-2]="enableTasks()">
             <input type="text"
                    class="clay-pressed w-full rounded-clay-sm border-0 bg-clay-surface px-3 py-2 text-sm text-clay-foreground outline-none transition placeholder:text-clay-muted focus:ring-2 focus:ring-clay-accent/30"
                    placeholder="Add description" [(ngModel)]="descriptionInput"/>
-            <input type="text"
-                   class="clay-pressed w-full rounded-clay-sm border-0 bg-clay-surface px-3 py-2 text-sm text-clay-foreground outline-none transition placeholder:text-clay-muted focus:ring-2 focus:ring-clay-accent/30"
-                   placeholder="Add task" [(ngModel)]="taskInput"/>
+            @if (enableTasks()) {
+              <input type="text"
+                     class="clay-pressed w-full rounded-clay-sm border-0 bg-clay-surface px-3 py-2 text-sm text-clay-foreground outline-none transition placeholder:text-clay-muted focus:ring-2 focus:ring-clay-accent/30"
+                     placeholder="Add task" [(ngModel)]="taskInput"/>
+            }
           </div>
 
           <div class="mt-3 flex justify-center">

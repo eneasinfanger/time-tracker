@@ -1,5 +1,5 @@
 @if (isText()) {
-  <td class="px-4 py-3 relative align-top" colspan="4">
+  <td class="px-4 py-3 relative align-top" [attr.colspan]="enableTasks() ? 4 : 3">
     <input suggestable type="text" class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
       [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
       (itemSelected)="setTaskFromDescription($event)" placeholder="Comment"
@@ -30,12 +30,14 @@
       (itemSelected)="setTaskFromDescription($event)" placeholder="Activity or description"
       title="Enter an activity or a description" (blur)="emitChanged()">
   </td>
-  <td class="px-4 py-3 relative align-top">
-    <input suggestable type="text" [(ngModel)]="task"
-      [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
-      class="w-full min-w-0 rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-sm text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card disabled:opacity-60"
-      placeholder="ID" title="Enter the task identifier" (blur)="emitChanged()">
-  </td>
+  @if (enableTasks()) {
+    <td class="px-4 py-3 relative align-top">
+      <input suggestable type="text" [(ngModel)]="task"
+        [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
+        class="w-full min-w-0 rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-sm text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card disabled:opacity-60"
+        placeholder="ID" title="Enter the task identifier" (blur)="emitChanged()">
+    </td>
+  }
   <td class="px-4 py-3 align-top">
     <div class="flex items-center gap-2">
       <button type="button" class="clay-soft flex h-9 w-9 items-center justify-center text-clay-green hover:bg-clay-green/10 active:scale-95" (click)="addRow.emit('activity')"

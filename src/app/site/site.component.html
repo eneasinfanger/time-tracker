@@ -123,17 +123,21 @@
             <colgroup>
               <col class="w-[10%]" />
               <col class="w-[10%]" />
-              <col class="w-[50%]" />
-              <col class="w-[20%]" />
+              <col [class]="enableTasks() ? 'w-[50%]' : 'w-[70%]'" />
+              @if (enableTasks()) {
+                <col class="w-[20%]" />
+              }
               <col class="w-[10%]" />
             </colgroup>
             <thead>
-            <tr class="border-b-2 border-clay-border">
-              <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-clay-muted">Start</th>
-              <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-clay-muted">End</th>
-              <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-clay-muted">Activity / Description</th>
-              <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-clay-muted">Task</th>
-              <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-clay-muted">Actions</th>
+            <tr class="border-b border-clay-border">
+              <th class="px-4 py-4 text-left text-[0.7rem] font-bold uppercase tracking-[0.16em] text-clay-muted">Start</th>
+              <th class="px-4 py-4 text-left text-[0.7rem] font-bold uppercase tracking-[0.16em] text-clay-muted">End</th>
+              <th class="px-4 py-4 text-left text-[0.7rem] font-bold uppercase tracking-[0.16em] text-clay-muted">Activity / Description</th>
+              @if (enableTasks()) {
+                <th class="px-4 py-4 text-left text-[0.7rem] font-bold uppercase tracking-[0.16em] text-clay-muted">Task</th>
+              }
+              <th class="px-4 py-4 text-left text-[0.7rem] font-bold uppercase tracking-[0.16em] text-clay-muted">Actions</th>
             </tr>
             </thead>
             <tbody id="activitiesTable" class="divide-y divide-clay-border">

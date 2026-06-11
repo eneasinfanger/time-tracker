@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, model, OnInit, output, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, model, OnInit, output, signal, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Activity, ActivityDetails, ActivityType, ISODate, Time } from '../utils/models';
@@ -17,6 +17,7 @@ import { IconComponent } from '../icon/icon.component';
 })
 export class ActivityRowComponent implements OnInit {
   readonly storage = inject(StorageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly activity = input.required<WritableSignal<Activity>>();
   readonly activities = input.required<WritableSignal<Activity>[]>();
@@ -31,6 +32,8 @@ export class ActivityRowComponent implements OnInit {
   readonly task = model('');
   readonly type = model<ActivityType>('activity');
 
+  readonly enableTasks = signal(true);
+
   ngOnInit() {
     initUsing(this.activity())
       .set(this.startTime, 'startTime')
@@ -38,6 +41,10 @@ export class ActivityRowComponent implements OnInit {
       .set(this.description, 'description')
       .set(this.task, 'task')
       .set(this.type, 'type');
+
+    this.enableTasks.set(SettingsHolder.getSettings().enableTasks);
+    const sub = SettingsHolder.onSettingsChange(s => this.enableTasks.set(s.enableTasks));
+    this.destroyRef.onDestroy(() => sub.unsubscribe());
   }
 
   isText() {
@@ -87,7 +94,7 @@ export class ActivityRowComponent implements OnInit {
   };
 
   setTaskFromDescription(description: string) {
-    if (!this.task()) {
+    if (this.enableTasks() && !this.task()) {
       this.task.set(this.findMatchingActivity(a => a.description == description)?.task ?? '');
     }
   }

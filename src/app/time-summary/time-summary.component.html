@@ -24,10 +24,12 @@
           class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
           [class.bg-clay-accent]="viewMode() === 'description'" [class.text-clay-on-accent]="viewMode() === 'description'" [class.hover:bg-clay-accent]="viewMode() === 'description'" [class.hover:text-clay-on-accent]="viewMode() === 'description'" title="Group items by description">By description
         </button>
-        <button type="button" (click)="setViewMode('task')"
-          class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
-          [class.bg-clay-accent]="viewMode() === 'task'" [class.text-clay-on-accent]="viewMode() === 'task'" [class.hover:bg-clay-accent]="viewMode() === 'task'" [class.hover:text-clay-on-accent]="viewMode() === 'task'" title="Group items by task">By task
-        </button>
+        @if (enableTasks()) {
+          <button type="button" (click)="setViewMode('task')"
+            class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
+            [class.bg-clay-accent]="viewMode() === 'task'" [class.text-clay-on-accent]="viewMode() === 'task'" [class.hover:bg-clay-accent]="viewMode() === 'task'" [class.hover:text-clay-on-accent]="viewMode() === 'task'" title="Group items by task">By task
+          </button>
+        }
       </div>
     </div>
   </div>
@@ -52,9 +54,11 @@
               @if (viewMode() === 'task') {
                 {{ joinUnique(entry[1].activities, 'description') }}
               } @else {
-                @for (task of listUnique(entry[1].activities, 'task'); track task; let last = $last) {
-                  <task-link [taskText]="task"/>
-                  @if (!last) {; }
+                @if (enableTasks()) {
+                  @for (task of listUnique(entry[1].activities, 'task'); track task; let last = $last) {
+                    <task-link [taskText]="task"/>
+                    @if (!last) {; }
+                  }
                 }
               }
             </div>

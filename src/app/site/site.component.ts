@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal, WritableSignal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StorageService, BackendSummaryResponse } from '../services/storage.service';
 import { TimeCalculatorService } from '../services/time-calculator.service';
@@ -40,6 +40,9 @@ export class SiteComponent {
 
   private storage = inject(StorageService);
   private calculator = inject(TimeCalculatorService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly enableTasks = signal(true);
 
   constructor() {
     this.initialize();
@@ -48,7 +51,12 @@ export class SiteComponent {
   private initialize() {
     this.storage.initSettings();
     this.applyTheme(SettingsHolder.getSettings().theme);
-    SettingsHolder.onSettingsChange(s => this.applyTheme(s.theme));
+    this.enableTasks.set(SettingsHolder.getSettings().enableTasks);
+    const sub = SettingsHolder.onSettingsChange(s => {
+      this.applyTheme(s.theme);
+      this.enableTasks.set(s.enableTasks);
+    });
+    this.destroyRef.onDestroy(() => sub.unsubscribe());
 
     this.loadActivitiesForCurrentDay();
 
