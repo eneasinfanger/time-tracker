@@ -1,80 +1,80 @@
-<nav class="sticky top-0 z-40 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 shadow-sm">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
+<nav class="sticky top-0 z-40 border-b-2 border-clay-border bg-clay-canvas">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+    <div class="flex h-16 items-center justify-between sm:h-20">
       <!-- Logo/Branding -->
-      <div class="flex items-center">
-        <a routerLink="/" class="flex items-center gap-2 text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
-          <app-icon name="clock" class="text-2xl -translate-y-px"></app-icon>
-          <span>Time Tracker</span>
-        </a>
-      </div>
+      <a routerLink="/" class="group flex items-center gap-2.5">
+        <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-clay-accent text-clay-on-accent transition-transform duration-200 group-hover:scale-105 sm:h-11 sm:w-11">
+          <app-icon name="clock" class="text-xl"></app-icon>
+        </span>
+        <span class="text-lg font-extrabold tracking-tight text-clay-foreground sm:text-xl">Time Tracker</span>
+      </a>
 
       <!-- Desktop Menu -->
-      <div class="hidden md:flex items-center gap-6">
+      <div class="hidden items-center md:flex">
         @if (isAuthenticated()) {
-          <div class="flex items-center gap-4">
-            <!-- User Info -->
-            <div class="text-right">
-              <p class="text-sm font-medium text-gray-900 dark:text-white">
-                {{ currentUser()?.full_name || currentUser()?.username }}
-              </p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">
-                @if (isAdmin()) {
-                  <span class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-0.5 rounded text-xs font-semibold">
-                    Admin
-                  </span>
-                } @else {
-                  <span>User</span>
-                }
-              </p>
-            </div>
-
+          <div class="flex items-center gap-4 lg:gap-5">
             <!-- Admin Links -->
             @if (isAdmin()) {
-              <div class="flex items-center gap-2">
-                <a routerLink="/admin" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium text-sm">
+              <div class="flex items-center gap-1">
+                <a routerLink="/admin" class="rounded-md px-4 py-2 text-sm font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent">
                   Users
                 </a>
-                <span class="text-gray-300 dark:text-gray-600">|</span>
-                <a routerLink="/dashboard" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium text-sm">
+                <a routerLink="/dashboard" class="rounded-md px-4 py-2 text-sm font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent">
                   Dashboard
                 </a>
               </div>
             }
 
+            <!-- Divider -->
+            <span class="h-8 w-0.5 bg-clay-border"></span>
+
+            <!-- User Info -->
+            <div class="flex flex-col items-end leading-tight">
+              <p class="text-sm font-semibold text-clay-foreground">
+                {{ currentUser()?.full_name || currentUser()?.username }}
+              </p>
+              @if (isAdmin()) {
+                <span class="mt-1 rounded-full bg-clay-accent-soft px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wider text-clay-on-accent-soft">
+                  Admin
+                </span>
+              } @else {
+                <span class="text-xs font-medium text-clay-muted">User</span>
+              }
+            </div>
+
             <!-- Theme Toggle -->
             <button
               (click)="toggleTheme()"
-              class="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-800 dark:text-gray-200 transition"
+              class="clay-soft flex h-11 w-11 items-center justify-center text-clay-secondary hover:bg-clay-accent hover:text-clay-on-accent hover:scale-105"
               [title]="isDarkMode() ? 'Zu Licht-Modus wechseln' : 'Zu Dunkel-Modus wechseln'"
             >
               @if (isDarkMode()) {
-                <app-icon name="sun" class="text-lg -translate-y-px"></app-icon>
+                <app-icon name="sun" class="text-lg"></app-icon>
               } @else {
-                <app-icon name="moon" class="text-lg -translate-y-px"></app-icon>
+                <app-icon name="moon" class="text-lg"></app-icon>
               }
             </button>
 
             <!-- Logout Button -->
             <button
               (click)="logout()"
-              class="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white rounded-lg transition font-medium text-sm"
+              class="clay-button bg-clay-accent px-6 py-2.5 text-sm font-semibold text-clay-on-accent"
             >
               Abmelden
             </button>
           </div>
         } @else {
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
             <!-- Theme Toggle -->
             <button
               (click)="toggleTheme()"
-              class="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-800 dark:text-gray-200 transition"
+              class="clay-soft flex h-11 w-11 items-center justify-center text-clay-secondary hover:bg-clay-accent hover:text-clay-on-accent hover:scale-105"
               [title]="isDarkMode() ? 'Zu Licht-Modus wechseln' : 'Zu Dunkel-Modus wechseln'"
             >
               @if (isDarkMode()) {
-                <app-icon name="sun" class="text-lg -translate-y-px"></app-icon>
+                <app-icon name="sun" class="text-lg"></app-icon>
               } @else {
-                <app-icon name="moon" class="text-lg -translate-y-px"></app-icon>
+                <app-icon name="moon" class="text-lg"></app-icon>
               }
             </button>
           </div>
@@ -82,30 +82,30 @@
       </div>
 
       <!-- Mobile Menu Button -->
-      <div class="md:hidden flex items-center gap-2">
+      <div class="flex items-center gap-2 md:hidden">
         <!-- Theme Toggle Mobile -->
         <button
           (click)="toggleTheme()"
-          class="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-800 dark:text-gray-200 transition"
+          class="clay-soft flex h-11 w-11 items-center justify-center text-clay-secondary active:scale-95"
           [title]="isDarkMode() ? 'Zu Licht-Modus wechseln' : 'Zu Dunkel-Modus wechseln'"
         >
           @if (isDarkMode()) {
-            <app-icon name="sun" class="text-lg -translate-y-px"></app-icon>
+            <app-icon name="sun" class="text-lg"></app-icon>
           } @else {
-            <app-icon name="moon" class="text-lg -translate-y-px"></app-icon>
+            <app-icon name="moon" class="text-lg"></app-icon>
           }
         </button>
 
         <!-- Hamburger Menu -->
         <button
           (click)="toggleMobileMenu()"
-          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition"
+          class="clay-soft flex h-11 w-11 items-center justify-center text-clay-secondary active:scale-95"
           [attr.aria-label]="mobileMenuOpen() ? 'Menü schließen' : 'Menü öffnen'"
         >
           @if (mobileMenuOpen()) {
-            <app-icon name="close" class="text-2xl"></app-icon>
+            <app-icon name="close" class="text-xl"></app-icon>
           } @else {
-            <app-icon name="menu" class="text-2xl"></app-icon>
+            <app-icon name="menu" class="text-xl"></app-icon>
           }
         </button>
       </div>
@@ -113,18 +113,18 @@
 
     <!-- Mobile Menu -->
     @if (mobileMenuOpen()) {
-      <div class="md:hidden bg-gray-50 dark:bg-slate-700 border-t border-gray-200 dark:border-slate-600 py-4 px-4 space-y-3">
+      <div class="animate-fadeIn mb-4 rounded-lg bg-clay-surface p-4 md:hidden">
         @if (isAuthenticated()) {
           <!-- Mobile User Info -->
-          <div class="pb-3 border-b border-gray-200 dark:border-slate-600">
-            <p class="font-medium text-gray-900 dark:text-white">
+          <div class="border-b-2 border-clay-border pb-3">
+            <p class="font-semibold text-clay-foreground">
               {{ currentUser()?.full_name || currentUser()?.username }}
             </p>
-            <p class="text-sm text-gray-600 dark:text-gray-300">
+            <p class="text-sm text-clay-muted">
               {{ currentUser()?.email }}
             </p>
             @if (isAdmin()) {
-              <span class="inline-block mt-2 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded text-xs font-semibold">
+              <span class="mt-2 inline-block rounded-full bg-clay-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-wider text-clay-on-accent-soft">
                 Admin
               </span>
             }
@@ -132,11 +132,11 @@
 
           <!-- Admin Links Mobile -->
           @if (isAdmin()) {
-            <div class="border-b border-gray-200 dark:border-slate-600 pb-3 mb-3">
+            <div class="space-y-1 border-b-2 border-clay-border py-3">
               <a
                 routerLink="/admin"
                 (click)="closeMobileMenu()"
-                class="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium mb-2"
+                class="flex items-center gap-3 rounded-md px-4 py-3 font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent"
               >
                 <app-icon name="users" class="text-lg"></app-icon>
                 <span>Manage Users</span>
@@ -144,7 +144,7 @@
               <a
                 routerLink="/dashboard"
                 (click)="closeMobileMenu()"
-                class="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium"
+                class="flex items-center gap-3 rounded-md px-4 py-3 font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent"
               >
                 <app-icon name="chart" class="text-lg"></app-icon>
                 <span>Activity Dashboard</span>
@@ -155,7 +155,7 @@
           <!-- Logout Mobile -->
           <button
             (click)="logout()"
-            class="w-full text-left px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white rounded-lg transition font-medium"
+            class="clay-button mt-3 w-full bg-clay-accent px-4 py-3 font-semibold text-clay-on-accent"
           >
             Abmelden
           </button>

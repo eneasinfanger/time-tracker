@@ -1,40 +1,43 @@
-<div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-5 sm:p-6 dark:bg-slate-900 dark:border-gray-800 outline-none focus:outline-none">
-  <div class="flex flex-col gap-4 mb-4">
-    <h2 class="text-lg sm:text-2xl font-semibold text-gray-900 dark:text-gray-100 break-words">
-      Time Summary for <span class="block sm:inline">{{ dateDisplay() }}</span>
+<div class="clay-card p-6 outline-none focus:outline-none">
+  <div class="mb-5 flex flex-col gap-4">
+    <h2 class="text-xl font-extrabold tracking-tight text-clay-foreground break-words sm:text-2xl">
+      Time Summary for <span class="block text-clay-accent sm:inline">{{ dateDisplay() }}</span>
     </h2>
 
     <div class="flex flex-col gap-3">
-      <div class="text-sm text-gray-600 dark:text-gray-400">Summary</div>
+      <div class="text-xs font-bold uppercase tracking-wider text-clay-muted">Summary</div>
       <div class="flex flex-wrap items-center gap-2">
         @for (mode of getSortModes(); track mode.label) {
-          <button type="button" (click)="setSortMode(mode)" class="text-xs sm:text-sm px-3 py-1.5 rounded-full border dark:border-gray-700 dark:text-gray-300 whitespace-nowrap hover:bg-gray-100 dark:hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-blue-200"
-            [class.font-semibold]="sortMode() === mode" [title]="mode.meta">{{ mode.label }}
+          <button type="button" (click)="setSortMode(mode)"
+            class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
+            [class.bg-clay-accent]="sortMode() === mode" [class.text-clay-on-accent]="sortMode() === mode" [class.hover:bg-clay-accent]="sortMode() === mode" [class.hover:text-clay-on-accent]="sortMode() === mode" [title]="mode.meta">{{ mode.label }}
           </button>
         }
         <button type="button" (click)="toggleReverse()"
-          class="text-xs sm:text-sm px-3 py-1.5 rounded-full border dark:border-gray-700 dark:text-gray-300 whitespace-nowrap hover:bg-gray-100 dark:hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-blue-200" title="Reverse sorting">
+          class="clay-soft flex h-9 w-9 items-center justify-center text-clay-secondary hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95" title="Reverse sorting">
           <app-icon [name]="sortReverse() ? 'chevron-up' : 'chevron-down'" class="text-sm"></app-icon>
         </button>
 
-        <div class="h-6 w-px bg-gray-200 dark:bg-white/6 mx-1 hidden sm:block"></div>
+        <div class="mx-1 hidden h-6 w-0.5 bg-clay-border sm:block"></div>
 
-        <button type="button" (click)="setViewMode('description')" class="text-xs sm:text-sm px-3 py-1.5 rounded-full border dark:border-gray-700 dark:text-gray-300 whitespace-nowrap hover:bg-gray-100 dark:hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-blue-200"
-          [class.font-semibold]="viewMode() === 'description'" title="Group items by description">Group by description
+        <button type="button" (click)="setViewMode('description')"
+          class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
+          [class.bg-clay-accent]="viewMode() === 'description'" [class.text-clay-on-accent]="viewMode() === 'description'" [class.hover:bg-clay-accent]="viewMode() === 'description'" [class.hover:text-clay-on-accent]="viewMode() === 'description'" title="Group items by description">By description
         </button>
-        <button type="button" (click)="setViewMode('task')" class="text-xs sm:text-sm px-3 py-1.5 rounded-full border dark:border-gray-700 dark:text-gray-300 whitespace-nowrap hover:bg-gray-100 dark:hover:bg-slate-800 transition focus:outline-none focus:ring-2 focus:ring-blue-200"
-          [class.font-semibold]="viewMode() === 'task'" title="Group items by task">Group by task
+        <button type="button" (click)="setViewMode('task')"
+          class="whitespace-nowrap rounded-md px-4 py-1.5 text-sm font-semibold text-clay-secondary transition-all duration-200 hover:bg-clay-accent hover:text-clay-on-accent focus:outline-none active:scale-95"
+          [class.bg-clay-accent]="viewMode() === 'task'" [class.text-clay-on-accent]="viewMode() === 'task'" [class.hover:bg-clay-accent]="viewMode() === 'task'" [class.hover:text-clay-on-accent]="viewMode() === 'task'" title="Group items by task">By task
         </button>
       </div>
     </div>
   </div>
 
-  <div class="space-y-2">
+  <div class="space-y-2.5">
     @if (hasSummary()) {
         @for (entry of sortedEntries(); track entry[0]) {
-      <div class="flex flex-col gap-2 rounded-2xl bg-white px-4 py-3 dark:bg-slate-800 lg:flex-row lg:items-start lg:justify-between shadow-sm hover:shadow-md transition">
+      <div class="group flex flex-col gap-2 rounded-md bg-clay-muted-surface px-4 py-3 transition-colors duration-200 hover:bg-clay-accent-soft lg:flex-row lg:items-start lg:justify-between">
           <div class="min-w-0 flex-1">
-            <div class="font-medium text-gray-900 dark:text-gray-100 break-words">
+            <div class="font-semibold text-clay-foreground break-words">
               @if (viewMode() === 'task') {
                 @if (entry[0]) {
                   <task-link [taskText]="entry[0]"/>
@@ -45,7 +48,7 @@
                 {{ entry[0] || '(No description)' }}
               }
             </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1 break-words">
+            <div class="mt-1 text-sm text-clay-muted break-words">
               @if (viewMode() === 'task') {
                 {{ joinUnique(entry[1].activities, 'description') }}
               } @else {
@@ -56,19 +59,19 @@
               }
             </div>
           </div>
-          <div class="text-sky-600 dark:text-sky-400 font-semibold lg:ml-4 whitespace-nowrap">{{ formatDuration(entry[1].totalMinutes) }}</div>
+          <div class="whitespace-nowrap font-bold text-clay-accent lg:ml-4">{{ formatDuration(entry[1].totalMinutes) }}</div>
         </div>
       }
-      <div class="flex flex-col gap-2 mt-3 rounded-2xl bg-gradient-to-r from-slate-50 to-white px-4 py-3 dark:from-slate-800 dark:to-slate-900 lg:flex-row lg:items-center lg:justify-between border-t">
+      <div class="mt-3 flex flex-col gap-2 rounded-md bg-clay-accent px-5 py-4 text-clay-on-accent lg:flex-row lg:items-center lg:justify-between">
         <div class="min-w-0 flex-1">
-          <div class="font-medium text-gray-900 dark:text-gray-100">
-            <b>Total</b>
+          <div class="text-lg font-bold">
+            Total
           </div>
         </div>
-        <div class="text-blue-600 dark:text-sky-400 font-semibold lg:ml-4 whitespace-nowrap">{{ formatDuration(totalMinutes()) }}</div>
+        <div class="whitespace-nowrap text-lg font-bold lg:ml-4">{{ formatDuration(totalMinutes()) }}</div>
       </div>
     } @else {
-      <p class="text-gray-500">No timed activities found for this day.</p>
+      <p class="text-clay-muted">No timed activities found for this day.</p>
     }
   </div>
 </div>

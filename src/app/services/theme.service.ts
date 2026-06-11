@@ -52,6 +52,7 @@ export class ThemeService {
       const theme = this.themeSignal();
       document.documentElement.classList.remove('light', 'dark');
       document.documentElement.classList.add(theme);
+      document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
 
       if (!this.syncingFromSettings) {

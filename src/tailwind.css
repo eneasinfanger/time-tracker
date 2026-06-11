@@ -1,1 +1,163 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* ============================================================
+   Flat Design Tokens
+   Bold, reductive, zero artificial depth.
+   clay-* token names kept for template compatibility.
+   ============================================================ */
+@theme {
+  /* Fonts */
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  /* Surfaces & text (Light) */
+  --color-clay-canvas: #ffffff;          /* Pure white canvas */
+  --color-clay-surface: #f3f4f6;         /* Gray 100 — secondary blocks */
+  --color-clay-card: #ffffff;            /* Card = white */
+  --color-clay-muted-surface: #f3f4f6;   /* Gray 100 — inputs */
+  --color-clay-foreground: #111827;      /* Gray 900 — sharp text */
+  --color-clay-secondary: #374151;       /* Gray 700 */
+  --color-clay-muted: #6b7280;           /* Gray 500 — muted text */
+  --color-clay-border: #e5e7eb;          /* Gray 200 — sparse borders */
+
+  /* Accents */
+  --color-clay-accent: #3b82f6;          /* Blue 500 — action */
+  --color-clay-on-accent: #ffffff;
+  --color-clay-accent-soft: #dbeafe;     /* Blue 100 — soft tint */
+  --color-clay-on-accent-soft: #1e3a8a;  /* Blue 900 */
+  --color-clay-tertiary: #f59e0b;        /* Amber 500 — accent */
+  --color-clay-on-tertiary: #111827;
+  --color-clay-tertiary-soft: #fef3c7;   /* Amber 100 */
+  --color-clay-on-tertiary-soft: #78350f;
+
+  /* Semantic mappings (kept for templates) */
+  --color-clay-pink: #f59e0b;            /* amber accent */
+  --color-clay-blue: #3b82f6;            /* primary blue */
+  --color-clay-indigo: #3b82f6;          /* primary blue */
+  --color-clay-green: #10b981;           /* emerald 500 */
+  --color-clay-amber: #f59e0b;           /* amber 500 */
+  --color-clay-red: #ef4444;             /* red 500 */
+
+  /* Radii — moderate, consistent (not hard, not pill) */
+  --radius-clay-sm: 6px;
+  --radius-clay: 8px;
+  --radius-clay-lg: 8px;
+  --radius-clay-xl: 12px;
+  --radius-clay-2xl: 16px;
+
+  /* Snappy digital easing */
+  --ease-md: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* No shadows in flat design */
+  --shadow-md-1: none;
+  --shadow-md-2: none;
+  --shadow-md-3: none;
+}
+
+/* Dark mode token overrides (flat dark) */
+[data-theme="dark"] {
+  --color-clay-canvas: #111827;          /* Gray 900 canvas */
+  --color-clay-surface: #1f2937;         /* Gray 800 blocks */
+  --color-clay-card: #1f2937;
+  --color-clay-muted-surface: #1f2937;   /* Gray 800 inputs */
+  --color-clay-foreground: #f9fafb;      /* Gray 50 text */
+  --color-clay-secondary: #d1d5db;       /* Gray 300 */
+  --color-clay-muted: #9ca3af;           /* Gray 400 */
+  --color-clay-border: #374151;          /* Gray 700 */
+
+  --color-clay-accent: #3b82f6;          /* keep vibrant blue */
+  --color-clay-on-accent: #ffffff;
+  --color-clay-accent-soft: #1e3a8a;     /* Blue 900 */
+  --color-clay-on-accent-soft: #dbeafe;
+  --color-clay-tertiary: #f59e0b;
+  --color-clay-on-tertiary: #111827;
+  --color-clay-tertiary-soft: #78350f;
+  --color-clay-on-tertiary-soft: #fef3c7;
+
+  --color-clay-pink: #f59e0b;
+  --color-clay-blue: #3b82f6;
+  --color-clay-indigo: #3b82f6;
+  --color-clay-green: #10b981;
+  --color-clay-amber: #f59e0b;
+  --color-clay-red: #f87171;
+
+  --shadow-md-1: none;
+  --shadow-md-2: none;
+  --shadow-md-3: none;
+}
+
+/* ============================================================
+   Flat component utilities
+   (clay-* names kept for template compatibility)
+   ============================================================ */
+@layer components {
+  /* Color-block card: solid bg, no shadow, no border, moderate radius */
+  .clay-card {
+    background-color: var(--color-clay-card);
+    border-radius: var(--radius-clay-lg);
+    border: 1px solid var(--color-clay-border);
+    transition: background-color 0.2s var(--ease-md), transform 0.2s var(--ease-md);
+  }
+
+  /* Soft control (chips, icon buttons) — moderate radius, color/scale feedback */
+  .clay-soft {
+    background-color: var(--color-clay-surface);
+    border-radius: var(--radius-clay);
+    transition: background-color 0.2s var(--ease-md), color 0.2s var(--ease-md),
+      transform 0.2s var(--ease-md);
+  }
+
+  /* Recessed surface (inputs container) */
+  .clay-pressed {
+    background-color: var(--color-clay-muted-surface);
+    border-radius: var(--radius-clay);
+  }
+
+  /* Primary button — solid color, no shadow, scale + color shift on hover */
+  .clay-button {
+    border-radius: var(--radius-clay);
+    transition: background-color 0.2s var(--ease-md), color 0.2s var(--ease-md),
+      transform 0.2s var(--ease-md), filter 0.2s var(--ease-md);
+  }
+  .clay-button:hover {
+    transform: scale(1.03);
+    filter: brightness(0.94);
+  }
+  .clay-button:active {
+    transform: scale(0.98);
+  }
+
+  /* Interactive lift helper — flat: subtle scale, no shadow */
+  .clay-lift {
+    transition: transform 0.2s var(--ease-md), background-color 0.2s var(--ease-md);
+  }
+  .clay-lift:hover {
+    transform: scale(1.02);
+  }
+
+  /* Section/grid label — geometric uppercase */
+  .grid-label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-clay-muted);
+  }
+}
+
+/* ============================================================
+   Decorative blobs disabled (flat design, minimal graphics)
+   ============================================================ */
+.clay-blob,
+.clay-blob-delayed,
+.clay-blob-slow {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; }
+}

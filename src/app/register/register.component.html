@@ -1,12 +1,12 @@
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
-  <div class="w-full max-w-md bg-white dark:bg-slate-800 rounded-lg shadow-xl p-8">
-    <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create New User Account</h1>
-      <p class="text-gray-600 dark:text-gray-400">Admin only - Create user accounts</p>
+<div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-clay-canvas p-4 py-10 sm:p-6">
+  <div class="clay-card w-full max-w-md rounded-lg p-6 sm:p-8">
+    <div class="mb-8 text-center">
+      <h1 class="mb-2 text-2xl font-extrabold tracking-tight text-clay-foreground sm:text-3xl">Create New User Account</h1>
+      <p class="text-clay-muted">Admin only - Create user accounts</p>
     </div>
 
     @if (errorMessage()) {
-      <div class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
+      <div class="mb-4 rounded-md bg-clay-red/10 p-4 font-semibold text-clay-red">
         {{ errorMessage() }}
       </div>
     }
@@ -14,7 +14,7 @@
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4">
       <!-- Username Field -->
       <div>
-        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label for="username" class="mb-1.5 block text-sm font-medium text-clay-secondary">
           Username
         </label>
         <input
@@ -22,16 +22,16 @@
           type="text"
           formControlName="username"
           placeholder="Choose a username"
-          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+          class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-3 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
         />
         @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
-          <p class="text-red-500 text-xs mt-1">Username required (3-50 characters)</p>
+          <p class="mt-1 text-xs font-medium text-clay-red">Username required (3-50 characters)</p>
         }
       </div>
 
       <!-- Email Field -->
       <div>
-        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label for="email" class="mb-1.5 block text-sm font-medium text-clay-secondary">
           Email
         </label>
         <input
@@ -39,16 +39,16 @@
           type="email"
           formControlName="email"
           placeholder="your@email.com"
-          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+          class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-3 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
         />
         @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-          <p class="text-red-500 text-xs mt-1">Valid email required</p>
+          <p class="mt-1 text-xs font-medium text-clay-red">Valid email required</p>
         }
       </div>
 
       <!-- Full Name Field -->
       <div>
-        <label for="fullName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label for="fullName" class="mb-1.5 block text-sm font-medium text-clay-secondary">
           Full Name
         </label>
         <input
@@ -56,16 +56,16 @@
           type="text"
           formControlName="fullName"
           placeholder="Your full name"
-          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+          class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-3 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
         />
         @if (registerForm.get('fullName')?.invalid && registerForm.get('fullName')?.touched) {
-          <p class="text-red-500 text-xs mt-1">Full name required</p>
+          <p class="mt-1 text-xs font-medium text-clay-red">Full name required</p>
         }
       </div>
 
       <!-- Password Field -->
       <div>
-        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label for="password" class="mb-1.5 block text-sm font-medium text-clay-secondary">
           Password
         </label>
         <div class="relative">
@@ -74,12 +74,12 @@
             [type]="getPasswordType()"
             formControlName="password"
             placeholder="Min 8 chars, upper, lower, number"
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+            class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-3 pr-12 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
           />
           <button
             type="button"
             (click)="togglePasswordVisibility()"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-clay-muted transition hover:text-clay-accent"
           >
             @if (showPassword()) {
               <app-icon name="eye" class="text-lg"></app-icon>
@@ -89,28 +89,28 @@
           </button>
         </div>
         @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-          <p class="text-red-500 text-xs mt-1">Password must be 8+ chars with uppercase, lowercase, and number</p>
+          <p class="mt-1 text-xs font-medium text-clay-red">Password must be 8+ chars with uppercase, lowercase, and number</p>
         }
         <!-- Password Strength Indicator -->
         @let strength = getPasswordStrengthStatus();
         @if (registerForm.get('password')?.value) {
           <div class="mt-2">
             <div class="flex items-center gap-2">
-              <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+              <div class="clay-pressed h-1.5 flex-1 rounded-full bg-clay-surface">
                 <div
                   [ngClass]="{
-                    'bg-red-500': strength.color === 'red',
-                    'bg-yellow-500': strength.color === 'yellow',
-                    'bg-green-500': strength.color === 'green'
+                    'bg-clay-red': strength.color === 'red',
+                    'bg-clay-amber': strength.color === 'yellow',
+                    'bg-clay-green': strength.color === 'green'
                   }"
                   [style.width]="strength.level === 'weak' ? '33%' : strength.level === 'medium' ? '66%' : '100%'"
                   class="h-full rounded-full transition-all"
                 ></div>
               </div>
-              <span class="text-xs font-medium" [ngClass]="{
-                'text-red-600 dark:text-red-400': strength.color === 'red',
-                'text-yellow-600 dark:text-yellow-400': strength.color === 'yellow',
-                'text-green-600 dark:text-green-400': strength.color === 'green'
+              <span class="text-xs font-bold" [ngClass]="{
+                'text-clay-red': strength.color === 'red',
+                'text-clay-amber': strength.color === 'yellow',
+                'text-clay-green': strength.color === 'green'
               }">
                 {{ strength.level }}
               </span>
@@ -121,7 +121,7 @@
 
       <!-- Confirm Password Field -->
       <div>
-        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label for="confirmPassword" class="mb-1.5 block text-sm font-medium text-clay-secondary">
           Confirm Password
         </label>
         <div class="relative">
@@ -130,12 +130,12 @@
             [type]="getPasswordType(true)"
             formControlName="confirmPassword"
             placeholder="Confirm your password"
-            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition"
+            class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-3 pr-12 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
           />
           <button
             type="button"
             (click)="toggleConfirmPasswordVisibility()"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-clay-muted transition hover:text-clay-accent"
           >
             @if (showConfirmPassword()) {
               <app-icon name="eye" class="text-lg"></app-icon>
@@ -145,10 +145,10 @@
           </button>
         </div>
         @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
-          <p class="text-red-500 text-xs mt-1">Please confirm your password</p>
+          <p class="mt-1 text-xs font-medium text-clay-red">Please confirm your password</p>
         }
         @if (registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched) {
-          <p class="text-red-500 text-xs mt-1">Passwords do not match</p>
+          <p class="mt-1 text-xs font-medium text-clay-red">Passwords do not match</p>
         }
       </div>
 
@@ -156,10 +156,10 @@
       <button
         type="submit"
         [disabled]="registerForm.invalid || isLoading()"
-        class="w-full mt-6 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+        class="clay-button mt-6 w-full bg-clay-accent px-4 py-3.5 font-semibold text-clay-on-accent disabled:cursor-not-allowed disabled:opacity-50"
       >
         @if (isLoading()) {
-          <app-icon name="spinner" class="inline-block animate-spin mr-2 text-lg"></app-icon>
+          <app-icon name="spinner" class="mr-2 inline-block animate-spin text-lg"></app-icon>
           Creating User...
         } @else {
           Create User
@@ -169,8 +169,8 @@
 
     <!-- Back Link -->
     <div class="mt-6 text-center">
-      <p class="text-gray-600 dark:text-gray-400">
-        <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+      <p class="text-clay-muted">
+        <a href="/" class="font-bold text-clay-accent hover:underline">
           Back to application
         </a>
       </p>

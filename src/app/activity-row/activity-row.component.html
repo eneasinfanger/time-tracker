@@ -1,60 +1,47 @@
 @if (isText()) {
-  <td class="py-2 px-3 relative align-top" colspan="4">
-    <input suggestable type="text" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:text-gray-100"
+  <td class="px-4 py-3 relative align-top" colspan="4">
+    <input suggestable type="text" class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
       [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
       (itemSelected)="setTaskFromDescription($event)" placeholder="Comment"
       title="Enter a comment or description" (blur)="emitChanged()">
   </td>
-  <td class="py-2 px-3 align-top">
-    <div class="flex gap-2 items-center">
-      <button type="button" class="table-action-button text-green-600 dark:text-green-400" (click)="addRow.emit('activity')"
+  <td class="px-4 py-3 align-top">
+    <div class="flex items-center gap-2">
+      <button type="button" class="clay-soft flex h-9 w-9 items-center justify-center text-clay-green hover:bg-clay-green/10 active:scale-95" (click)="addRow.emit('activity')"
         title="Add an activity after this one"><app-icon name="plus" class="text-sm"></app-icon></button>
-      <button type="button" class="table-action-button text-red-600 dark:text-red-400" (click)="removeRow.emit()"
+      <button type="button" class="clay-soft flex h-9 w-9 items-center justify-center text-clay-red hover:bg-clay-red/10 active:scale-95" (click)="removeRow.emit()"
         title="Delete this activity"><app-icon name="close" class="text-sm"></app-icon></button>
-      <!-- Comment feature temporarily disabled (incomplete) -->
-      <!--
-      <!-- Comment toggle temporarily disabled (incomplete feature) -->
-      <!--
-      <button type="button" (click)="toggleComment()" [class.text-sky-600]="type() === 'text'" class="table-action-button"
-        title="Toggle comment mode"><app-icon name="comment" class="text-sm"></app-icon></button>
-      -->
-      -->
     </div>
   </td>
 } @else {
-  <td class="py-2 px-3 align-top">
+  <td class="px-4 py-3 align-top">
     <input suggestable type="time" [(ngModel)]="startTime" [suggestionProvider]="getStartSuggestions"
-      class="w-full max-w-[4.5rem] sm:max-w-[6rem] md:max-w-[8rem] p-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg disabled:bg-gray-100 dark:disabled:bg-gray-800 dark:text-gray-100"
+      class="w-full max-w-[4.5rem] rounded-md border-2 border-transparent bg-clay-muted-surface px-3 py-2.5 text-sm text-clay-foreground outline-none transition-colors duration-200 focus:border-clay-accent focus:bg-clay-card disabled:opacity-60 sm:max-w-[6rem] md:max-w-[8rem]"
       title="Enter the start time of the activity">
   </td>
-  <td class="py-2 px-3 align-top">
+  <td class="px-4 py-3 align-top">
     <input suggestable type="time" [(ngModel)]="endTime" [suggestionProvider]="getEndSuggestions"
-      class="w-full max-w-[4.5rem] sm:max-w-[6rem] md:max-w-[8rem] p-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg disabled:bg-gray-100 dark:disabled:bg-gray-800 dark:text-gray-100"
+      class="w-full max-w-[4.5rem] rounded-md border-2 border-transparent bg-clay-muted-surface px-3 py-2.5 text-sm text-clay-foreground outline-none transition-colors duration-200 focus:border-clay-accent focus:bg-clay-card disabled:opacity-60 sm:max-w-[6rem] md:max-w-[8rem]"
       title="Enter the end time of the activity">
   </td>
-  <td class="py-2 px-3 relative align-top">
-    <input suggestable type="text" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:text-gray-100"
+  <td class="px-4 py-3 relative align-top">
+    <input suggestable type="text" class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
       [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
       (itemSelected)="setTaskFromDescription($event)" placeholder="Activity or description"
       title="Enter an activity or a description" (blur)="emitChanged()">
   </td>
-  <td class="py-2 px-3 relative align-top">
+  <td class="px-4 py-3 relative align-top">
     <input suggestable type="text" [(ngModel)]="task"
       [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
-      class="w-full min-w-0 p-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg disabled:bg-gray-100 dark:disabled:bg-gray-800 dark:text-gray-100"
+      class="w-full min-w-0 rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-sm text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card disabled:opacity-60"
       placeholder="ID" title="Enter the task identifier" (blur)="emitChanged()">
   </td>
-  <td class="py-2 px-3 align-top">
-    <div class="flex gap-2 items-center">
-      <button type="button" class="table-action-button text-green-600 dark:text-green-400" (click)="addRow.emit('activity')"
+  <td class="px-4 py-3 align-top">
+    <div class="flex items-center gap-2">
+      <button type="button" class="clay-soft flex h-9 w-9 items-center justify-center text-clay-green hover:bg-clay-green/10 active:scale-95" (click)="addRow.emit('activity')"
         title="Add an activity after this one"><app-icon name="plus" class="text-sm"></app-icon></button>
-      <button type="button" class="table-action-button text-red-600 dark:text-red-400" (click)="removeRow.emit()"
+      <button type="button" class="clay-soft flex h-9 w-9 items-center justify-center text-clay-red hover:bg-clay-red/10 active:scale-95" (click)="removeRow.emit()"
         title="Delete this activity"><app-icon name="close" class="text-sm"></app-icon></button>
-      <!-- Comment toggle temporarily disabled (incomplete feature) -->
-      <!--
-      <button type="button" (click)="toggleComment()" [class.text-sky-600]="type() === 'text'" class="table-action-button"
-        title="Toggle comment mode"><app-icon name="comment" class="text-sm"></app-icon></button>
-      -->
     </div>
   </td>
 }

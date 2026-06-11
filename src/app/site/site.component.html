@@ -1,62 +1,62 @@
-<div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.10),_transparent_35%),linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)] dark:bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.10),_transparent_35%),linear-gradient(180deg,_#020617_0%,_#0f172a_100%)] px-4 py-6 sm:px-6 lg:px-8">
+<div class="px-4 py-6 sm:px-6 lg:px-8">
   <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
     <!-- Header -->
-    <section class="overflow-hidden rounded-3xl border border-white/60 bg-white/90 shadow-[0_18px_60px_-28px_rgba(15,23,42,0.45)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/85">
-      <div class="flex flex-col gap-6 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
+    <section class="overflow-hidden rounded-lg bg-clay-accent text-clay-on-accent">
+      <div class="flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-end lg:justify-between">
         <div class="space-y-4">
-          <div class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
+          <div class="inline-flex items-center gap-2 rounded-full bg-clay-on-accent/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-clay-on-accent">
             Daily workspace
           </div>
           <div>
-            <h1 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
+            <h1 class="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               Time Tracker
             </h1>
-            <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400 sm:text-base">
+            <p class="mt-4 max-w-2xl text-base leading-relaxed text-clay-on-accent/90">
               Track your day, organize tasks, and review time summaries with a clean dashboard that scales from mobile to desktop.
             </p>
           </div>
         </div>
 
         <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
-          <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800">
+          <div class="flex items-center gap-1 rounded-md bg-clay-on-accent/15 p-1.5">
             <button
               (click)="navigateDay(-1)"
-              class="inline-flex items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-white hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+              class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold text-clay-on-accent transition-all duration-200 hover:bg-clay-on-accent/20 active:scale-95"
             >
-              <span class="mr-2">←</span>
+              <span class="mr-1.5">←</span>
               <span class="hidden sm:inline">Previous</span>
             </button>
 
-            <div class="min-w-[11rem] px-2 text-center text-sm font-semibold text-slate-900 dark:text-white sm:text-base">
+            <div class="min-w-[11rem] px-2 text-center text-sm font-bold text-clay-on-accent sm:text-base">
               {{ formatDateToDisplay(currentDate()) }}
             </div>
 
             <button
               (click)="navigateDay(1)"
-              class="inline-flex items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-white hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+              class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold text-clay-on-accent transition-all duration-200 hover:bg-clay-on-accent/20 active:scale-95"
             >
               <span class="hidden sm:inline">Next</span>
-              <span class="ml-2">→</span>
+              <span class="ml-1.5">→</span>
             </button>
           </div>
 
-          <label class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <span class="text-slate-500 dark:text-slate-400">Date</span>
+          <label class="flex items-center gap-3 rounded-md bg-clay-on-accent/15 px-4 py-3 text-sm">
+            <span class="font-semibold text-clay-on-accent/80">Date</span>
             <input
               type="date"
-              class="bg-transparent text-slate-900 outline-none dark:text-white"
+              class="bg-transparent font-semibold text-clay-on-accent outline-none [color-scheme:dark]"
               [value]="currentDateISO()"
               (change)="navigateToInput($any($event.target).value)"
             />
           </label>
 
-          <div class="relative self-start sm:self-auto">
+          <div class="self-start sm:self-auto">
             <settings-button (clicked)="settingsOpen.set(!settingsOpen())"/>
           </div>
-          <div class="relative self-start sm:self-auto">
+          <div class="self-start sm:self-auto">
             <button
               (click)="exportCsv()"
-              class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+              class="clay-button inline-flex items-center bg-clay-on-accent px-5 py-3 text-sm font-semibold text-clay-accent"
               title="Export current day's activities as CSV"
             >
               Export CSV
@@ -72,18 +72,18 @@
 
     <!-- Main Content -->
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-      <section class="overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-[0_18px_60px_-28px_rgba(15,23,42,0.35)] backdrop-blur dark:border-slate-700 dark:bg-slate-900/85">
-        <div class="border-b border-slate-200 px-5 py-4 dark:border-slate-700 sm:px-6">
+      <section class="clay-card overflow-hidden rounded-lg">
+        <div class="border-b-2 border-clay-border px-6 py-5">
           <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div>
-              <h2 class="text-xl font-bold text-slate-900 dark:text-white">Activities</h2>
-              <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Create, edit, and review entries for the selected day.</p>
+              <h2 class="text-2xl font-extrabold tracking-tight text-clay-foreground">Activities</h2>
+              <p class="mt-1 text-sm text-clay-muted">Create, edit, and review entries for the selected day.</p>
             </div>
 
             <button
               (click)="addNewActivity()"
               [disabled]="activitiesLoading()"
-              class="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:translate-y-[-1px] hover:from-blue-500 hover:to-indigo-500 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:from-blue-600 disabled:hover:to-indigo-600"
+              class="clay-button inline-flex items-center bg-clay-accent px-6 py-3 text-sm font-semibold text-clay-on-accent disabled:cursor-not-allowed disabled:opacity-60"
             >
               <span class="mr-2 text-lg leading-none">+</span>
               @if (activitiesLoading()) {
@@ -95,23 +95,23 @@
           </div>
         </div>
 
-        <div class="overflow-hidden">
+        <div class="overflow-x-auto">
           @if (activitiesLoading()) {
-            <div class="border-b border-slate-200 bg-white/75 px-5 py-10 text-center dark:border-slate-700 dark:bg-slate-900/70 sm:px-6">
-              <div class="mx-auto flex w-fit items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600 dark:border-slate-600 dark:border-t-blue-400"></span>
+            <div class="border-b-2 border-clay-border px-6 py-10 text-center">
+              <div class="mx-auto flex w-fit items-center gap-3 rounded-md bg-clay-surface px-5 py-2.5 text-sm font-semibold text-clay-muted">
+                <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-clay-accent/30 border-t-clay-accent"></span>
                 Loading activities
               </div>
               <div class="mt-6 grid gap-3 px-1 sm:px-6">
                 @for (_ of [1, 2, 3, 4]; track _) {
-                  <div class="animate-pulse rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 dark:border-slate-700 dark:bg-slate-800/70">
+                  <div class="animate-pulse rounded-md bg-clay-surface px-4 py-4">
                     <div class="grid grid-cols-12 gap-3">
-                      <div class="col-span-1 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
-                      <div class="col-span-1 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
-                      <div class="col-span-5 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
-                      <div class="col-span-2 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
-                      <div class="col-span-2 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
-                      <div class="col-span-1 h-4 rounded bg-slate-200 dark:bg-slate-700"></div>
+                      <div class="col-span-1 h-4 rounded bg-clay-accent/15"></div>
+                      <div class="col-span-1 h-4 rounded bg-clay-accent/15"></div>
+                      <div class="col-span-5 h-4 rounded bg-clay-accent/15"></div>
+                      <div class="col-span-2 h-4 rounded bg-clay-accent/15"></div>
+                      <div class="col-span-2 h-4 rounded bg-clay-accent/15"></div>
+                      <div class="col-span-1 h-4 rounded bg-clay-accent/15"></div>
                     </div>
                   </div>
                 }
@@ -119,7 +119,7 @@
             </div>
           }
 
-          <table class="w-full table-auto">
+          <table class="w-full min-w-[40rem] table-auto">
             <colgroup>
               <col class="w-[10%]" />
               <col class="w-[10%]" />
@@ -127,19 +127,19 @@
               <col class="w-[20%]" />
               <col class="w-[10%]" />
             </colgroup>
-            <thead class="bg-slate-50/80 dark:bg-slate-800/80">
-            <tr class="border-b border-slate-200 dark:border-slate-700">
-              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Start</th>
-              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">End</th>
-              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Activity / Description</th>
-              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Task</th>
-              <th class="px-3 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Actions</th>
+            <thead>
+            <tr class="border-b-2 border-clay-border">
+              <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-clay-muted">Start</th>
+              <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-clay-muted">End</th>
+              <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-clay-muted">Activity / Description</th>
+              <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-clay-muted">Task</th>
+              <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-clay-muted">Actions</th>
             </tr>
             </thead>
-            <tbody id="activitiesTable" class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody id="activitiesTable" class="divide-y divide-clay-border">
               @for (activity of activities(); track activity().id) {
                 <tr activity-row
-                  class="border-b border-slate-100/80 bg-white/70 hover:bg-blue-50/60 dark:border-slate-800 dark:bg-transparent dark:hover:bg-slate-800/70"
+                  class="transition hover:bg-clay-accent/5"
                   [activity]="activity"
                   [activities]="activities()"
                   [currentDate]="currentDateISO()" (addRow)="addNewActivity(activity().id, $event)"
@@ -150,7 +150,7 @@
         </div>
       </section>
 
-      <aside class="space-y-6 xl:sticky xl:top-24 xl:self-start">
+      <aside class="space-y-6 xl:sticky xl:top-28 xl:self-start">
         <time-summary [summary]="summary()" [dateDisplay]="formatDateToDisplay(currentDate())"/>
       </aside>
     </div>

@@ -9,8 +9,6 @@ html.light {
   color-scheme: light;
 }
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-
 /* Ensure interactive controls show pointer when appropriate (Tailwind also provides cursor-pointer). */
 button,
 input[type="button"],
@@ -132,13 +130,10 @@ main {
   animation: fadeOut 0.3s ease-out;
 }
 
-/* Smooth button transitions */
+/* Smooth button transitions (flat: snappy, direct) */
 button {
-  @apply transition-all duration-200 ease-out;
-  
-  &:active {
-    @apply transform scale-95;
-  }
+  @apply transition-all duration-200;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Input focus states */
@@ -148,16 +143,20 @@ input:focus, textarea:focus, select:focus {
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-slate-800;
+  background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 dark:bg-slate-600 rounded-full hover:bg-gray-500 dark:hover:bg-slate-500;
+  background-color: var(--color-clay-border);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-clay-accent);
 }
 
 
