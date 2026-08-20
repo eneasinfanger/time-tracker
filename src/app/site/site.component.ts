@@ -49,45 +49,58 @@ export class SiteComponent {
   }
 
   private initialize() {
-    this.storage.initSettings();
-    this.applyTheme(SettingsHolder.getSettings().theme);
-    this.enableTasks.set(SettingsHolder.getSettings().enableTasks);
-    const sub = SettingsHolder.onSettingsChange(s => {
-      this.applyTheme(s.theme);
-      this.enableTasks.set(s.enableTasks);
-    });
-    this.destroyRef.onDestroy(() => sub.unsubscribe());
+    this.storage.initSettings().subscribe({
+      next: settings => {
+        this.applyTheme(settings.theme);
+        this.enableTasks.set(settings.enableTasks);
 
-    this.loadActivitiesForCurrentDay();
+        const sub = SettingsHolder.onSettingsChange(s => {
+          this.applyTheme(s.theme);
+          this.enableTasks.set(s.enableTasks);
+        });
+        this.destroyRef.onDestroy(() => sub.unsubscribe());
 
-    effect(() => {
-      this.activities();
+        this.loadActivitiesForCurrentDay();
 
-      if (!this.autoSyncEnabled) {
-        return;
-      }
+        effect(() => {
+          this.activities();
 
-      this.scheduleSummaryRefresh();
-      this.scheduleSaveCurrentActivities();
-    });
+          if (!this.autoSyncEnabled) {
+            return;
+          }
 
-    // Ensure activities are flushed when the page is hidden or unloaded
-    window.addEventListener('beforeunload', () => {
-      try {
-        this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
-      } catch (e) {}
-    });
-    window.addEventListener('pagehide', () => {
-      try {
-        this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
-      } catch (e) {}
-    });
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
+          this.scheduleSummaryRefresh();
+          this.scheduleSaveCurrentActivities();
+        });
+
+        // Ensure activities are flushed when the page is hidden or unloaded
+        window.addEventListener('beforeunload', () => {
+          try {
+            this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
+          } catch (e) {}
+        });
+        window.addEventListener('pagehide', () => {
+          try {
+            this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
+          } catch (e) {}
+        });
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            try {
+              this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
+            } catch (e) {}
+          }
+        });
+      },
+      error: () => {
         try {
-          this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
+          const fallback = SettingsHolder.getDefaultSettings();
+          SettingsHolder.setSettings(fallback);
+          this.applyTheme(fallback.theme);
+          this.enableTasks.set(fallback.enableTasks);
         } catch (e) {}
-      }
+        this.loadActivitiesForCurrentDay();
+      },
     });
   }
 

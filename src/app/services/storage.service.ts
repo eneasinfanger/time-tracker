@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { catchError, map, Observable, of, tap } from 'rxjs';
+import { catchError, map, Observable, of, Subscription, tap } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { Activity, ISODate, Settings, Time } from '../utils/models';
 import { SettingsHolder } from '../utils/settings';
@@ -27,6 +27,10 @@ export interface BackendSummaryResponse {
 interface DayActivitiesResult {
   activities: Activity[];
   summary: BackendSummaryResponse;
+}
+
+interface BackendSettingsResponse {
+  settings: Settings;
 }
 
 interface SuggestionRequest {
@@ -56,34 +60,34 @@ interface BackendActivity {
 @Injectable({ providedIn: 'root' })
 export class StorageService {
   private readonly http = inject(HttpClient);
-  private readonly settingsKey = 'timetracker_settings';
   private readonly activitiesApiUrl = `${getApiBaseUrl()}/activities`;
+  private readonly settingsApiUrl = `${getApiBaseUrl()}/users/me/settings`;
   private readonly activitiesCache = new Map<ISODate, Activity[]>();
   private readonly emptySummary: BackendSummaryResponse = {
     byDescription: [],
     byTask: [],
   };
+  private settingsSubscription: Subscription | null = null;
+  private settingsInitialized = false;
 
-  initSettings() {
-    let settings = this.getSettings();
-    const fullSettings = SettingsHolder.getDefaultSettings();
-    if (!settings) {
-      settings = fullSettings;
-    } else {
-      const filtered = Object.fromEntries(
-        Object.entries(settings).filter(([, v]) => v !== undefined)
-      ) as Partial<Settings>;
-      settings = { ...fullSettings, ...filtered };
+  initSettings(): Observable<Settings> {
+    if (this.settingsInitialized) {
+      return of(SettingsHolder.getSettings());
     }
 
-    const themeFromStorage = localStorage.getItem('theme') as Settings['theme'] | null;
-    if (themeFromStorage) {
-      settings.theme = themeFromStorage;
-    }
-
-    this.saveSettings(settings);
-    SettingsHolder.setSettings(settings);
-    SettingsHolder.onSettingsChange(s => this.saveSettings(s));
+    return this.http.get<BackendSettingsResponse>(this.settingsApiUrl).pipe(
+      map(response => this.normalizeSettings(response.settings)),
+      catchError(() => of(SettingsHolder.getDefaultSettings())),
+      tap(settings => {
+        SettingsHolder.setSettings(settings);
+        if (!this.settingsSubscription) {
+          this.settingsSubscription = SettingsHolder.onSettingsChange(updatedSettings => {
+            this.saveSettings(updatedSettings).subscribe();
+          });
+        }
+        this.settingsInitialized = true;
+      }),
+    );
   }
 
   loadActivitiesForDate(date: ISODate): Observable<DayActivitiesResult> {
@@ -207,13 +211,36 @@ export class StorageService {
     );
   }
 
-  saveSettings(settings: Settings) {
-    localStorage.setItem(this.settingsKey, JSON.stringify(settings));
+  saveSettings(settings: Settings): Observable<Settings> {
+    const normalizedSettings = this.normalizeSettings(settings);
+    return this.http.put<BackendSettingsResponse>(this.settingsApiUrl, {
+      settings: normalizedSettings,
+    }).pipe(
+      map(response => this.normalizeSettings(response.settings ?? normalizedSettings)),
+      catchError(() => of(normalizedSettings)),
+    );
   }
 
-  getSettings(): Settings | null {
-    const stored = localStorage.getItem(this.settingsKey);
-    return stored ? JSON.parse(stored) : null;
+  private normalizeSettings(settings: unknown): Settings {
+    const defaults = SettingsHolder.getDefaultSettings();
+    if (!settings || typeof settings !== 'object') {
+      return defaults;
+    }
+
+    const candidate = settings as Partial<Settings> & { jiraSources?: Settings['issueTrackerSources'] };
+    const issueTrackerSources = Array.isArray(candidate.issueTrackerSources)
+      ? candidate.issueTrackerSources
+      : (Array.isArray(candidate.jiraSources) ? candidate.jiraSources : defaults.issueTrackerSources);
+
+    const filtered = Object.fromEntries(
+      Object.entries(candidate).filter(([, value]) => value !== undefined),
+    ) as Partial<Settings>;
+
+    return {
+      ...defaults,
+      ...filtered,
+      issueTrackerSources,
+    };
   }
 
   private mapBackendActivity(activity: BackendActivity): Activity {

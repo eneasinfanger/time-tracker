@@ -89,6 +89,14 @@ backend/
    python -m flask --app main.py create-admin
    ```
 
+6. **Import localStorage JSON export (activities + settings)**
+   ```bash
+   python3 json_import.py
+   ```
+   The script prompts for the JSON file path and target user, then imports:
+   - keys like `timetracker_YYYY-MM-DD` into the `activities` table
+   - `timetracker_settings` into normalized settings tables (`user_settings`, `user_always_shown_activities`, `user_issue_tracker_sources`, `user_issue_tracker_projects`)
+
 ## Running the Application
 
 ### Development Mode
@@ -116,6 +124,8 @@ gunicorn --workers 4 --bind 0.0.0.0:5000 main:app
 - `GET /api/users/<id>` - Get user profile
 - `PUT /api/users/<id>` - Update user profile
 - `POST /api/users/<id>/change-password` - Change password
+- `GET /api/users/me/settings` - Get current user's settings
+- `PUT /api/users/me/settings` - Update current user's settings
 - `GET /api/users` - List all users (admin only)
 - `POST /api/users/<id>/disable` - Disable user (admin only)
 - `POST /api/users/<id>/enable` - Enable user (admin only)

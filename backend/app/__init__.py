@@ -34,6 +34,7 @@ def create_app(config_name=None):
     from app.routes.auth import auth_bp
     from app.routes.users import users_bp
     from app.routes.activities import activities_bp
+    from app.models import User, Activity, UserSettings
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(users_bp)

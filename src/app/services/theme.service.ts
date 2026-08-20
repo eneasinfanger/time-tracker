@@ -14,30 +14,27 @@ export class ThemeService {
   readonly isDarkMode = computed(() => this.themeSignal() === 'dark');
 
   constructor() {
-    this.loadThemeFromStorage();
+    this.loadThemeFromSettings();
     this.setupThemeEffect();
     this.setupSettingsSync();
   }
 
-  private loadThemeFromStorage(): void {
-    const stored = localStorage.getItem('theme') as Theme | null;
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = stored || (systemDark ? 'dark' : 'light');
-    this.themeSignal.set(initialTheme);
+  private resolveTheme(theme: 'light' | 'dark' | 'system'): Theme {
+    if (theme === 'system') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return theme;
+  }
+
+  private loadThemeFromSettings(): void {
+    this.syncingFromSettings = true;
+    this.themeSignal.set(this.resolveTheme(SettingsHolder.getSettings().theme));
+    this.syncingFromSettings = false;
   }
 
   private setupSettingsSync(): void {
-    const currentSettings = SettingsHolder.getSettings();
-    if (currentSettings?.theme) {
-      this.themeSignal.set(currentSettings.theme === 'system'
-        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        : currentSettings.theme);
-    }
-
     SettingsHolder.onSettingsChange(settings => {
-      const resolvedTheme = settings.theme === 'system'
-        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        : settings.theme;
+      const resolvedTheme = this.resolveTheme(settings.theme);
 
       if (this.themeSignal() !== resolvedTheme) {
         this.syncingFromSettings = true;
@@ -53,7 +50,6 @@ export class ThemeService {
       document.documentElement.classList.remove('light', 'dark');
       document.documentElement.classList.add(theme);
       document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('theme', theme);
 
       if (!this.syncingFromSettings) {
         const settings = SettingsHolder.getSettings();

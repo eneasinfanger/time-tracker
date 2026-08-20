@@ -4,13 +4,14 @@ from getpass import getpass
 from app import create_app, db
 from app.models.user import User
 from app.models.activity import Activity
+from app.models.user_settings import UserSettings
 
 app = create_app(os.getenv('FLASK_ENV', 'development'))
 
 @app.shell_context_processor
 def make_shell_context():
     """Shell context for Flask CLI"""
-    return {'db': db, 'User': User, 'Activity': Activity}
+    return {'db': db, 'User': User, 'Activity': Activity, 'UserSettings': UserSettings}
 
 @app.cli.command()
 def init_db():

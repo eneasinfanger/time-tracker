@@ -1,7 +1,15 @@
 import { Settings } from './models';
 import { Subject, Subscription } from 'rxjs';
 
-let currentSettings: Settings;
+const defaultSettings: Settings = {
+  alwaysShownActivities: [],
+  durationThreshold: { weeks: 1, days: 0, hours: 0, minutes: 0 },
+  enableTasks: true,
+  theme: 'system',
+  issueTrackerSources: [],
+};
+
+let currentSettings: Settings = defaultSettings;
 const settingsChange = new Subject<Settings>();
 
 export const SettingsHolder = {
@@ -13,11 +21,5 @@ export const SettingsHolder = {
   onSettingsChange(callback: (settings: Settings) => void): Subscription {
     return settingsChange.subscribe(callback);
   },
-  getDefaultSettings: () => ({
-    alwaysShownActivities: [],
-    durationThreshold: { weeks: 1, days: 0, hours: 0, minutes: 0 },
-    enableTasks: true,
-    theme: 'system',
-    issueTrackerSources: [],
-  } as Settings),
+  getDefaultSettings: () => ({ ...defaultSettings }),
 };

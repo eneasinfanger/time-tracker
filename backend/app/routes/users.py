@@ -1,10 +1,50 @@
 from flask import Blueprint, request, jsonify
 from app import db, limiter
 from app.models.user import User
+from app.models.user_settings import UserSettings
 from app.utils.auth import token_required, admin_required
 from app.utils.rate_limit import authenticated_user_key
+from app.utils.user_settings_storage import parse_settings_payload, read_settings_from_row, write_settings_to_row
 
 users_bp = Blueprint('users', __name__, url_prefix='/users')
+
+
+@users_bp.route('/me/settings', methods=['GET'])
+@token_required
+@limiter.limit('60 per minute', key_func=authenticated_user_key)
+def get_current_user_settings():
+    settings_row = UserSettings.query.filter_by(user_id=request.current_user.id).first()
+    settings_data = read_settings_from_row(settings_row)
+    return jsonify({'settings': settings_data.to_api_dict()}), 200
+
+
+@users_bp.route('/me/settings', methods=['PUT'])
+@token_required
+@limiter.limit('60 per minute', key_func=authenticated_user_key)
+def update_current_user_settings():
+    data = request.get_json(silent=True) or {}
+    incoming = data.get('settings')
+    if not isinstance(incoming, dict):
+        return jsonify({'error': 'settings must be an object'}), 400
+
+    settings_row = UserSettings.query.filter_by(user_id=request.current_user.id).first()
+    if not settings_row:
+        settings_row = UserSettings(user_id=request.current_user.id)
+        db.session.add(settings_row)
+        db.session.flush()
+
+    settings_data = parse_settings_payload(incoming)
+    write_settings_to_row(settings_row, settings_data)
+
+    try:
+        db.session.commit()
+        return jsonify({
+            'message': 'Settings updated successfully',
+            'settings': settings_data.to_api_dict(),
+        }), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({'error': 'Settings update failed'}), 500
 
 @users_bp.route('/<int:user_id>', methods=['GET'])
 @token_required
