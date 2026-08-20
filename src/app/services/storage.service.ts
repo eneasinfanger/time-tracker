@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, of, Subscription, tap } from 'rxjs';
 import { retry } from 'rxjs/operators';
 import { Activity, ISODate, Settings, Time } from '../utils/models';
 import { SettingsHolder } from '../utils/settings';
 import { UUID } from '../utils/crypto';
-import { getApiBaseUrl } from './api-base-url';
+import { env } from '../../environments/env';
 
 interface BackendDayActivitiesResponse {
   date: string;
@@ -60,8 +60,8 @@ interface BackendActivity {
 @Injectable({ providedIn: 'root' })
 export class StorageService {
   private readonly http = inject(HttpClient);
-  private readonly activitiesApiUrl = `${getApiBaseUrl()}/activities`;
-  private readonly settingsApiUrl = `${getApiBaseUrl()}/users/me/settings`;
+  private readonly activitiesApiUrl = `${env.apiBaseUrl}/activities`;
+  private readonly settingsApiUrl = `${env.apiBaseUrl}/users/me/settings`;
   private readonly activitiesCache = new Map<ISODate, Activity[]>();
   private readonly emptySummary: BackendSummaryResponse = {
     byDescription: [],

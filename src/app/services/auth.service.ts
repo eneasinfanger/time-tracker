@@ -1,8 +1,8 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
-import { getApiBaseUrl } from './api-base-url';
+import { env } from '../../environments/env';
 
 export interface User {
   id: number;
@@ -22,13 +22,13 @@ export interface AuthResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = `${getApiBaseUrl()}/auth`;
-  
+  private readonly apiUrl = `${env.apiBaseUrl}/auth`;
+
   // Signals
   private currentUserSignal = signal<User | null>(null);
   private tokenSignal = signal<string | null>(null);
   private isLoadingSignal = signal(false);
-  
+
   // Computed
   readonly currentUser = computed(() => this.currentUserSignal());
   readonly isAuthenticated = computed(() => !!this.tokenSignal());
@@ -42,7 +42,7 @@ export class AuthService {
   private loadStoredAuth(): void {
     const token = localStorage.getItem('auth_token');
     const user = localStorage.getItem('current_user');
-    
+
     if (token && user) {
       this.tokenSignal.set(token);
       this.currentUserSignal.set(JSON.parse(user));
