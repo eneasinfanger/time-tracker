@@ -9,7 +9,7 @@ sudo nano /etc/systemd/system/timetracker.service
 
 ```
 
-Paste the following configuration (replace `/path/to/backend` and `your_linux_user` with your actual directory and username):
+Paste the following configuration (replace `/path/to/time-tracker/` and `your_linux_user` with your actual directory and username):
 
 ```ini
 [Unit]
@@ -18,11 +18,12 @@ After=network.target
 
 [Service]
 User=your_linux_user
-WorkingDirectory=/path/to/backend
-EnvironmentFile=/path/to/backend/.env
+WorkingDirectory=/path/to/time-tracker/backend
+EnvironmentFile=/path/to/time-tracker/backend/.env
+Environment="ANGULAR_DIST_DIR=/path/to/time-tracker/dist/browser"
 
 # Run Gunicorn using the virtual environment executable
-ExecStart=/path/to/backend/venv/bin/gunicorn --workers 4 --bind 127.0.0.1:3000 main:app
+ExecStart=/path/to/time-tracker/backend/venv/bin/gunicorn --workers 4 --bind 127.0.0.1:3000 main:app
 
 # Graceful Shutdown Configuration
 KillMode=mixed

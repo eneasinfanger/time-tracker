@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_limiter import Limiter
@@ -14,9 +14,12 @@ def create_app(config_name=None):
     if config_name is None:
         config_name = os.getenv('FLASK_ENV', 'development')
 
-    ANGULAR_DIST_DIR = os.path.abspath("../dist/time-tracker/browser")
+    ANGULAR_DIST_DIR = os.getenv('ANGULAR_DIST_DIR')
 
-    app = Flask(__name__, static_folder=ANGULAR_DIST_DIR, static_url_path="")
+    app = Flask(
+      __name__,
+      static_folder=ANGULAR_DIST_DIR
+    )
     app.config.from_object(config[config_name])
 
     # Initialize extensions
@@ -38,18 +41,26 @@ def create_app(config_name=None):
     from app.routes.activities import activities_bp
     from app.models import User, Activity, UserSettings
 
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(users_bp)
-    app.register_blueprint(activities_bp)
+    api_bp = Blueprint('api', __name__, url_prefix='/api')
 
-    @app.route("/", defaults={"path": ""})
-    @app.route("/<path:path>")
-    def serve_angular(path):
-      # If the requested path corresponds to an existing static file (js, css, images), serve it
-      if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
-      # Otherwise, fall back to index.html so Angular client router handles it
-      return send_from_directory(app.static_folder, "index.html")
+    api_bp.register_blueprint(auth_bp, )
+    api_bp.register_blueprint(users_bp)
+    api_bp.register_blueprint(activities_bp)
+
+    app.register_blueprint(api_bp)
+
+    if ANGULAR_DIST_DIR:
+      #print(f"Serving Angular app from {ANGULAR_DIST_DIR}")
+
+      @app.route("/", defaults={"path": ""})
+      @app.route("/<path:path>")
+      def serve_angular(path):
+        # print(f"Request for path: {path}")
+        # If the requested path corresponds to an existing static file (js, css, images), serve it
+        if path != "" and os.path.isfile(os.path.join(app.static_folder, path)):
+          return send_from_directory(app.static_folder, path)
+        # Otherwise, fall back to index.html so Angular client router handles it
+        return send_from_directory(app.static_folder, "index.html")
 
     # Create tables
     with app.app_context():
