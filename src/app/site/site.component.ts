@@ -49,6 +49,16 @@ export class SiteComponent {
   }
 
   private initialize() {
+    effect(() => {
+      this.activities();
+
+      if (!this.autoSyncEnabled) {
+        return;
+      }
+
+      this.scheduleSummaryRefresh();
+      this.scheduleSaveCurrentActivities();
+    });
     this.storage.initSettings().subscribe({
       next: settings => {
         this.applyTheme(settings.theme);
@@ -61,17 +71,6 @@ export class SiteComponent {
         this.destroyRef.onDestroy(() => sub.unsubscribe());
 
         this.loadActivitiesForCurrentDay();
-
-        effect(() => {
-          this.activities();
-
-          if (!this.autoSyncEnabled) {
-            return;
-          }
-
-          this.scheduleSummaryRefresh();
-          this.scheduleSaveCurrentActivities();
-        });
 
         // Ensure activities are flushed when the page is hidden or unloaded
         window.addEventListener('beforeunload', () => {
