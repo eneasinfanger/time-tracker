@@ -50,7 +50,7 @@ table td {
   input, textarea, select {
     font-size: 16px !important; /* Prevents zoom on iOS */
   }
-  
+
   button {
     @apply py-3 px-4; /* Larger touch targets */
   }

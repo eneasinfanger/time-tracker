@@ -11,10 +11,11 @@ import { generateUUID, UUID } from '../utils/crypto';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
 import { SettingsHolder } from '../utils/settings';
 import { SettingsButtonComponent } from "../settings-button/settings-button.component";
+import { GridNavContainerDirective } from '../grid-nav-container/grid-nav-container.directive';
 
 @Component({
   selector: 'app-site',
-  imports: [FormsModule, ReactiveFormsModule, TimeSummaryComponent, ActivityRowComponent, SettingsMenuComponent, SettingsButtonComponent],
+  imports: [FormsModule, ReactiveFormsModule, TimeSummaryComponent, ActivityRowComponent, SettingsMenuComponent, SettingsButtonComponent, GridNavContainerDirective],
   templateUrl: './site.component.html',
   styleUrls: ['./site.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

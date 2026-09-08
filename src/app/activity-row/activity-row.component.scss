@@ -11,5 +11,15 @@ input, select {
   box-sizing: border-box;
 }
 
+.time-input::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+.time-input {
+  appearance: none;
+  -moz-appearance: textfield;
+}
+
 /* Note: width constraints moved to template with Tailwind `max-w-*` utilities to avoid overflow */
 

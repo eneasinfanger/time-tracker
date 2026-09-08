@@ -134,7 +134,7 @@
               <th class="px-4 py-4 text-left text-[0.7rem] font-bold uppercase tracking-[0.16em] text-clay-muted">Actions</th>
             </tr>
             </thead>
-            <tbody id="activitiesTable" class="divide-y divide-clay-border">
+            <tbody id="activitiesTable" grid-nav-container class="divide-y divide-clay-border">
               @for (activity of activities(); track activity().id) {
                 <tr activity-row
                   class="transition hover:bg-clay-accent/5"

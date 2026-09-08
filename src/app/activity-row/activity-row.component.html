@@ -1,38 +1,59 @@
 @if (isText()) {
   <td class="px-4 py-3 relative align-top" [attr.colspan]="enableTasks() ? 4 : 3">
-    <input suggestable type="text" class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
-      [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
-      (itemSelected)="setTaskFromDescription($event)" placeholder="Comment"
-      title="Enter a comment or description" (blur)="emitChanged()">
+    <input suggestable type="text" grid-nav-cell
+           class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
+           [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
+           (itemSelected)="setTaskFromDescription($event)" placeholder="Comment"
+           title="Enter a comment or description" (blur)="emitChanged()">
   </td>
   <td class="px-4 py-3 align-top">
     <div class="flex items-center gap-2">
-      <button type="button" class="clay-soft flex h-9 w-9 items-center justify-center text-clay-green hover:bg-clay-green/10 active:scale-95" (click)="addRow.emit('activity')"
-        title="Add an activity after this one"><app-icon name="plus" class="text-sm"></app-icon></button>
-      <button type="button" class="clay-soft flex h-9 w-9 items-center justify-center text-clay-red hover:bg-clay-red/10 active:scale-95" (click)="removeRow.emit()"
-        title="Delete this activity"><app-icon name="close" class="text-sm"></app-icon></button>
+      <button type="button" grid-nav-cell
+              class="clay-soft flex h-9 w-9 items-center justify-center text-clay-green hover:bg-clay-green/10 active:scale-95"
+              (click)="addRow.emit('activity')"
+              title="Add an activity after this one">
+        <app-icon name="plus" class="text-sm"></app-icon>
+      </button>
+      <button type="button" grid-nav-cell
+              class="clay-soft flex h-9 w-9 items-center justify-center text-clay-red hover:bg-clay-red/10 active:scale-95"
+              (click)="removeRow.emit()"
+              title="Delete this activity">
+        <app-icon name="close" class="text-sm"></app-icon>
+      </button>
+      <button type="button" grid-nav-cell
+              class="clay-soft flex h-9 w-9 items-center justify-center text-sky-600 hover:bg-clay-red/10 active:scale-95"
+              (click)="toggleComment()"
+              title="Toggle comment mode">
+        <app-icon name="comment" class="text-sm"></app-icon>
+      </button>
     </div>
   </td>
 } @else {
   <td class="px-4 py-3 align-top">
-    <input suggestable type="time" [(ngModel)]="startTime" [suggestionProvider]="getStartSuggestions"
-      class="w-full max-w-[4.5rem] rounded-md border-2 border-transparent bg-clay-muted-surface px-3 py-2.5 text-sm text-clay-foreground outline-none transition-colors duration-200 focus:border-clay-accent focus:bg-clay-card disabled:opacity-60 sm:max-w-[6rem] md:max-w-[8rem]"
-      title="Enter the start time of the activity">
+    <div class="relative">
+      <input suggestable grid-nav-cell type="time" [(ngModel)]="startTime" [suggestionProvider]="getStartSuggestions"
+        class="time-input w-full max-w-[4.5rem] rounded-md border-2 border-transparent bg-clay-muted-surface px-3 py-2.5 pr-8 text-sm text-clay-foreground outline-none transition-colors duration-200 focus:border-clay-accent focus:bg-clay-card disabled:opacity-60 sm:max-w-[6rem] md:max-w-[8rem]"
+        title="Enter the start time of the activity">
+        <app-icon name="clock" class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 select-none text-sm"></app-icon>
+    </div>
   </td>
   <td class="px-4 py-3 align-top">
-    <input suggestable type="time" [(ngModel)]="endTime" [suggestionProvider]="getEndSuggestions"
-      class="w-full max-w-[4.5rem] rounded-md border-2 border-transparent bg-clay-muted-surface px-3 py-2.5 text-sm text-clay-foreground outline-none transition-colors duration-200 focus:border-clay-accent focus:bg-clay-card disabled:opacity-60 sm:max-w-[6rem] md:max-w-[8rem]"
-      title="Enter the end time of the activity">
+    <div class="relative">
+      <input suggestable grid-nav-cell type="time" [(ngModel)]="endTime" [suggestionProvider]="getEndSuggestions"
+        class="time-input w-full max-w-[4.5rem] rounded-md border-2 border-transparent bg-clay-muted-surface px-3 py-2.5 pr-8 text-sm text-clay-foreground outline-none transition-colors duration-200 focus:border-clay-accent focus:bg-clay-card disabled:opacity-60 sm:max-w-[6rem] md:max-w-[8rem]"
+        title="Enter the end time of the activity">
+      <app-icon name="clock" class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 select-none text-sm"></app-icon>
+    </div>
   </td>
   <td class="px-4 py-3 relative align-top">
-    <input suggestable type="text" class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
+    <input suggestable grid-nav-cell type="text" class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
       [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
       (itemSelected)="setTaskFromDescription($event)" placeholder="Activity or description"
       title="Enter an activity or a description" (blur)="emitChanged()">
   </td>
   @if (enableTasks()) {
     <td class="px-4 py-3 relative align-top">
-      <input suggestable type="text" [(ngModel)]="task"
+      <input suggestable grid-nav-cell type="text" [(ngModel)]="task"
         [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
         class="w-full min-w-0 rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-sm text-clay-foreground outline-none transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card disabled:opacity-60"
         placeholder="ID" title="Enter the task identifier" (blur)="emitChanged()">
@@ -40,10 +61,24 @@
   }
   <td class="px-4 py-3 align-top">
     <div class="flex items-center gap-2">
-      <button type="button" class="clay-soft flex h-9 w-9 items-center justify-center text-clay-green hover:bg-clay-green/10 active:scale-95" (click)="addRow.emit('activity')"
-        title="Add an activity after this one"><app-icon name="plus" class="text-sm"></app-icon></button>
-      <button type="button" class="clay-soft flex h-9 w-9 items-center justify-center text-clay-red hover:bg-clay-red/10 active:scale-95" (click)="removeRow.emit()"
-        title="Delete this activity"><app-icon name="close" class="text-sm"></app-icon></button>
+      <button type="button" grid-nav-cell
+              class="clay-soft flex h-9 w-9 items-center justify-center text-clay-green hover:bg-clay-green/10 active:scale-95"
+              (click)="addRow.emit('activity')"
+              title="Add an activity after this one">
+        <app-icon name="plus" class="text-sm"></app-icon>
+      </button>
+      <button type="button" grid-nav-cell
+              class="clay-soft flex h-9 w-9 items-center justify-center text-clay-red hover:bg-clay-red/10 active:scale-95"
+              (click)="removeRow.emit()"
+              title="Delete this activity">
+        <app-icon name="close" class="text-sm"></app-icon>
+      </button>
+      <button type="button" grid-nav-cell
+              class="clay-soft flex h-9 w-9 items-center justify-center text-sky-600 hover:bg-clay-red/10 active:scale-95"
+              (click)="toggleComment()"
+              title="Toggle comment mode">
+        <app-icon name="comment" class="text-sm"></app-icon>
+      </button>
     </div>
   </td>
 }

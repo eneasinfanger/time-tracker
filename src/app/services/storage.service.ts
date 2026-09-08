@@ -49,8 +49,8 @@ interface BackendActivity {
   task_name: string;
   description: string | null;
   category: string | null;
-  start_time: string;
-  end_time: string | null;
+  startTime: Time | null;
+  endTime: Time | null;
   duration_minutes: number;
   is_completed: boolean;
   created_at: string;
@@ -105,22 +105,19 @@ export class StorageService {
   }
 
   syncActivitiesForDate(date: ISODate, activities: Activity[]): Observable<DayActivitiesResult> {
-    // Keep activities that have meaningful content. For text/comment activities allow missing startTime
-    const normalized = activities.filter(activity => this.isNotEmpty(activity) && (activity.type === 'text' || activity.startTime));
-    return this.http.put<BackendDayActivitiesResponse>(`${this.activitiesApiUrl}/day/${date}`, {
-      activities: normalized,
-    }).pipe(
-      retry(2),
-      map(response => ({
-        activities: response.activities.map(activity => this.mapBackendActivity(activity)),
-        summary: response.summary ?? this.emptySummary,
-      })),
-      tap(result => this.activitiesCache.set(date, result.activities)),
-      catchError(() => of({
-        activities: this.activitiesCache.get(date) ?? [],
-        summary: this.emptySummary,
-      })),
-    );
+    return this.http.put<BackendDayActivitiesResponse>(`${ this.activitiesApiUrl }/day/${ date }`, { activities })
+      .pipe(
+        retry(2),
+        map(response => ({
+          activities: response.activities.map(activity => this.mapBackendActivity(activity)),
+          summary: response.summary ?? this.emptySummary,
+        })),
+        tap(result => this.activitiesCache.set(date, result.activities)),
+        catchError(() => of({
+          activities: this.activitiesCache.get(date) ?? [],
+          summary: this.emptySummary,
+        })),
+      );
   }
 
   /**
@@ -247,18 +244,11 @@ export class StorageService {
     const type = activity.category === 'text' ? 'text' : 'activity';
     return {
       id: String(activity.id) as UUID,
-      startTime: this.formatTime(activity.start_time),
-      endTime: activity.end_time ? this.formatTime(activity.end_time) : '',
+      startTime: activity.startTime ?? '',
+      endTime: activity.endTime ?? '',
       description: activity.description?.trim() || (type === 'text' ? activity.task_name : ''),
       task: type === 'text' ? '' : activity.task_name,
       type,
     };
-  }
-
-  private formatTime(value: string): Time {
-    const date = new Date(value);
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}` as Time;
   }
 }

@@ -7,10 +7,11 @@ import { SuggestableInputComponent } from '../suggestable-input/suggestable-inpu
 import { StorageService } from '../services/storage.service';
 import { SettingsHolder } from '../utils/settings';
 import { IconComponent } from '../icon/icon.component';
+import { GridNavCellDirective } from '../grid-nav-container/grid-nav-cell.directive';
 
 @Component({
   selector: 'tr[activity-row]',
-  imports: [CommonModule, FormsModule, SuggestableInputComponent, IconComponent],
+  imports: [CommonModule, FormsModule, SuggestableInputComponent, IconComponent, GridNavCellDirective],
   templateUrl: './activity-row.component.html',
   styleUrls: ['./activity-row.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,7 +23,7 @@ export class ActivityRowComponent implements OnInit {
   readonly activity = input.required<WritableSignal<Activity>>();
   readonly activities = input.required<WritableSignal<Activity>[]>();
   readonly currentDate = input.required<ISODate>();
-  readonly addRow = output<import('../utils/models').ActivityType | undefined>();
+  readonly addRow = output<ActivityType | undefined>();
   readonly removeRow = output<void>();
   readonly changed = output<void>();
 
@@ -48,12 +49,12 @@ export class ActivityRowComponent implements OnInit {
   }
 
   isText() {
-    return this.activity()().type === 'text';
+    return this.type() === 'text';
   }
 
   toggleComment() {
-    // Emit addRow with 'text' to request a new comment row below this one
-    this.addRow.emit('text');
+    this.type.set(this.type() === 'activity' ? 'text' : 'activity');
+    this.emitChanged();
   }
 
   emitChanged() {
