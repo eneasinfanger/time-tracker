@@ -17,7 +17,7 @@
   --color-clay-canvas: #ffffff;          /* Pure white canvas */
   --color-clay-surface: #f3f4f6;         /* Gray 100 — secondary blocks */
   --color-clay-card: #ffffff;            /* Card = white */
-  --color-clay-muted-surface: #f3f4f6;   /* Gray 100 — inputs */
+  --color-clay-muted-surface: var(--color-gray-50);   /* Gray 50 — inputs */
   --color-clay-foreground: #111827;      /* Gray 900 — sharp text */
   --color-clay-secondary: #374151;       /* Gray 700 */
   --color-clay-muted: #6b7280;           /* Gray 500 — muted text */
