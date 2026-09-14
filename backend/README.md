@@ -74,11 +74,13 @@ backend/
 4. **Initialize Database**
    ```bash
    flask shell
-   >>> from app import db, create_app
-   >>> app = create_app()
-   >>> with app.app_context():
-   >>>     db.create_all()
-   >>> exit()
+   >>>
+   from app import db, create_app
+   app = create_app()
+   with app.app_context():
+       db.create_all()
+   
+   exit()
    ```
 
 5. **Create Admin User**

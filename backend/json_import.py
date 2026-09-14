@@ -1,5 +1,5 @@
 import json
-from datetime import date, datetime, timedelta, time as time_obj
+from datetime import date, datetime, timedelta, time as time
 from pathlib import Path
 
 from app import create_app, db
@@ -82,14 +82,13 @@ def _parse_activity_date_key(key: str) -> date | None:
         return None
 
 
-def _parse_time(activity_date: date, time_value: str) -> datetime | None:
+def _parse_time(time_value: str) -> time | None:
     if not time_value:
         return None
     try:
-        parsed_time = datetime.strptime(time_value, '%H:%M').time()
+        return datetime.strptime(time_value, '%H:%M').time()
     except ValueError:
         return None
-    return datetime.combine(activity_date, parsed_time)
 
 
 def _to_activity_rows(payload: dict) -> list[tuple[date, dict]]:
@@ -115,7 +114,7 @@ def _to_activity_rows(payload: dict) -> list[tuple[date, dict]]:
 
 
 def _replace_day_activities_for_user(user: User, activity_date: date, items: list[dict]) -> tuple[int, int]:
-    start_day = datetime.combine(activity_date, time_obj.min)
+    start_day = datetime.combine(activity_date, time.min)
     end_day = start_day + timedelta(days=1)
     existing = Activity.query.filter(
         Activity.user_id == user.id,
@@ -128,8 +127,8 @@ def _replace_day_activities_for_user(user: User, activity_date: date, items: lis
     imported = 0
     skipped = 0
     for item in items:
-        start_time = _parse_time(activity_date, str(item.get('startTime', '')).strip())
-        end_time = _parse_time(activity_date, str(item.get('endTime', '')).strip())
+        start_time = _parse_time(str(item.get('startTime', '')).strip())
+        end_time = _parse_time(str(item.get('endTime', '')).strip())
         activity_type = str(item.get('type', 'activity')).strip() or 'activity'
         description = str(item.get('description', '')).strip()
         task = str(item.get('task', '')).strip()
@@ -137,33 +136,28 @@ def _replace_day_activities_for_user(user: User, activity_date: date, items: lis
         if activity_type not in ('activity', 'text'):
             activity_type = 'activity'
 
-        if not any([start_time, end_time, description, task]):
-            skipped += 1
-            continue
-
-        if start_time is None:
-            if activity_type == 'text':
-                start_time = start_day
-            else:
-                skipped += 1
-                continue
-
         duration_minutes = 0
-        if end_time is not None:
-            if end_time < start_time:
-                end_time += timedelta(days=1)
-            duration_minutes = int((end_time - start_time).total_seconds() / 60)
+        if start_time is not None and end_time is not None:
+            dummy_date = datetime(1, 1, 1)
+            start_date = datetime.combine(dummy_date, start_time)
+            end_date = datetime.combine(dummy_date, end_time)
+            if end_date < start_date:
+                end_date += timedelta(days=1)
+            duration_minutes = int((end_date - start_date).total_seconds() / 60)
 
         record = Activity(
             user_id=user.id,
-            task_name=task or description or 'Activity',
+            task_name=task,
             description=description,
             category=activity_type,
             start_time=start_time,
             end_time=end_time,
+            day_date=activity_date,
+            position=imported,
             duration_minutes=max(0, duration_minutes),
             is_completed=end_time is not None,
         )
+        print(record.__dict__)
         db.session.add(record)
         imported += 1
 
