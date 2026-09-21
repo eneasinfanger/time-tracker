@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, of, Subscription, tap } from 'rxjs';
 import { retry } from 'rxjs/operators';
-import { Activity, ISODate, Settings, Time } from '../utils/models';
+import { Activity, ActivitySuggestion, ISODate, Settings, Time } from '../utils/models';
 import { SettingsHolder } from '../utils/settings';
 import { UUID } from '../utils/crypto';
 import { env } from '../../environments/env';
@@ -60,8 +60,8 @@ interface BackendActivity {
 @Injectable({ providedIn: 'root' })
 export class StorageService {
   private readonly http = inject(HttpClient);
-  private readonly activitiesApiUrl = `${env.apiBaseUrl}/activities`;
-  private readonly settingsApiUrl = `${env.apiBaseUrl}/users/me/settings`;
+  private readonly activitiesApiUrl = `${ env.apiBaseUrl }/activities`;
+  private readonly settingsApiUrl = `${ env.apiBaseUrl }/users/me/settings`;
   private readonly activitiesCache = new Map<ISODate, Activity[]>();
   private readonly emptySummary: BackendSummaryResponse = {
     byDescription: [],
@@ -91,7 +91,7 @@ export class StorageService {
   }
 
   loadActivitiesForDate(date: ISODate): Observable<DayActivitiesResult> {
-    return this.http.get<BackendDayActivitiesResponse>(`${this.activitiesApiUrl}/day/${date}`).pipe(
+    return this.http.get<BackendDayActivitiesResponse>(`${ this.activitiesApiUrl }/day/${ date }`).pipe(
       map(response => ({
         activities: response.activities.map(activity => this.mapBackendActivity(activity)),
         summary: response.summary ?? this.emptySummary,
@@ -125,27 +125,16 @@ export class StorageService {
    */
   sendKeepaliveSync(date: ISODate, activities: Activity[]) {
     try {
-      const normalized = activities.filter(activity => this.isNotEmpty(activity) && (activity.type === 'text' || activity.startTime));
-      const payload = JSON.stringify({ activities: normalized });
-      if (typeof navigator !== 'undefined' && 'sendBeacon' in navigator) {
-        const blob = new Blob([payload], { type: 'application/json' });
-        navigator.sendBeacon(`${this.activitiesApiUrl}/day/${date}`, blob as any);
-      } else if (typeof fetch !== 'undefined') {
-        // fetch keepalive as fallback
-        fetch(`${this.activitiesApiUrl}/day/${date}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: payload,
-          keepalive: true,
-        }).catch(() => {});
-      }
+      const payload = JSON.stringify({ activities });
+      const blob = new Blob([payload], { type: 'application/json' });
+      navigator.sendBeacon(`${ this.activitiesApiUrl }/day/${ date }`, blob);
     } catch (e) {
-      // swallow errors - best-effort only
+      console.error('Beacon failed:', e);
     }
   }
 
   calculateSummary(activities: Activity[]): Observable<BackendSummaryResponse> {
-    return this.http.post<{ summary: BackendSummaryResponse }>(`${this.activitiesApiUrl}/summary`, {
+    return this.http.post<{ summary: BackendSummaryResponse }>(`${ this.activitiesApiUrl }/summary`, {
       activities,
     }).pipe(
       map(response => response.summary ?? this.emptySummary),
@@ -153,7 +142,11 @@ export class StorageService {
     );
   }
 
-  getDescriptionSuggestions(value: string, currentDate: ISODate, activityType: 'activity' | 'text', currentActivityId: string, currentActivities: Activity[], durationThreshold: Settings['durationThreshold'], alwaysShownActivities: Array<{ id?: string; description: string; task: string }>): Observable<string[]> {
+  getDescriptionSuggestions(value: string, currentDate: ISODate, activityType: 'activity' | 'text', currentActivityId: string, currentActivities: Activity[], durationThreshold: Settings['durationThreshold'], alwaysShownActivities: Array<{
+    id?: string;
+    description: string;
+    task: string
+  }>): Observable<ActivitySuggestion[]> {
     return this.getSuggestions({
       date: currentDate,
       field: 'description',
@@ -166,7 +159,11 @@ export class StorageService {
     });
   }
 
-  getTaskSuggestions(value: string, currentDate: ISODate, currentActivityId: string, currentActivities: Activity[], durationThreshold: Settings['durationThreshold'], alwaysShownActivities: Array<{ id?: string; description: string; task: string }>): Observable<string[]> {
+  getTaskSuggestions(value: string, currentDate: ISODate, currentActivityId: string, currentActivities: Activity[], durationThreshold: Settings['durationThreshold'], alwaysShownActivities: Array<{
+    id?: string;
+    description: string;
+    task: string
+  }>): Observable<ActivitySuggestion[]> {
     return this.getSuggestions({
       date: currentDate,
       field: 'task',
@@ -179,7 +176,7 @@ export class StorageService {
     });
   }
 
-  getStartSuggestions(currentDate: ISODate, currentActivityId: string, currentActivities: Activity[]): Observable<string[]> {
+  getStartSuggestions(currentDate: ISODate, currentActivityId: string, currentActivities: Activity[]): Observable<Time[]> {
     return this.getSuggestions({
       date: currentDate,
       field: 'start',
@@ -188,7 +185,7 @@ export class StorageService {
     });
   }
 
-  getEndSuggestions(currentDate: ISODate, currentActivityId: string, currentActivities: Activity[]): Observable<string[]> {
+  getEndSuggestions(currentDate: ISODate, currentActivityId: string, currentActivities: Activity[]): Observable<Time[]> {
     return this.getSuggestions({
       date: currentDate,
       field: 'end',
@@ -197,12 +194,8 @@ export class StorageService {
     });
   }
 
-  private isNotEmpty(activity?: Activity) {
-    return !!(activity?.startTime || activity?.endTime || activity?.description || activity?.task);
-  }
-
-  private getSuggestions(request: SuggestionRequest): Observable<string[]> {
-    return this.http.post<{ suggestions: string[] }>(`${this.activitiesApiUrl}/suggestions`, request).pipe(
+  private getSuggestions<T>(request: SuggestionRequest): Observable<T[]> {
+    return this.http.post<{ suggestions: T[] }>(`${ this.activitiesApiUrl }/suggestions`, request).pipe(
       map(response => response.suggestions ?? []),
       catchError(() => of([])),
     );

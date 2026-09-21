@@ -1,17 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal, WritableSignal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { StorageService, BackendSummaryResponse } from '../services/storage.service';
+import { BackendSummaryResponse, StorageService } from '../services/storage.service';
 import { TimeCalculatorService } from '../services/time-calculator.service';
 import { TimeSummaryComponent } from '../time-summary/time-summary.component';
 import { ActivityRowComponent } from '../activity-row/activity-row.component';
 import { Activity, ActivitySummary, Theme } from '../utils/models';
-import { unwrapSignal, wrapInSignal } from '../utils/signals';
 import { formatDateISO, formatDateToDisplay, parseISODate } from '../utils/dates';
 import { generateUUID, UUID } from '../utils/crypto';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
 import { SettingsHolder } from '../utils/settings';
-import { SettingsButtonComponent } from "../settings-button/settings-button.component";
+import { SettingsButtonComponent } from '../settings-button/settings-button.component';
 import { GridNavContainerDirective } from '../grid-nav-container/grid-nav-container.directive';
+import { downloadFile } from '../utils/download';
 
 @Component({
   selector: 'app-site',
@@ -23,7 +23,7 @@ import { GridNavContainerDirective } from '../grid-nav-container/grid-nav-contai
 export class SiteComponent {
   readonly currentDate = signal(new Date());
   readonly currentDateISO = computed(() => formatDateISO(this.currentDate()));
-  readonly activities = signal<WritableSignal<Activity>[]>([]);
+  readonly activities = signal<Activity[]>([]);
   readonly summary = signal<ActivitySummary>({
     getTotalByDescription: () => new Map(),
     getTotalByTask: () => new Map(),
@@ -58,7 +58,7 @@ export class SiteComponent {
       }
 
       this.scheduleSummaryRefresh();
-      this.scheduleSaveCurrentActivities();
+      this.scheduleSave();
     });
     this.storage.initSettings().subscribe({
       next: settings => {
@@ -76,19 +76,22 @@ export class SiteComponent {
         // Ensure activities are flushed when the page is hidden or unloaded
         window.addEventListener('beforeunload', () => {
           try {
-            this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
-          } catch (e) {}
+            this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities());
+          } catch (e) {
+          }
         });
         window.addEventListener('pagehide', () => {
           try {
-            this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
-          } catch (e) {}
+            this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities());
+          } catch (e) {
+          }
         });
         document.addEventListener('visibilitychange', () => {
           if (document.hidden) {
             try {
-              this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities().map(unwrapSignal));
-            } catch (e) {}
+              this.storage.sendKeepaliveSync(this.currentDateISO(), this.activities());
+            } catch (e) {
+            }
           }
         });
       },
@@ -98,7 +101,8 @@ export class SiteComponent {
           SettingsHolder.setSettings(fallback);
           this.applyTheme(fallback.theme);
           this.enableTasks.set(fallback.enableTasks);
-        } catch (e) {}
+        } catch (e) {
+        }
         this.loadActivitiesForCurrentDay();
       },
     });
@@ -131,7 +135,7 @@ export class SiteComponent {
     this.autoSyncEnabled = false;
     this.storage.loadActivitiesForDate(date).subscribe({
       next: result => {
-        this.activities.set(result.activities.map(wrapInSignal));
+        this.activities.set(result.activities);
         this.applyBackendSummary(result.summary, result.activities);
         window.setTimeout(() => {
           this.activitiesLoading.set(false);
@@ -149,9 +153,9 @@ export class SiteComponent {
     });
   }
 
-  private scheduleSaveCurrentActivities() {
+  private scheduleSave() {
     const date = this.currentDateISO();
-    const activities = this.activities().map(unwrapSignal);
+    const activities = this.activities();
 
     if (this.saveTimer !== null) {
       window.clearTimeout(this.saveTimer);
@@ -165,7 +169,7 @@ export class SiteComponent {
 
   saveNow() {
     const date = this.currentDateISO();
-    const activities = this.activities().map(unwrapSignal);
+    const activities = this.activities();
     if (this.saveTimer !== null) {
       window.clearTimeout(this.saveTimer);
       this.saveTimer = null;
@@ -174,7 +178,7 @@ export class SiteComponent {
   }
 
   private scheduleSummaryRefresh() {
-    const activities = this.activities().map(unwrapSignal);
+    const activities = this.activities();
 
     if (this.summaryTimer !== null) {
       window.clearTimeout(this.summaryTimer);
@@ -194,25 +198,24 @@ export class SiteComponent {
   }
 
   addNewActivity(afterId: UUID | null = null, typeParam: Activity['type'] = 'activity') {
-    const newActivity: WritableSignal<Activity> = signal({
+    const newActivity: Activity = {
       id: generateUUID(),
       startTime: '',
       endTime: '',
       task: '',
       description: '',
       type: typeParam,
-    });
+    };
 
     const copy = [...this.activities()];
-    const insertAfterIndex = afterId ? copy.findIndex(ac => ac().id === afterId) : null;
+    const insertAfterIndex = afterId ? copy.findIndex(ac => ac.id === afterId) : null;
     if (insertAfterIndex !== null) {
       copy.splice(insertAfterIndex + 1, 0, newActivity);
     } else {
       copy.push(newActivity);
     }
     this.activities.set(copy);
-    // Persist immediately for reliability
-    this.saveNow();
+    this.scheduleSave();
   }
 
   removeActivity(id: UUID) {
@@ -220,11 +223,22 @@ export class SiteComponent {
       this.activities.set([]);
     } else if (this.activities().length) {
       const copy = [...this.activities()];
-      copy.splice(copy.findIndex(a => a().id == id), 1);
+      copy.splice(copy.findIndex(a => a.id == id), 1);
       this.activities.set(copy);
-      // Persist immediately for reliability
-      this.saveNow();
+      this.scheduleSave();
     }
+  }
+
+  updateActivity(changed: Activity): void {
+    const activities = this.activities();
+    const idx = activities.findIndex(a => a.id == changed.id);
+    if (!idx) {
+      return;
+    }
+    const copy = [...activities];
+    copy[idx] = changed;
+    this.activities.set(copy);
+    this.scheduleSave();
   }
 
   /**
@@ -232,7 +246,7 @@ export class SiteComponent {
    */
   exportCsv() {
     const date = this.currentDateISO();
-    const activities = this.activities().map(unwrapSignal);
+    const activities = this.activities();
 
     const headers = ['date', 'start', 'end', 'description', 'task', 'type'];
     const escape = (v: any) => {
@@ -245,21 +259,7 @@ export class SiteComponent {
 
     const csv = [headers.map(escape).join(',')].concat(rows.map(r => r.map(escape).join(','))).join('\n');
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const filename = `time-tracker-${date}.csv`;
-    if (navigator && 'msSaveBlob' in navigator) {
-      // IE10+
-      (navigator as any).msSaveBlob(blob, filename);
-    } else {
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }
+    downloadFile(`time-tracker-${ date }.csv`, [csv], 'text/csv;charset=utf-8;');
   }
 
   private applyBackendSummary(summary: BackendSummaryResponse, activities: Activity[]) {

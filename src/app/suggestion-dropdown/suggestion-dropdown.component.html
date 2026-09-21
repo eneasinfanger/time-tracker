@@ -1,5 +1,8 @@
 <div class="tt-suggestion-dropdown clay-card overflow-hidden rounded-clay-sm max-h-40 overflow-y-auto">
-  @for (item of items(); track item) {
-    <div class="cursor-pointer px-4 py-2.5 text-sm font-medium text-clay-foreground transition hover:bg-clay-accent/10 hover:text-clay-accent" (click)="selectItem(item)">{{ item }}</div>
+  @for (item of items(); track item.text) {
+    <div
+      class="cursor-pointer px-4 py-2.5 text-sm font-medium text-clay-foreground transition hover:bg-clay-accent/10 hover:text-clay-accent"
+      (click)="selectItem(item)">{{ item.text }}
+    </div>
   }
 </div>

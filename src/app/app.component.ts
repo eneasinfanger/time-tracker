@@ -10,11 +10,4 @@ import { NavbarComponent } from './navbar/navbar.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  static appInjector: Injector;
-
-  constructor(injector: Injector) {
-    AppComponent.appInjector = injector;
-  }
 }
-
-export const appInjector = () => AppComponent.appInjector;

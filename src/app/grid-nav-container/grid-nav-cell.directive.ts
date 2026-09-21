@@ -37,6 +37,10 @@ export class GridNavCellDirective implements OnInit, OnDestroy {
     this.container.navigate(this, direction);
   }
 
+  navigate(direction: 'up' | 'down' | 'left' | 'right') {
+    this.container?.navigate(this, direction);
+  }
+
   private canNavigateHorizontal(input: HTMLInputElement | HTMLButtonElement, direction: 'left' | 'right'): boolean {
     if (input instanceof HTMLButtonElement) {
       return true;

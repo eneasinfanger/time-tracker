@@ -4,7 +4,7 @@
            class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-clay-foreground outline-clay-accent-soft outline-2 transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
            [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
            (itemSelected)="setTaskFromDescription($event)" placeholder="Comment"
-           title="Enter a comment or description" (blur)="emitChanged()">
+           title="Enter a comment or description">
   </td>
   <td class="px-3 py-2 align-top">
     <div class="flex items-center gap-2">
@@ -31,32 +31,32 @@
 } @else {
   <td class="px-3 py-2 align-top">
     <div class="relative">
-      <input suggestable grid-nav-cell type="time" [(ngModel)]="startTime" [suggestionProvider]="getStartSuggestions"
+      <input suggestable grid-nav-cell type="time" [(ngModel)]="startTime" title="Enter the start time of the activity"
         class="border-2 time-input w-full max-w-[4.5rem] rounded-md border-transparent bg-clay-muted-surface px-3 py-2.5 pr-8 text-sm text-clay-foreground outline-clay-border outline-2 transition-colors duration-200 focus:border-clay-accent focus:bg-clay-card disabled:opacity-60 sm:max-w-[6rem] md:max-w-[8rem]"
-        title="Enter the start time of the activity">
+        [suggestionProvider]="getStartSuggestions" moveOnSelection="next">
         <app-icon name="clock" class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 select-none text-sm"></app-icon>
     </div>
   </td>
   <td class="px-3 py-2 align-top">
     <div class="relative">
-      <input suggestable grid-nav-cell type="time" [(ngModel)]="endTime" [suggestionProvider]="getEndSuggestions"
+      <input suggestable grid-nav-cell type="time" [(ngModel)]="endTime" title="Enter the end time of the activity"
         class="border-2 time-input w-full max-w-[4.5rem] rounded-md border-transparent bg-clay-muted-surface px-3 py-2.5 pr-8 text-sm text-clay-foreground outline-clay-border outline-2 transition-colors duration-200 focus:border-clay-accent focus:bg-clay-card disabled:opacity-60 sm:max-w-[6rem] md:max-w-[8rem]"
-        title="Enter the end time of the activity">
+        [suggestionProvider]="getEndSuggestions" moveOnSelection="next">
       <app-icon name="clock" class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 select-none text-sm"></app-icon>
     </div>
   </td>
   <td class="px-3 py-2 relative align-top">
     <input suggestable grid-nav-cell type="text" class="w-full rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-clay-foreground outline-clay-border outline-2 transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card"
       [(ngModel)]="description" [suggestionProvider]="getDescriptionSuggestions"
-      (itemSelected)="setTaskFromDescription($event)" placeholder="Activity or description"
-      title="Enter an activity or a description" (blur)="emitChanged()">
+      (itemSelected)="setTaskFromDescription($event)" [moveOnSelection]="enableTasks() ? 'next' : 'none'"
+      placeholder="Activity or description" title="Enter an activity or a description">
   </td>
   @if (enableTasks()) {
     <td class="px-3 py-2 relative align-top">
       <input suggestable grid-nav-cell type="text" [(ngModel)]="task"
         [suggestionProvider]="getTaskSuggestions" (itemSelected)="setDescriptionFromTask($event)"
         class="w-full min-w-0 rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-sm text-clay-foreground outline-clay-border outline-2 transition-colors duration-200 placeholder:text-clay-muted focus:border-clay-accent focus:bg-clay-card disabled:opacity-60"
-        placeholder="ID" title="Enter the task identifier" (blur)="emitChanged()">
+        placeholder="ID" title="Enter the task identifier">
     </td>
   }
   <td class="px-3 py-2 align-top">

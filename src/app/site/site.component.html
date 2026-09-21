@@ -135,13 +135,13 @@
             </tr>
             </thead>
             <tbody id="activitiesTable" grid-nav-container class="divide-y divide-clay-border">
-              @for (activity of activities(); track activity().id) {
+              @for (activity of activities(); track activity.id) {
                 <tr activity-row
                   class="transition hover:bg-clay-accent/5"
                   [activity]="activity"
                   [activities]="activities()"
-                  [currentDate]="currentDateISO()" (addRow)="addNewActivity(activity().id, $event)"
-                  (removeRow)="removeActivity(activity().id)" (changed)="saveNow()"></tr>
+                  [currentDate]="currentDateISO()" (addRow)="addNewActivity(activity.id, $event)"
+                  (removeRow)="removeActivity(activity.id)" (changed)="updateActivity($event)"></tr>
               }
             </tbody>
           </table>

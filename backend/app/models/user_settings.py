@@ -1,71 +1,87 @@
-from datetime import datetime
-
+from datetime import datetime, timezone
+from typing import List, Optional
+from sqlalchemy import ForeignKey, String, Text, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app import db
 
 
 class UserSettings(db.Model):
     __tablename__ = 'user_settings'
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, unique=True, index=True)
-    enable_tasks = db.Column(db.Boolean, nullable=False, default=True)
-    theme = db.Column(db.String(10), nullable=False, default='system')
-    duration_weeks = db.Column(db.Integer, nullable=False, default=1)
-    duration_days = db.Column(db.Integer, nullable=False, default=0)
-    duration_hours = db.Column(db.Integer, nullable=False, default=0)
-    duration_minutes = db.Column(db.Integer, nullable=False, default=0)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-
-    always_shown_activities = db.relationship(
-        'UserAlwaysShownActivity',
-        backref='settings',
-        lazy=True,
-        cascade='all, delete-orphan',
-        order_by='UserAlwaysShownActivity.position.asc()',
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False, unique=True, index=True)
+    enable_tasks: Mapped[bool] = mapped_column(default=True)
+    theme: Mapped[str] = mapped_column(String(10), default='system')
+    duration_weeks: Mapped[int] = mapped_column(default=1)
+    duration_days: Mapped[int] = mapped_column(default=0)
+    duration_hours: Mapped[int] = mapped_column(default=0)
+    duration_minutes: Mapped[int] = mapped_column(default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc),
+        server_default=func.now()
     )
-    issue_tracker_sources = db.relationship(
-        'UserIssueTrackerSource',
-        backref='settings',
-        lazy=True,
+    updated_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        server_default=func.now()
+    )
+
+    # Relationships
+    user: Mapped[User] = relationship('User', back_populates='settings')
+    always_shown_activities: Mapped[List['UserAlwaysShownActivity']] = relationship(
+        'UserAlwaysShownActivity',
+        back_populates='settings',
         cascade='all, delete-orphan',
-        order_by='UserIssueTrackerSource.position.asc()',
+        order_by='UserAlwaysShownActivity.position'
+    )
+    issue_tracker_sources: Mapped[List['UserIssueTrackerSource']] = relationship(
+        'UserIssueTrackerSource',
+        back_populates='settings',
+        cascade='all, delete-orphan',
+        order_by='UserIssueTrackerSource.position'
     )
 
 
 class UserAlwaysShownActivity(db.Model):
     __tablename__ = 'user_always_shown_activities'
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_settings_id = db.Column(db.Integer, db.ForeignKey('user_settings.id'), nullable=False, index=True)
-    activity_uuid = db.Column(db.String(64))
-    description = db.Column(db.Text, nullable=False, default='')
-    task = db.Column(db.String(255), nullable=False, default='')
-    position = db.Column(db.Integer, nullable=False, default=0)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_settings_id: Mapped[int] = mapped_column(ForeignKey('user_settings.id'), nullable=False, index=True)
+    activity_uuid: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    description: Mapped[str] = mapped_column(Text, default='')
+    task: Mapped[str] = mapped_column(String(255), default='')
+    position: Mapped[int] = mapped_column(default=0)
+
+    # Relationships
+    settings: Mapped['UserSettings'] = relationship('UserSettings', back_populates='always_shown_activities')
 
 
 class UserIssueTrackerSource(db.Model):
     __tablename__ = 'user_issue_tracker_sources'
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_settings_id = db.Column(db.Integer, db.ForeignKey('user_settings.id'), nullable=False, index=True)
-    name = db.Column(db.String(120), nullable=False)
-    url = db.Column(db.String(512), nullable=False)
-    position = db.Column(db.Integer, nullable=False, default=0)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_settings_id: Mapped[int] = mapped_column(ForeignKey('user_settings.id'), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    url: Mapped[str] = mapped_column(String(512), nullable=False)
+    position: Mapped[int] = mapped_column(default=0)
 
-    projects = db.relationship(
+    # Relationship
+    settings: Mapped['UserSettings'] = relationship('UserSettings', back_populates='issue_tracker_sources')
+    projects: Mapped[List['UserIssueTrackerProject']] = relationship(
         'UserIssueTrackerProject',
-        backref='source',
-        lazy=True,
+        back_populates='source',
         cascade='all, delete-orphan',
-        order_by='UserIssueTrackerProject.position.asc()',
+        order_by='UserIssueTrackerProject.position'
     )
 
 
 class UserIssueTrackerProject(db.Model):
     __tablename__ = 'user_issue_tracker_projects'
 
-    id = db.Column(db.Integer, primary_key=True)
-    source_id = db.Column(db.Integer, db.ForeignKey('user_issue_tracker_sources.id'), nullable=False, index=True)
-    project = db.Column(db.String(64), nullable=False)
-    position = db.Column(db.Integer, nullable=False, default=0)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    source_id: Mapped[int] = mapped_column(ForeignKey('user_issue_tracker_sources.id'), nullable=False, index=True)
+    project: Mapped[str] = mapped_column(String(64), nullable=False)
+    position: Mapped[int] = mapped_column(default=0)
+
+    # Relationships
+    source: Mapped['UserIssueTrackerSource'] = relationship('UserIssueTrackerSource', back_populates='projects')

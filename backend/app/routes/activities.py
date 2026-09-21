@@ -1,7 +1,8 @@
 import traceback
+from datetime import datetime, date, timedelta, time
 
 from flask import Blueprint, request, jsonify
-from datetime import datetime, date, timedelta, time
+
 from app import db, limiter
 from app.models.activity import Activity
 from app.utils.auth import token_required, admin_required
@@ -138,8 +139,8 @@ def _contains_other(source: str, target: str) -> bool:
     return source.lower() in target.lower()
 
 
-def _collect_suggestions(source_items: list[dict], field: str, input_value: str, include_exact_match: bool = False) -> list[str]:
-    suggestions: list[str] = []
+def _collect_suggestions(source_items: list[dict], field: str, input_value: str, include_exact_match: bool = False) -> list[dict[str, str]]:
+    suggestions: list[dict[str, str]] = []
     seen: set[str] = set()
     input_value_lower = input_value.lower().strip()
 
@@ -156,7 +157,7 @@ def _collect_suggestions(source_items: list[dict], field: str, input_value: str,
             if not _contains_other(input_value_lower, candidate_lower):
                 continue
         seen.add(candidate_lower)
-        suggestions.append(candidate)
+        suggestions.append({ 'description': item.get('description', ''), 'task': item.get('task', '') })
 
     return suggestions
 
@@ -242,7 +243,7 @@ def get_activity_suggestions():
         return jsonify({'suggestions': suggestions}), 200
 
     history = _build_suggestion_source(data, current_date, duration_threshold)
-    activity_type = str(data.get('activityType', 'activity')).strip() or 'activity'
+    activity_type = str(data.get('activityType', 'activity')).strip()
     if activity_type not in ('activity', 'text'):
         activity_type = 'activity'
 

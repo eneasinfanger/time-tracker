@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, InjectionToken, model, output } from '@angular/core';
+import { SelectableSuggestion } from '../utils/models';
 
 export const HOST_ELEMENT = new InjectionToken<ElementRef<Element>>('HOST_ELEMENT');
 
@@ -14,14 +15,14 @@ export const HOST_ELEMENT = new InjectionToken<ElementRef<Element>>('HOST_ELEMEN
     '[style.min-width.px]': 'minWidth',
   },
 })
-export class SuggestionDropdownComponent {
+export class SuggestionDropdownComponent<D> {
   readonly hostElement = inject(HOST_ELEMENT);
   readonly thisElement = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  readonly items = model<string[]>([]);
-  readonly select = output<string | null>();
+  readonly items = model<SelectableSuggestion<D>[]>([]);
+  readonly select = output<SelectableSuggestion<D> | null>();
 
-  selectItem(item: string) {
+  selectItem(item: SelectableSuggestion<D>) {
     this.select.emit(item);
   }
 

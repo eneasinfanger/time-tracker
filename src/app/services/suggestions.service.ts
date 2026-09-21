@@ -1,5 +1,6 @@
 import { ApplicationRef, createComponent, ElementRef, EnvironmentInjector, inject, Injectable, Injector } from '@angular/core';
 import { HOST_ELEMENT, SuggestionDropdownComponent } from '../suggestion-dropdown/suggestion-dropdown.component';
+import { SelectableSuggestion } from '../utils/models';
 
 @Injectable({ providedIn: 'root' })
 export class SuggestionsService {
@@ -7,7 +8,7 @@ export class SuggestionsService {
   private envInj = inject(EnvironmentInjector);
   private currentCompRef: any = null;
 
-  openDropdown(host: ElementRef<HTMLInputElement>, suggestions: string[], onSelect: (s: string) => void) {
+  openDropdown<D>(host: ElementRef<HTMLInputElement>, suggestions: SelectableSuggestion<D>[], onSelect: (s: SelectableSuggestion<D>) => void) {
     this.closeDropdown();
 
     const options: Parameters<typeof createComponent>[1] = {
@@ -16,9 +17,9 @@ export class SuggestionsService {
         providers: [{ provide: HOST_ELEMENT, useValue: host }],
       }),
     };
-    const comp = createComponent(SuggestionDropdownComponent, options);
+    const comp = createComponent(SuggestionDropdownComponent<D>, options);
     comp.instance.items.set(suggestions);
-    comp.instance.select.subscribe((s: string | null) => {
+    comp.instance.select.subscribe(s => {
       if (s !== null) {
         onSelect(s);
       }
