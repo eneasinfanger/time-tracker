@@ -47,7 +47,7 @@ export type Settings = {
   issueTrackerSources: IssueTrackerSource[];
 }
 
-export type SelectableSuggestion<D> = { text: string, data: D }
+export type SelectableSuggestion<D> = { text: string, value: string, data: D }
 
 export type ActivitySuggestion = {
   description: string;

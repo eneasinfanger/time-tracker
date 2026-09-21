@@ -1,6 +1,5 @@
 import traceback
 from datetime import datetime, date, timedelta, time
-
 from flask import Blueprint, request, jsonify
 
 from app import db, limiter
@@ -139,30 +138,32 @@ def _contains_other(source: str, target: str) -> bool:
     return source.lower() in target.lower()
 
 
-def _collect_suggestions(source_items: list[dict], field: str, input_value: str, include_exact_match: bool = False) -> list[dict[str, str]]:
+def _collect_suggestions(source_items: list[dict], field: str, input_value: str, include_exact_match: bool = False) -> \
+        list[dict[str, str]]:
     suggestions: list[dict[str, str]] = []
-    seen: set[str] = set()
+    seen: set[tuple[str, str]] = set()
     input_value_lower = input_value.lower().strip()
 
     for item in source_items:
+        if (item.get('description', ''), item.get('task', '')) in seen:
+            continue
         candidate = str(item.get(field, '')).strip()
         if not candidate:
             continue
         candidate_lower = candidate.lower()
-        if candidate_lower in seen:
-            continue
         if input_value_lower:
             if candidate_lower == input_value_lower and not include_exact_match:
                 continue
             if not _contains_other(input_value_lower, candidate_lower):
                 continue
-        seen.add(candidate_lower)
-        suggestions.append({ 'description': item.get('description', ''), 'task': item.get('task', '') })
+        seen.add((str(item.get('description', '')), str(item.get('task', ''))))
+        suggestions.append({'description': item.get('description', ''), 'task': item.get('task', '')})
 
     return suggestions
 
 
-def _collect_history_activities(user_id: int, current_date: date, duration_threshold: timedelta, include_current_date: bool) -> list[dict]:
+def _collect_history_activities(user_id: int, current_date: date, duration_threshold: timedelta,
+                                include_current_date: bool) -> list[dict]:
     start_bound = current_date - duration_threshold
     end_bound = current_date + timedelta(days=1) if include_current_date else current_date
 
@@ -209,7 +210,8 @@ def _build_suggestion_source(data: dict, current_date: date, duration_threshold:
     current_activities = _parse_client_activities(data.get('currentActivities', []))
     include_current_date = not current_activities
 
-    history = _collect_history_activities(request.current_user.id, current_date, duration_threshold, include_current_date)
+    history = _collect_history_activities(request.current_user.id, current_date, duration_threshold,
+                                          include_current_date)
     if current_activities:
         history.extend(current_activities)
 
@@ -217,11 +219,12 @@ def _build_suggestion_source(data: dict, current_date: date, duration_threshold:
 
 
 def _calc_duration_between(t1: time, t2: time) -> timedelta:
-  dt1 = datetime.combine(date.min, t1)
-  dt2 = datetime.combine(date.min, t2)
-  if dt2 < dt1:
-    dt2 += timedelta(days=1)
-  return dt2 - dt1
+    dt1 = datetime.combine(date.min, t1)
+    dt2 = datetime.combine(date.min, t2)
+    if dt2 < dt1:
+        dt2 += timedelta(days=1)
+    return dt2 - dt1
+
 
 @activities_bp.route('/suggestions', methods=['POST'])
 @token_required
@@ -280,8 +283,8 @@ def get_activities():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
 
-    paginated = Activity.query.filter_by(user_id=request.current_user.id)\
-        .order_by(Activity.created_at.desc())\
+    paginated = Activity.query.filter_by(user_id=request.current_user.id) \
+        .order_by(Activity.created_at.desc()) \
         .paginate(page=page, per_page=per_page)
 
     return jsonify({
@@ -290,6 +293,7 @@ def get_activities():
         'pages': paginated.pages,
         'current_page': page
     }), 200
+
 
 @activities_bp.route('/day/<string:activity_date>', methods=['GET'])
 @token_required
@@ -556,4 +560,3 @@ def admin_aggregate():
         return jsonify({'error': 'Invalid period'}), 400
 
     return jsonify({'period': period, 'anchor': anchor.isoformat(), 'data': results}), 200
-

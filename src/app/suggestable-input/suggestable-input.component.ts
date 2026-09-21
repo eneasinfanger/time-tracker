@@ -46,7 +46,7 @@ export class SuggestableInputComponent<D> {
 
   private showSuggestions(suggestions: SelectableSuggestion<D>[]): void {
     this.service.openDropdown(this.hostRef, suggestions, selection => {
-      this.hostRef.nativeElement.value = selection.text;
+      this.hostRef.nativeElement.value = selection.value;
       if (this.moveOnSelection() !== 'none') {
         this.gridNav?.navigate(this.moveOnSelection() === 'next' ? 'right' : 'left');
       }

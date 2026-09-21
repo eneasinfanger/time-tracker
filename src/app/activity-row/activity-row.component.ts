@@ -139,10 +139,27 @@ export class ActivityRowComponent implements OnInit {
   }
 
   private mapToTimeSuggestion(times: Time[]): SelectableSuggestion<Time>[] {
-    return times.map(t => ({ text: t, data: t }));
+    return times.map(t => ({ text: t, value: t, data: t }));
   }
 
   private mapToActivitySuggestion(activitySuggestions: ActivitySuggestion[], displayField: keyof ActivitySuggestion): SelectableSuggestion<ActivitySuggestion>[] {
-    return activitySuggestions.map(as => ({ text: as[displayField], data: as }));
+    return activitySuggestions.map(as => (
+      displayField === 'description'
+        ? {
+          text: as['task'] && !this.isText() ? `${ as['description'] } [${ as['task'] }]` : as['description'],
+          value: as['description'],
+          data: as,
+        }
+        : {
+          text: as['task'],
+          value: as['task'],
+          data: as,
+        }
+    ) satisfies SelectableSuggestion<ActivitySuggestion>)
+      .filter(as => as !== null)
+      .filter((as1, idx, arr) =>
+          arr.findIndex(as2 => as2.text === as1.text) === idx
+      )
+      .sort((as1, as2) => as1.text.localeCompare(as2.text));
   }
 }
