@@ -232,7 +232,7 @@ export class SiteComponent {
   updateActivity(changed: Activity): void {
     const activities = this.activities();
     const idx = activities.findIndex(a => a.id == changed.id);
-    if (!idx) {
+    if (idx < 0) {
       return;
     }
     const copy = [...activities];
