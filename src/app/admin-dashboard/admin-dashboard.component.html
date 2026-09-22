@@ -115,6 +115,16 @@
           <div>
             <input type="date" class="rounded-md border-2 border-transparent bg-clay-muted-surface px-4 py-2.5 text-clay-foreground outline-none transition-colors duration-200 focus:border-clay-accent focus:bg-clay-card" (change)="setAggregateDate($any($event.target).value)" />
           </div>
+
+          <div class="self-start sm:self-auto">
+            <button
+              (click)="exportAggregatePeriod()"
+              class="clay-button inline-flex items-center bg-clay-on-accent px-5 py-3 text-sm font-semibold text-clay-accent"
+              title="Export current day's activities as CSV"
+            >
+              Export
+            </button>
+          </div>
         </div>
 
         <div class="clay-card rounded-lg p-5">

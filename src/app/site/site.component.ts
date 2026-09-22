@@ -241,27 +241,6 @@ export class SiteComponent {
     this.scheduleSave();
   }
 
-  /**
-   * Export current date activities to CSV and download.
-   */
-  exportCsv() {
-    const date = this.currentDateISO();
-    const activities = this.activities();
-
-    const headers = ['date', 'start', 'end', 'description', 'task', 'type'];
-    const escape = (v: any) => {
-      if (v == null) return '';
-      const s = String(v);
-      return '"' + s.replace(/"/g, '""') + '"';
-    };
-
-    const rows = activities.map(a => [date, a.startTime || '', a.endTime || '', a.description || '', a.task || '', a.type || 'activity']);
-
-    const csv = [headers.map(escape).join(',')].concat(rows.map(r => r.map(escape).join(','))).join('\n');
-
-    downloadFile(`time-tracker-${ date }.csv`, [csv], 'text/csv;charset=utf-8;');
-  }
-
   private applyBackendSummary(summary: BackendSummaryResponse, activities: Activity[]) {
     this.summary.set(this.calculator.fromBackendSummary(summary, activities));
   }

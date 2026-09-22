@@ -39,7 +39,7 @@ export class AdminDashboardComponent implements OnInit {
     const mins = this.stats()?.total_minutes ?? 0;
     const hours = Math.floor(mins / 60);
     const remaining = mins % 60;
-    return `${hours}h ${remaining}m`;
+    return `${ hours }h ${ remaining }m`;
   });
 
   // ngOnInit already defined above (initializes stats, activities and aggregate)
@@ -55,7 +55,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => {
         this.error.set('Failed to load admin statistics');
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -69,7 +69,7 @@ export class AdminDashboardComponent implements OnInit {
       error: () => {
         this.activitiesLoading.set(false);
         this.error.set('Failed to load activities');
-      }
+      },
     });
   }
 
@@ -82,7 +82,7 @@ export class AdminDashboardComponent implements OnInit {
       },
       error: () => {
         this.error.set('Failed to load aggregated data');
-      }
+      },
     });
   }
 
@@ -114,8 +114,12 @@ export class AdminDashboardComponent implements OnInit {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     if (hours > 0 && mins > 0) {
-      return `${hours}h ${mins}m`;
+      return `${ hours }h ${ mins }m`;
     }
-    return hours > 0 ? `${hours}h` : `${mins}m`;
+    return hours > 0 ? `${ hours }h` : `${ mins }m`;
+  }
+
+  exportAggregatePeriod(): void {
+    alert('Maybe later..');
   }
 }
