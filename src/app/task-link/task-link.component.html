@@ -1,6 +1,9 @@
 @for (textComponent of taskTextComponents(); track $index) {
   @if (textComponent.link) {
-    <a class="font-semibold text-clay-accent underline decoration-clay-accent/40 underline-offset-2 transition hover:decoration-clay-accent" [href]="textComponent.link">{{ textComponent.text }}</a>
+    <a [href]="textComponent.link" target="_blank" rel="noopener noreferrer"
+       class="font-semibold text-clay-accent underline decoration-clay-accent/40 underline-offset-2 transition hover:decoration-clay-accent">
+      {{ textComponent.text }}
+    </a>
   } @else {
     <span class="text-clay-foreground">{{ textComponent.text }}</span>
   }
