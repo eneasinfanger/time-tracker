@@ -138,7 +138,7 @@ def _contains_other(source: str, target: str) -> bool:
     return source.lower() in target.lower()
 
 
-def _collect_suggestions(source_items: list[dict], field: str, input_value: str, include_exact_match: bool = False) -> \
+def _collect_suggestions(source_items: list[dict], field: str, input_value: str, include_exact_match: bool = True) -> \
         list[dict[str, str]]:
     suggestions: list[dict[str, str]] = []
     seen: set[tuple[str, str]] = set()

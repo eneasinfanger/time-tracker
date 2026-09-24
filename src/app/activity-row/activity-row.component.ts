@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, model, OnInit, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Activity, ActivityDetails, ActivitySuggestion, ActivityType, ISODate, SelectableSuggestion, Time } from '../utils/models';
+import { Activity, ActivitySuggestion, ActivityType, ISODate, SelectableSuggestion, Time } from '../utils/models';
 import { SuggestableInputComponent } from '../suggestable-input/suggestable-input.component';
 import { StorageService } from '../services/storage.service';
 import { SettingsHolder } from '../utils/settings';
@@ -79,7 +79,7 @@ export class ActivityRowComponent implements OnInit {
     this.submitChanges({ type });
   }
 
-  isText(): boolean {
+  isComment(): boolean {
     return this.type === 'text';
   }
 
@@ -112,7 +112,7 @@ export class ActivityRowComponent implements OnInit {
       this.activities(),
       SettingsHolder.getSettings().durationThreshold,
       SettingsHolder.getSettings().alwaysShownActivities,
-    ).pipe(map(s => this.mapToActivitySuggestion(s, 'description')));
+    ).pipe(map(s => this.convertToActivitySuggestion(s, 'description')));
   };
 
   getTaskSuggestions = (value: string) => {
@@ -123,7 +123,7 @@ export class ActivityRowComponent implements OnInit {
       this.activities(),
       SettingsHolder.getSettings().durationThreshold,
       SettingsHolder.getSettings().alwaysShownActivities,
-    ).pipe(map(s => this.mapToActivitySuggestion(s, 'task')));
+    ).pipe(map(s => this.convertToActivitySuggestion(s, 'task')));
   };
 
   setTaskFromDescription(suggestion: SelectableSuggestion<ActivitySuggestion>) {
@@ -142,24 +142,39 @@ export class ActivityRowComponent implements OnInit {
     return times.map(t => ({ text: t, value: t, data: t }));
   }
 
-  private mapToActivitySuggestion(activitySuggestions: ActivitySuggestion[], displayField: keyof ActivitySuggestion): SelectableSuggestion<ActivitySuggestion>[] {
-    return activitySuggestions.map(as => (
-      displayField === 'description'
-        ? {
-          text: as['task'] && !this.isText() ? `${ as['description'] } [${ as['task'] }]` : as['description'],
-          value: as['description'],
-          data: as,
-        }
-        : {
-          text: as['task'],
-          value: as['task'],
-          data: as,
-        }
-    ) satisfies SelectableSuggestion<ActivitySuggestion>)
-      .filter(as => as !== null)
+  private convertToActivitySuggestion(
+    activitySuggestions: ActivitySuggestion[],
+    displayField: 'description' | 'task',
+  ): SelectableSuggestion<ActivitySuggestion>[] {
+    const myActivity = this.activity();
+    const useTasks: boolean = this.enableTasks() && !this.isComment();
+    const isEquivalent = useTasks
+      ? (as1: ActivitySuggestion, as2: ActivitySuggestion) => as1.description === as2.description && as2.task === as1.task
+      : (as1: ActivitySuggestion, as2: ActivitySuggestion) => as1.description === as2.description;
+    return activitySuggestions
       .filter((as1, idx, arr) =>
-          arr.findIndex(as2 => as2.text === as1.text) === idx
+        arr.findIndex(as2 => isEquivalent(as1, as2)) === idx,
       )
+      .filter(as =>
+        displayField === 'description'
+          ? as.description !== myActivity.description || (useTasks && !myActivity.task && as.task)
+          : as.task !== myActivity.task
+      )
+      .map(as => (
+        displayField === 'description'
+          ? {
+            text: useTasks && as['task']
+              ? `${ as['description'] } [${ as['task'] }]`
+              : as['description'],
+            value: as['description'],
+            data: as,
+          }
+          : {
+            text: as['task'],
+            value: as['task'],
+            data: as,
+          }
+      ) satisfies SelectableSuggestion<ActivitySuggestion>)
       .sort((as1, as2) => as1.text.localeCompare(as2.text));
   }
 }
